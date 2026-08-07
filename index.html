@@ -11,13 +11,27 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
 
+    /* CSS KHUSUS TAMPILAN CETAK / PRINT */
     @media print {
-      body * { visibility: hidden; }
-      #printArea, #printArea * { visibility: visible; }
-      #printArea { position: absolute; left: 0; top: 0; width: 100%; color: #000; background: #fff; padding: 20px; }
-      .no-print { display: none !important; }
+      body > *:not(#printArea) { 
+        display: none !important; 
+      }
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      #printArea { 
+        display: block !important; 
+        position: absolute; 
+        left: 0; 
+        top: 0; 
+        width: 100%; 
+        background: #ffffff !important; 
+        color: #000000 !important; 
+        padding: 20px; 
+      }
       table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-      th, td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 12px; color: #000 !important; }
+      th, td { border: 1px solid #000 !important; padding: 8px; text-align: left; font-size: 12px; color: #000 !important; }
       th { background-color: #f2f2f2 !important; font-weight: bold; }
     }
   </style>
@@ -454,7 +468,6 @@
       }
     }
 
-    // TOGGLE CEKLIS SEMUA / BATAL CEKLIS SEMUA PER TANGGAL
     function toggleChecklistAll(date, shouldCheck) {
       const docsToUpdate = documentsData.filter(d => d.tanggal === date && (!d.isLocked || currentRole === 'admin'));
       
@@ -489,7 +502,6 @@
       }
     }
 
-    // FITUR HAPUS DATA SINGLE (ADMIN ONLY)
     function deleteDocument(id) {
       if (currentRole !== 'admin') return;
 
@@ -523,7 +535,6 @@
       });
     }
 
-    // FITUR HAPUS SEMUA DATA PADA TANGGAL TERSEBUT (ADMIN ONLY)
     function deleteGroupDate(date) {
       if (currentRole !== 'admin') return;
 
@@ -646,27 +657,27 @@
       });
 
       printArea.innerHTML = `
-        <div style="font-family: Arial, sans-serif;">
+        <div style="font-family: Arial, sans-serif; color: #000; background: #fff;">
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px;">
             <div>
-              <h2 style="margin: 0; font-size: 18px;">TANDA TERIMA BERKAS DOKUMEN</h2>
-              <p style="margin: 4px 0 0 0; font-size: 12px; color: #555;">SIPENBER - Sistem Penerimaan Berkas</p>
+              <h2 style="margin: 0; font-size: 18px; color: #000;">TANDA TERIMA BERKAS DOKUMEN</h2>
+              <p style="margin: 4px 0 0 0; font-size: 12px; color: #333;">SIPENBER - Sistem Penerimaan Berkas</p>
             </div>
             <div style="text-align: right;">
-              <h3 style="margin: 0; font-size: 14px;">TANGGAL: ${date}</h3>
-              <p style="margin: 4px 0 0 0; font-size: 11px;">Total Berkas: ${docsForDate.length}</p>
+              <h3 style="margin: 0; font-size: 14px; color: #000;">TANGGAL: ${date}</h3>
+              <p style="margin: 4px 0 0 0; font-size: 11px; color: #333;">Total Berkas: ${docsForDate.length}</p>
             </div>
           </div>
 
-          <table>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
             <thead>
-              <tr>
-                <th style="width: 40px; text-align: center;">NO</th>
-                <th>NO PO</th>
-                <th>NAMA VENDOR / PT</th>
-                <th style="text-align: right;">NOMINAL (RP)</th>
-                <th>CATATAN PENERIMAAN</th>
-                <th style="text-align: center;">CEKLIS</th>
+              <tr style="background-color: #f2f2f2;">
+                <th style="border: 1px solid #000; padding: 6px; width: 30px; text-align: center;">NO</th>
+                <th style="border: 1px solid #000; padding: 6px;">NO PO</th>
+                <th style="border: 1px solid #000; padding: 6px;">NAMA VENDOR / PT</th>
+                <th style="border: 1px solid #000; padding: 6px; text-align: right;">NOMINAL (RP)</th>
+                <th style="border: 1px solid #000; padding: 6px;">CATATAN PENERIMAAN</th>
+                <th style="border: 1px solid #000; padding: 6px; text-align: center;">CEKLIS</th>
               </tr>
             </thead>
             <tbody>
@@ -674,14 +685,14 @@
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="3" style="text-align: right; font-weight: bold;">TOTAL NOMINAL:</td>
-                <td style="text-align: right; font-weight: bold;">Rp ${totalNominal.toLocaleString('id-ID')}</td>
-                <td colspan="2"></td>
+                <td colspan="3" style="border: 1px solid #000; padding: 6px; text-align: right; font-weight: bold;">TOTAL NOMINAL:</td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: right; font-weight: bold;">Rp ${totalNominal.toLocaleString('id-ID')}</td>
+                <td colspan="2" style="border: 1px solid #000; padding: 6px;"></td>
               </tr>
             </tfoot>
           </table>
 
-          <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px;">
+          <div style="margin-top: 50px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; color: #000;">
             <div style="width: 200px;">
               <p>Diserahkan Oleh,</p>
               <br><br><br>
@@ -697,7 +708,12 @@
       `;
 
       addLogEntry('Cetak Tanda Terima', `Mencetak Tanda Terima Berkas Tanggal ${date}`);
-      window.print();
+
+      printArea.classList.remove('hidden');
+      setTimeout(() => {
+        window.print();
+        printArea.classList.add('hidden');
+      }, 100);
     }
 
     function renderTable() {
@@ -797,7 +813,6 @@
         });
 
         card.innerHTML = `
-          <!-- DATE HEADER BAR WITH BATCH CONTROLS & PRINT BUTTON -->
           <div class="bg-slate-900/90 px-5 py-4 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-lg">
@@ -815,7 +830,6 @@
               </div>
             </div>
 
-            <!-- BATCH ACTION BUTTONS -->
             <div class="flex flex-wrap items-center gap-2">
               <button onclick="toggleChecklistAll('${date}', true)" class="px-3 py-1.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
                 <i class="fa-solid fa-check-double"></i> Ceklis Semua
@@ -837,7 +851,6 @@
             </div>
           </div>
 
-          <!-- TABLE FOR THIS DATE GROUP -->
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-300">
               <thead class="bg-slate-900/50 uppercase text-[11px] font-semibold text-slate-400 border-b border-slate-700/80">
