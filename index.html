@@ -10,6 +10,17 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
+
+    /* CSS KHUSUS UNTUK CETAK TANDA TERIMA */
+    @media print {
+      body * { visibility: hidden; }
+      #printArea, #printArea * { visibility: visible; }
+      #printArea { position: absolute; left: 0; top: 0; width: 100%; color: #000; background: #fff; padding: 20px; }
+      .no-print { display: none !important; }
+      table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+      th, td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 12px; color: #000 !important; }
+      th { background-color: #f2f2f2 !important; font-weight: bold; }
+    }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
@@ -21,7 +32,7 @@
   </script>
 
   <!-- TOP HEADER -->
-  <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30">
+  <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-orange-500/30">S</div>
@@ -61,7 +72,7 @@
   </header>
 
   <!-- MAIN CONTENT CONTAINER -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6 no-print">
 
     <!-- STATS DASHBOARD CARDS -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -137,42 +148,27 @@
       </div>
     </div>
 
-    <!-- MAIN DATA TABLE -->
-    <div class="bg-slate-800 border border-slate-700/60 rounded-xl overflow-hidden shadow-xl">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-slate-300">
-          <thead class="bg-slate-900/80 uppercase text-xs font-semibold text-slate-400 border-b border-slate-700">
-            <tr>
-              <th class="py-3 px-4 w-12 text-center">NO</th>
-              <th class="py-3 px-4">TANGGAL</th>
-              <th class="py-3 px-4">NO PO</th>
-              <th class="py-3 px-4">NAMA VENDOR</th>
-              <th class="py-3 px-4">NOMINAL (RP)</th>
-              <th class="py-3 px-4">CATATAN PENERIMAAN</th>
-              <th class="py-3 px-4 text-center">CEKLIS</th>
-              <th class="py-3 px-4 text-center">AKSI ADMIN</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody" class="divide-y divide-slate-700/50">
-            <!-- Data Rows Rendered Here -->
-          </tbody>
-        </table>
-      </div>
+    <!-- MAIN DATA CONTAINER (GROUPED BY DATE CARDS) -->
+    <div id="groupedTablesContainer" class="flex flex-col gap-6">
+      <!-- Dynamic Date Card Groups Rendered Here -->
+    </div>
 
-      <!-- EMPTY STATE -->
-      <div id="emptyState" class="hidden flex-col items-center justify-center py-12 text-center">
-        <div class="w-16 h-16 rounded-full bg-slate-700/50 flex items-center justify-center text-slate-500 text-2xl mb-3">
-          <i class="fa-solid fa-folder-open"></i>
-        </div>
-        <p class="text-slate-300 font-medium">Tidak Ada Berkas Ditemukan</p>
-        <p class="text-xs text-slate-500 mt-1">Coba sesuaikan kata kunci pencarian atau filter status.</p>
+    <!-- EMPTY STATE -->
+    <div id="emptyState" class="hidden bg-slate-800 border border-slate-700/60 rounded-xl flex-col items-center justify-center py-16 text-center">
+      <div class="w-16 h-16 rounded-full bg-slate-700/50 flex items-center justify-center text-slate-500 text-2xl mb-3">
+        <i class="fa-solid fa-folder-open"></i>
       </div>
+      <p class="text-slate-300 font-medium">Tidak Ada Berkas Ditemukan</p>
+      <p class="text-xs text-slate-500 mt-1">Coba sesuaikan kata kunci pencarian atau filter status.</p>
     </div>
 
   </main>
 
+  <!-- AREA DOKUMEN CETAK TANDA TERIMA (HIDDEN DI LAYAR, TAMPIL SAAT PRINT) -->
+  <div id="printArea" class="hidden"></div>
+
   <!-- MODAL: ADMIN PASSWORD VERIFICATION -->
-  <div id="modalPassword" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div id="modalPassword" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
     <div class="bg-slate-800 border border-slate-700 rounded-xl max-w-sm w-full p-6 shadow-2xl">
       <div class="text-center mb-5">
         <div class="w-12 h-12 rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl mx-auto mb-2">
@@ -190,7 +186,7 @@
   </div>
 
   <!-- MODAL: CREATE BATCH BERKAS -->
-  <div id="modalCreateBatch" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div id="modalCreateBatch" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
     <div class="bg-slate-800 border border-slate-700 rounded-xl max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[90vh]">
       <div class="flex items-center justify-between pb-4 border-b border-slate-700 mb-4">
         <div>
@@ -218,7 +214,7 @@
   </div>
 
   <!-- MODAL: LOGBOOK ACTIVITIES -->
-  <div id="modalLogbook" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div id="modalLogbook" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
     <div class="bg-slate-800 border border-slate-700 rounded-xl max-w-3xl w-full p-6 shadow-2xl flex flex-col max-h-[85vh]">
       <div class="flex items-center justify-between pb-4 border-b border-slate-700 mb-4">
         <div class="flex items-center gap-2">
@@ -274,8 +270,6 @@
       if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
         fetchDocumentsFromBackend();
         fetchLogsFromBackend();
-      } else {
-        showToast('Mode data lokal (Offline/Mock)', 'info');
       }
       renderTable();
       updateLogCountBadge();
@@ -407,7 +401,7 @@
         if (tanggal && po && vendor) {
           const docItem = {
             id: 'DOC-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-            tanggal: tanggal,
+            tanggal: formatDateString(tanggal),
             noPo: po,
             po: po,
             namaVendor: vendor,
@@ -527,6 +521,253 @@
       }
     }
 
+    // FUNGSI PRINT / CETAK TANDA TERIMA PER TANGGAL
+    function printReceipt(date) {
+      const docsForDate = documentsData.filter(d => d.tanggal === date);
+      if (docsForDate.length === 0) return;
+
+      const printArea = document.getElementById('printArea');
+      let totalNominal = 0;
+
+      let rowsHtml = '';
+      docsForDate.forEach((doc, idx) => {
+        totalNominal += Number(doc.nominal) || 0;
+        rowsHtml += `
+          <tr>
+            <td style="text-align: center;">${idx + 1}</td>
+            <td><strong>${doc.noPo || doc.po}</strong></td>
+            <td>${doc.namaVendor || doc.vendor}</td>
+            <td style="text-align: right;">Rp ${Number(doc.nominal).toLocaleString('id-ID')}</td>
+            <td>${doc.notes || '-'}</td>
+            <td style="text-align: center;">${doc.isChecked ? 'SUDAH' : 'BELUM'}</td>
+          </tr>
+        `;
+      });
+
+      printArea.innerHTML = `
+        <div style="font-family: Arial, sans-serif;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px;">
+            <div>
+              <h2 style="margin: 0; font-size: 18px;">TANDA TERIMA BERKAS DOKUMEN</h2>
+              <p style="margin: 4px 0 0 0; font-size: 12px; color: #555;">SIPENBER - Sistem Penerimaan Berkas</p>
+            </div>
+            <div style="text-align: right;">
+              <h3 style="margin: 0; font-size: 14px;">TANGGAL: ${date}</h3>
+              <p style="margin: 4px 0 0 0; font-size: 11px;">Total Berkas: ${docsForDate.length}</p>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 40px; text-align: center;">NO</th>
+                <th>NO PO</th>
+                <th>NAMA VENDOR / PT</th>
+                <th style="text-align: right;">NOMINAL (RP)</th>
+                <th>CATATAN PENERIMAAN</th>
+                <th style="text-align: center;">CEKLIS</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" style="text-align: right; font-weight: bold;">TOTAL NOMINAL:</td>
+                <td style="text-align: right; font-weight: bold;">Rp ${totalNominal.toLocaleString('id-ID')}</td>
+                <td colspan="2"></td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px;">
+            <div style="width: 200px;">
+              <p>Diserahkan Oleh,</p>
+              <br><br><br>
+              <p>( ____________________ )</p>
+            </div>
+            <div style="width: 200px;">
+              <p>Diterima Oleh,</p>
+              <br><br><br>
+              <p>( ____________________ )</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      addLogEntry('Cetak Tanda Terima', `Mencetak Tanda Terima Berkas Tanggal ${date}`);
+      window.print();
+    }
+
+    // RENDER GROUPED TABLES BY DATE CARDS
+    function renderTable() {
+      const container = document.getElementById('groupedTablesContainer');
+      const emptyState = document.getElementById('emptyState');
+      const searchVal = document.getElementById('searchInput').value.toLowerCase();
+      const filterDate = document.getElementById('filterDate').value;
+      const filterStatus = document.getElementById('filterStatus').value;
+
+      container.innerHTML = '';
+      updateFilterDateOptions();
+
+      // 1. Filter Data
+      const filtered = documentsData.filter(doc => {
+        const po = (doc.noPo || doc.po || '').toLowerCase();
+        const vendor = (doc.namaVendor || doc.vendor || '').toLowerCase();
+        const nominal = (doc.nominal || '').toString();
+
+        const matchSearch = !searchVal || po.includes(searchVal) || vendor.includes(searchVal) || nominal.includes(searchVal);
+        const matchDate = !filterDate || doc.tanggal === filterDate;
+        
+        let matchStatus = true;
+        if (filterStatus === 'checked') matchStatus = doc.isChecked;
+        if (filterStatus === 'unchecked') matchStatus = !doc.isChecked;
+        if (filterStatus === 'locked') matchStatus = doc.isLocked;
+
+        return matchSearch && matchDate && matchStatus;
+      });
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('hidden');
+        emptyState.classList.add('flex');
+        updateDashboardStats();
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      emptyState.classList.remove('flex');
+
+      // 2. Grouping per Tanggal
+      const groups = {};
+      filtered.forEach(item => {
+        const dateKey = item.tanggal || 'Tanpa Tanggal';
+        if (!groups[dateKey]) groups[dateKey] = [];
+        groups[dateKey].push(item);
+      });
+
+      // 3. Render Setiap Group Tanggal
+      Object.keys(groups).forEach(date => {
+        const docs = groups[date];
+        const totalNominal = docs.reduce((sum, d) => sum + (Number(d.nominal) || 0), 0);
+        const completedCount = docs.filter(d => d.isChecked).length;
+
+        const card = document.createElement('div');
+        card.className = 'bg-slate-800 border border-slate-700/60 rounded-xl overflow-hidden shadow-xl';
+
+        let rowsHtml = '';
+        docs.forEach((item, index) => {
+          const isLocked = item.isLocked;
+          const isAdmin = currentRole === 'admin';
+
+          rowsHtml += `
+            <tr class="hover:bg-slate-700/30 transition border-b border-slate-700/50">
+              <td class="py-3 px-4 text-center text-xs font-semibold text-slate-500">${index + 1}</td>
+              <td class="py-3 px-4 font-bold text-orange-400 font-mono">${item.noPo || item.po}</td>
+              <td class="py-3 px-4 font-medium text-slate-200">${item.namaVendor || item.vendor}</td>
+              <td class="py-3 px-4 font-mono text-emerald-400">Rp ${Number(item.nominal).toLocaleString('id-ID')}</td>
+              <td class="py-3 px-4">
+                <input type="text" value="${item.notes || ''}" 
+                  onblur="updateNotes('${item.id}', this.value)" 
+                  ${isLocked ? 'disabled' : ''}
+                  placeholder="${isLocked ? 'Terkunci' : 'Tambah catatan...'}"
+                  class="w-full bg-slate-900/60 border border-slate-700/80 rounded px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-orange-500 disabled:opacity-50 disabled:bg-slate-800">
+              </td>
+              <td class="py-3 px-4 text-center">
+                <input type="checkbox" ${item.isChecked ? 'checked' : ''} 
+                  onchange="toggleChecklist('${item.id}', this.checked)"
+                  ${isLocked ? 'disabled' : ''}
+                  class="w-4 h-4 accent-orange-500 rounded cursor-pointer disabled:cursor-not-allowed">
+              </td>
+              <td class="py-3 px-4 text-center">
+                ${isAdmin && isLocked ? `
+                  <button onclick="unlockDoc('${item.id}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500 hover:text-slate-900 rounded text-xs font-semibold flex items-center gap-1 mx-auto transition">
+                    <i class="fa-solid fa-lock-open"></i> Unlock
+                  </button>
+                ` : `
+                  <span class="text-xs text-slate-500">${isLocked ? '<i class="fa-solid fa-lock text-amber-400"></i> Terkunci' : '-'}</span>
+                `}
+              </td>
+            </tr>
+          `;
+        });
+
+        card.innerHTML = `
+          <!-- DATE HEADER BAR WITH PRINT BUTTON -->
+          <div class="bg-slate-900/90 px-5 py-4 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-calendar-check"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-base text-white font-mono">${date}</h3>
+                  <span class="bg-slate-700 text-slate-300 text-xs px-2 py-0.5 rounded-full font-medium">${docs.length} Berkas</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-0.5">
+                  Total Nominal: <span class="font-bold text-emerald-400">Rp ${totalNominal.toLocaleString('id-ID')}</span> | 
+                  Progress: <span class="font-semibold text-white">${completedCount} dari ${docs.length} Selesai</span>
+                </p>
+              </div>
+            </div>
+
+            <button onclick="printReceipt('${date}')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition">
+              <i class="fa-solid fa-print"></i> Cetak Tanda Terima
+            </button>
+          </div>
+
+          <!-- TABLE FOR THIS DATE GROUP -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-300">
+              <thead class="bg-slate-900/50 uppercase text-[11px] font-semibold text-slate-400 border-b border-slate-700/80">
+                <tr>
+                  <th class="py-3 px-4 w-12 text-center">NO</th>
+                  <th class="py-3 px-4">NO PO</th>
+                  <th class="py-3 px-4">NAMA VENDOR / PT</th>
+                  <th class="py-3 px-4">NOMINAL (RP)</th>
+                  <th class="py-3 px-4">CATATAN PENERIMAAN</th>
+                  <th class="py-3 px-4 text-center">CEKLIS</th>
+                  <th class="py-3 px-4 text-center">STATUS</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-700/50">
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      updateDashboardStats();
+    }
+
+    function updateDashboardStats() {
+      document.getElementById('statTotal').innerText = documentsData.length;
+      document.getElementById('statChecked').innerText = documentsData.filter(d => d.isChecked).length;
+      document.getElementById('statLocked').innerText = documentsData.filter(d => d.isLocked).length;
+
+      const uniqueDates = new Set(documentsData.map(d => d.tanggal));
+      document.getElementById('statDates').innerText = uniqueDates.size;
+    }
+
+    function updateFilterDateOptions() {
+      const select = document.getElementById('filterDate');
+      const currentVal = select.value;
+      const uniqueDates = [...new Set(documentsData.map(d => d.tanggal))];
+
+      select.innerHTML = '<option value="">Semua Tanggal</option>';
+      uniqueDates.forEach(date => {
+        if (date) {
+          const opt = document.createElement('option');
+          opt.value = date;
+          opt.innerText = date;
+          if (date === currentVal) opt.selected = true;
+          select.appendChild(opt);
+        }
+      });
+    }
+
     function addLogEntry(actionName, details) {
       const newLog = {
         id: 'LOG-' + Date.now(),
@@ -546,6 +787,36 @@
           body: JSON.stringify({ action: 'addLogbookEntry', logData: newLog })
         });
       }
+    }
+
+    function renderLogbookTable() {
+      const tbody = document.getElementById('logbookTableBody');
+      const roleFilter = document.getElementById('logRoleFilter').value;
+      const searchVal = document.getElementById('logSearch').value.toLowerCase();
+
+      tbody.innerHTML = '';
+
+      const filtered = logsData.filter(log => {
+        const matchRole = !roleFilter || log.role === roleFilter;
+        const matchSearch = !searchVal || log.details.toLowerCase().includes(searchVal) || log.action.toLowerCase().includes(searchVal);
+        return matchRole && matchSearch;
+      });
+
+      filtered.forEach(log => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-700/20';
+        tr.innerHTML = `
+          <td class="py-2 px-3 text-slate-400 whitespace-nowrap font-mono">${log.timestamp}</td>
+          <td class="py-2 px-3">
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${log.role === 'admin' ? 'bg-orange-500/20 text-orange-400' : 'bg-blue-500/20 text-blue-400'}">
+              ${log.role.toUpperCase()}
+            </span>
+          </td>
+          <td class="py-2 px-3 font-semibold text-slate-200">${log.action}</td>
+          <td class="py-2 px-3 text-slate-300">${log.details}</td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
     function clearLogbookData() {
@@ -591,138 +862,6 @@
           }
           showToast('Logbook dibersihkan', 'success');
         }
-      });
-    }
-
-    function renderTable() {
-      const tbody = document.getElementById('tableBody');
-      const emptyState = document.getElementById('emptyState');
-      const searchVal = document.getElementById('searchInput').value.toLowerCase();
-      const filterDate = document.getElementById('filterDate').value;
-      const filterStatus = document.getElementById('filterStatus').value;
-
-      tbody.innerHTML = '';
-      updateFilterDateOptions();
-
-      const filtered = documentsData.filter(doc => {
-        const po = (doc.noPo || doc.po || '').toLowerCase();
-        const vendor = (doc.namaVendor || doc.vendor || '').toLowerCase();
-        const nominal = (doc.nominal || '').toString();
-
-        const matchSearch = !searchVal || po.includes(searchVal) || vendor.includes(searchVal) || nominal.includes(searchVal);
-        const matchDate = !filterDate || doc.tanggal === filterDate;
-        
-        let matchStatus = true;
-        if (filterStatus === 'checked') matchStatus = doc.isChecked;
-        if (filterStatus === 'unchecked') matchStatus = !doc.isChecked;
-        if (filterStatus === 'locked') matchStatus = doc.isLocked;
-
-        return matchSearch && matchDate && matchStatus;
-      });
-
-      if (filtered.length === 0) {
-        emptyState.classList.remove('hidden');
-        emptyState.classList.add('flex');
-      } else {
-        emptyState.classList.add('hidden');
-        emptyState.classList.remove('flex');
-
-        filtered.forEach((item, index) => {
-          const tr = document.createElement('tr');
-          tr.className = 'hover:bg-slate-700/30 transition border-b border-slate-700/50';
-
-          const isLocked = item.isLocked;
-          const isAdmin = currentRole === 'admin';
-
-          tr.innerHTML = `
-            <td class="py-3 px-4 text-center text-xs font-semibold text-slate-500">${index + 1}</td>
-            <td class="py-3 px-4 font-medium text-slate-200 whitespace-nowrap">${item.tanggal}</td>
-            <td class="py-3 px-4 font-bold text-orange-400 font-mono">${item.noPo || item.po}</td>
-            <td class="py-3 px-4 font-medium text-slate-200">${item.namaVendor || item.vendor}</td>
-            <td class="py-3 px-4 font-mono text-emerald-400">Rp ${Number(item.nominal).toLocaleString('id-ID')}</td>
-            <td class="py-3 px-4">
-              <input type="text" value="${item.notes || ''}" 
-                onblur="updateNotes('${item.id}', this.value)" 
-                ${isLocked ? 'disabled' : ''}
-                placeholder="${isLocked ? 'Terkunci' : 'Tambah catatan...'}"
-                class="w-full bg-slate-900/60 border border-slate-700/80 rounded px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-orange-500 disabled:opacity-50 disabled:bg-slate-800">
-            </td>
-            <td class="py-3 px-4 text-center">
-              <input type="checkbox" ${item.isChecked ? 'checked' : ''} 
-                onchange="toggleChecklist('${item.id}', this.checked)"
-                ${isLocked ? 'disabled' : ''}
-                class="w-4 h-4 accent-orange-500 rounded cursor-pointer disabled:cursor-not-allowed">
-            </td>
-            <td class="py-3 px-4 text-center">
-              ${isAdmin && isLocked ? `
-                <button onclick="unlockDoc('${item.id}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500 hover:text-slate-900 rounded text-xs font-semibold flex items-center gap-1 mx-auto transition">
-                  <i class="fa-solid fa-lock-open"></i> Unlock
-                </button>
-              ` : `
-                <span class="text-xs text-slate-500">${isLocked ? '<i class="fa-solid fa-lock text-amber-400"></i> Terkunci' : '-'}</span>
-              `}
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-
-      updateDashboardStats();
-    }
-
-    function updateDashboardStats() {
-      document.getElementById('statTotal').innerText = documentsData.length;
-      document.getElementById('statChecked').innerText = documentsData.filter(d => d.isChecked).length;
-      document.getElementById('statLocked').innerText = documentsData.filter(d => d.isLocked).length;
-
-      const uniqueDates = new Set(documentsData.map(d => d.tanggal));
-      document.getElementById('statDates').innerText = uniqueDates.size;
-    }
-
-    function updateFilterDateOptions() {
-      const select = document.getElementById('filterDate');
-      const currentVal = select.value;
-      const uniqueDates = [...new Set(documentsData.map(d => d.tanggal))];
-
-      select.innerHTML = '<option value="">Semua Tanggal</option>';
-      uniqueDates.forEach(date => {
-        if (date) {
-          const opt = document.createElement('option');
-          opt.value = date;
-          opt.innerText = date;
-          if (date === currentVal) opt.selected = true;
-          select.appendChild(opt);
-        }
-      });
-    }
-
-    function renderLogbookTable() {
-      const tbody = document.getElementById('logbookTableBody');
-      const roleFilter = document.getElementById('logRoleFilter').value;
-      const searchVal = document.getElementById('logSearch').value.toLowerCase();
-
-      tbody.innerHTML = '';
-
-      const filtered = logsData.filter(log => {
-        const matchRole = !roleFilter || log.role === roleFilter;
-        const matchSearch = !searchVal || log.details.toLowerCase().includes(searchVal) || log.action.toLowerCase().includes(searchVal);
-        return matchRole && matchSearch;
-      });
-
-      filtered.forEach(log => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-700/20';
-        tr.innerHTML = `
-          <td class="py-2 px-3 text-slate-400 whitespace-nowrap font-mono">${log.timestamp}</td>
-          <td class="py-2 px-3">
-            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${log.role === 'admin' ? 'bg-orange-500/20 text-orange-400' : 'bg-blue-500/20 text-blue-400'}">
-              ${log.role.toUpperCase()}
-            </span>
-          </td>
-          <td class="py-2 px-3 font-semibold text-slate-200">${log.action}</td>
-          <td class="py-2 px-3 text-slate-300">${log.details}</td>
-        `;
-        tbody.appendChild(tr);
       });
     }
 
@@ -793,6 +932,15 @@
       if (savedLogs) {
         try { logsData = JSON.parse(savedLogs); } catch (e) { logsData = []; }
       }
+    }
+
+    function formatDateString(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return dateStr;
     }
 
     function getFormattedTimestamp() {
