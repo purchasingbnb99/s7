@@ -413,7 +413,7 @@
     // ------------------------------------------
     // SAMPLE MODULE LOGIC & COMPRESSION
     // ------------------------------------------
-    function compressImage(file, maxWidth = 800, quality = 0.6) {
+    function compressImage(file, maxWidth = 600, quality = 0.4) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -509,16 +509,16 @@
 
       let fotoBase64 = '';
       if (fileInput.files && fileInput.files[0]) {
-        showToast('Mengompresi foto...', 'info');
+        showToast('Memproses & mengompresi foto...', 'info');
         try {
-          fotoBase64 = await compressImage(fileInput.files[0], 800, 0.6);
+          fotoBase64 = await compressImage(fileInput.files[0], 600, 0.4);
         } catch (e) {
           console.error('Compress Error:', e);
         }
       }
 
       const formattedDate = formatDateString(tanggalInput);
-      showToast('Mengunggah data & foto...', 'info');
+      showToast('Mengunggah ke server...', 'info');
 
       const payload = {
         action: editId ? 'updateSample' : 'createSample',
@@ -531,10 +531,15 @@
       };
 
       if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
+        const formBody = new URLSearchParams();
+        for (const key in payload) {
+          formBody.append(key, payload[key]);
+        }
+
         fetch(GAS_API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: formBody.toString()
         })
         .then(res => res.json())
         .then(res => {
@@ -577,10 +582,14 @@
           addLogEntry('Hapus Sample', `Menghapus sample: ${smp.namaBarang}`);
 
           if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
+            const formBody = new URLSearchParams();
+            formBody.append('action', 'deleteSample');
+            formBody.append('id', id);
+
             fetch(GAS_API_URL, {
               method: 'POST',
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify({ action: 'deleteSample', id: id })
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+              body: formBody.toString()
             });
           }
           showToast('Data sample dihapus', 'success');
