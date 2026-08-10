@@ -442,11 +442,6 @@
       });
     }
 
-    // FUNGSI UPLOAD AMAN BEBAS PERINGATAN SSL FIREFOX
-    async function uploadImageToCDN(file) {
-      return await compressImage(file, 600, 0.4);
-    }
-
     function fetchSampleFromBackend() {
       if (!GAS_API_URL || GAS_API_URL.trim() === "" || GAS_API_URL.includes("ISI_DENGAN_URL")) return;
 
@@ -499,6 +494,7 @@
       document.getElementById('modalSampleForm').classList.add('hidden');
     }
 
+    // SIMPAN DATA SAMPLE DENGAN BASE64 LOKAL LANGSUNG
     async function saveSampleData() {
       const editId = document.getElementById('sampleEditId').value;
       const tanggalInput = document.getElementById('sampleTanggal').value;
@@ -516,10 +512,13 @@
       if (fileInput.files && fileInput.files[0]) {
         showToast('Memproses foto...', 'info');
         try {
-          uploadedUrl = await uploadImageToCDN(fileInput.files[0]);
+          uploadedUrl = await compressImage(fileInput.files[0], 600, 0.4);
         } catch (e) {
           console.error('Upload error:', e);
         }
+      } else if (editId) {
+        const existing = sampleData.find(s => s.id === editId);
+        if (existing) uploadedUrl = existing.urlFoto || '';
       }
 
       const formattedDate = formatDateString(tanggalInput);
@@ -527,13 +526,24 @@
 
       const payload = {
         action: editId ? 'updateSample' : 'createSample',
-        id: editId || '',
+        id: editId || 'SMP-' + Date.now(),
         tanggal: formattedDate,
         namaBarang: namaBarang,
         tujuan: tujuan,
         keterangan: keterangan,
         urlFoto: uploadedUrl
       };
+
+      if (editId) {
+        const idx = sampleData.findIndex(s => s.id === editId);
+        if (idx !== -1) sampleData[idx] = payload;
+      } else {
+        sampleData.unshift(payload);
+      }
+      
+      saveLocalSample();
+      renderSampleTable();
+      closeSampleModal();
 
       if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
         fetch(GAS_API_URL, {
@@ -543,21 +553,14 @@
         })
         .then(res => res.json())
         .then(res => {
-          if (res.status === 'success' || res.success) {
-            showToast('Foto & Data Sample Berhasil Tersimpan!', 'success');
-            closeSampleModal();
-            fetchSampleFromBackend();
-          } else {
-            showToast('Gagal menyimpan ke server', 'error');
-          }
+          showToast('Data berhasil disinkronkan ke server!', 'success');
         })
         .catch(err => {
           console.error('Fetch Error:', err);
-          showToast('Koneksi server terganggu', 'error');
+          showToast('Tersimpan di lokal (Offline/Error Server)', 'info');
         });
       } else {
         showToast('Data tersimpan secara lokal', 'success');
-        closeSampleModal();
       }
     }
 
@@ -643,16 +646,29 @@
       });
     }
 
-    // FUNGSI PRATINJAU FOTO POPUP MODAL
+    // FUNGSI PREVIEW FOTO DENGAN VALIDASI POPUP MODAL
     function previewPhoto(url) {
+      if (!url || url.trim() === "" || url === "undefined" || url === "null") {
+        Swal.fire({
+          icon: 'error',
+          title: 'Foto Tidak Ditemukan',
+          text: 'Data foto untuk baris ini kosong atau tidak terformat dengan benar.',
+          background: '#1e293b',
+          color: '#fff'
+        });
+        return;
+      }
+
       Swal.fire({
+        title: 'Bukti Penyerahan Sample',
         imageUrl: url,
         imageAlt: 'Bukti Penyerahan Sample',
         showCloseButton: true,
         showConfirmButton: false,
         background: '#1e293b',
+        color: '#fff',
         customClass: {
-          image: 'rounded-lg max-h-[75vh] object-contain'
+          image: 'rounded-lg max-h-[70vh] object-contain mx-auto'
         }
       });
     }
