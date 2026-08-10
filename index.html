@@ -443,7 +443,7 @@
       });
     }
 
-    // FUNGSI UPLOAD CDN DENGAN HYBRID FALLBACK (ANTI-GAGAL)
+    // FUNGSI UPLOAD DENGAN FORCE HTTPS & SAFE VIEWER URL (SOLUSI FIX FIREFOX SSL)
     async function uploadImageToCDN(file) {
       try {
         const compressedBase64 = await compressImage(file, 800, 0.6);
@@ -459,14 +459,19 @@
         });
 
         const data = await response.json();
-        if (data && data.success && data.data && data.data.url) {
-          return data.data.url;
+        if (data && data.success && data.data) {
+          // Menggunakan display_url / url_viewer dengan protokol HTTPS resmi
+          let safeUrl = data.data.display_url || data.data.url_viewer || data.data.url;
+          if (safeUrl.startsWith('http://')) {
+            safeUrl = safeUrl.replace('http://', 'https://');
+          }
+          return safeUrl;
         } else {
           console.warn('ImgBB Warning, memakai Base64 fallback:', data);
           return compressedBase64;
         }
       } catch (err) {
-        console.error('Unggah CDN gagal, memakai fallback Base64:', err);
+        console.error('Unggah CDN terblokir SSL, memakai fallback Base64:', err);
         return await compressImage(file, 500, 0.3);
       }
     }
@@ -649,7 +654,7 @@
           <td class="py-3.5 px-4 text-xs text-slate-400">${item.keterangan || '-'}</td>
           <td class="py-3.5 px-4 text-center">
             ${item.urlFoto ? `
-              <a href="${item.urlFoto}" target="_blank" class="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white rounded text-xs font-semibold inline-flex items-center gap-1 transition">
+              <a href="${item.urlFoto}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white rounded text-xs font-semibold inline-flex items-center gap-1 transition">
                 <i class="fa-solid fa-image"></i> Lihat Foto
               </a>
             ` : '<span class="text-xs text-slate-600">Tanpa Foto</span>'}
