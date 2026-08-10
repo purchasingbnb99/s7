@@ -413,7 +413,7 @@
     // ------------------------------------------
     // SAMPLE MODULE LOGIC & COMPRESSION
     // ------------------------------------------
-    function compressImage(file, maxWidth = 1000, quality = 0.7) {
+    function compressImage(file, maxWidth = 800, quality = 0.6) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -511,86 +511,48 @@
       if (fileInput.files && fileInput.files[0]) {
         showToast('Mengompresi foto...', 'info');
         try {
-          fotoBase64 = await compressImage(fileInput.files[0]);
+          fotoBase64 = await compressImage(fileInput.files[0], 800, 0.6);
         } catch (e) {
-          console.error('Compress error:', e);
+          console.error('Compress Error:', e);
         }
       }
 
       const formattedDate = formatDateString(tanggalInput);
+      showToast('Mengunggah data & foto...', 'info');
 
-      if (editId) {
-        const smp = sampleData.find(s => s.id === editId);
-        if (smp) {
-          smp.tanggal = formattedDate;
-          smp.namaBarang = namaBarang;
-          smp.tujuan = tujuan;
-          smp.keterangan = keterangan;
+      const payload = {
+        action: editId ? 'updateSample' : 'createSample',
+        id: editId || '',
+        tanggal: formattedDate,
+        namaBarang: namaBarang,
+        tujuan: tujuan,
+        keterangan: keterangan,
+        fotoBase64: fotoBase64
+      };
 
-          saveLocalSample();
-          renderSampleTable();
-          closeSampleModal();
-          addLogEntry('Edit Sample', `Mengedit sample: ${namaBarang}`);
-
-          if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-            showToast('Menyimpan ke Google Drive & Sheets...', 'info');
-            fetch(GAS_API_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify({
-                action: 'updateSample',
-                id: editId,
-                tanggal: formattedDate,
-                namaBarang: namaBarang,
-                tujuan: tujuan,
-                keterangan: keterangan,
-                fotoBase64: fotoBase64
-              })
-            }).then(() => fetchSampleFromBackend());
+      if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
+        fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.status === 'success' || res.success) {
+            showToast('Berhasil menyimpan data & foto!', 'success');
+            closeSampleModal();
+            fetchSampleFromBackend();
+          } else {
+            showToast('Gagal menyimpan ke server', 'error');
           }
-          showToast('Data sample diperbarui!', 'success');
-        }
+        })
+        .catch(err => {
+          console.error('Fetch Error:', err);
+          showToast('Koneksi terganggu', 'error');
+        });
       } else {
-        const newSample = {
-          id: 'SMP-' + Date.now(),
-          tanggal: formattedDate,
-          namaBarang: namaBarang,
-          tujuan: tujuan,
-          keterangan: keterangan,
-          urlFoto: '',
-          timestamp: new Date().toLocaleString('id-ID')
-        };
-
-        sampleData.unshift(newSample);
-        saveLocalSample();
-        renderSampleTable();
+        showToast('Data tersimpan lokal', 'success');
         closeSampleModal();
-        addLogEntry('Input Sample', `Menambahkan sample: ${namaBarang} ke ${tujuan}`);
-
-        if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-          showToast('Mengunggah foto ke Google Drive...', 'info');
-          fetch(GAS_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-              action: 'createSample',
-              tanggal: formattedDate,
-              namaBarang: namaBarang,
-              tujuan: tujuan,
-              keterangan: keterangan,
-              fotoBase64: fotoBase64
-            })
-          })
-          .then(res => res.json())
-          .then(res => {
-            if (res.status === 'success' || res.success) {
-              showToast('Foto & Data Sample Berhasil Tersimpan!', 'success');
-              fetchSampleFromBackend();
-            }
-          });
-        } else {
-          showToast('Data tersimpan secara lokal', 'success');
-        }
       }
     }
 
