@@ -3,27 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIPENBER - Sistem Penerimaan Berkas & Sample</title>
+  <title>SIPENBER - Sistem Penerimaan Berkas & Penyerahan Sample</title>
+  
+  <!-- FAVICON & BOOKMARK LOGO S ORANGE (SVG) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23f97316'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='65'>S</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23f97316'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='65'>S</text></svg>">
+  <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23f97316'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='65'>S</text></svg>">
+
+  <!-- TAILWIND CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FONT AWESOME ICONS CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SWEETALERT2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
+
+    /* PRINT STYLES FOR RECEIPT */
+    @media print {
+      body > *:not(#printArea) { display: none !important; }
+      body { background: #ffffff !important; color: #000000 !important; }
+      #printArea { 
+        display: block !important; 
+        position: absolute; 
+        left: 0; top: 0; 
+        width: 100%; 
+        background: #ffffff !important; 
+        color: #000000 !important; 
+        padding: 20px; 
+      }
+      table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+      th, td { border: 1px solid #000 !important; padding: 8px; text-align: left; font-size: 12px; color: #000 !important; }
+      th { background-color: #f2f2f2 !important; font-weight: bold; }
+    }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased">
 
   <script>
-    // MASUKKAN URL WEB APP HASIL DEPLOYMENT ANDA DI SINI (BERAKHIRAN /exec)
+    // MASUKKAN URL GOOGLE APPS SCRIPT BERAKHIRAN /exec DI SINI SETELAH DEPLOYMENT
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxf0cuja3sYJA-qdv3mxZV9PeDjZzMd4DbL8oMk82HIqC78G0RydEW_gS1qxsdtLc1p7g/exec";
   </script>
 
-  <!-- HEADER -->
-  <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+  <!-- HEADER NAVBAR -->
+  <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center font-bold text-xl text-white shadow-lg">S</div>
+        <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-orange-500/20">S</div>
         <div>
           <h1 class="font-bold text-lg text-orange-500 tracking-wide leading-none">SIPENBER</h1>
           <p class="text-[10px] text-slate-400 mt-1">Sistem Penerimaan Berkas & Penyerahan Sample</p>
@@ -31,19 +59,25 @@
       </div>
       
       <div class="flex items-center gap-3">
-        <!-- BADGE AKSES -->
+        <!-- ROLE STATUS BADGE -->
         <div class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 text-xs flex items-center gap-2">
           <span class="text-slate-400">Akses:</span>
-          <span id="roleBadge" class="text-emerald-400 font-bold flex items-center gap-1"><i class="fa-solid fa-user-check"></i> Staff / Penerima</span>
+          <span id="roleBadge" class="text-emerald-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-user-check"></i> Staff / Penerima
+          </span>
         </div>
 
-        <!-- TOMBOL SWITCH ROLE -->
+        <!-- ROLE SWITCHER BUTTONS -->
         <div class="bg-slate-900 p-1 rounded-lg flex gap-1 border border-slate-700">
-          <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow"><i class="fa-solid fa-user"></i> Staff / Penerima</button>
-          <button id="btnRoleAdmin" onclick="switchRole('admin')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition"><i class="fa-solid fa-user-shield"></i> Admin</button>
+          <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow transition">
+            <i class="fa-solid fa-user mr-1"></i> Staff / Penerima
+          </button>
+          <button id="btnRoleAdmin" onclick="switchRole('admin')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition">
+            <i class="fa-solid fa-user-shield mr-1"></i> Admin
+          </button>
         </div>
 
-        <!-- INDIKATOR KONEKSI -->
+        <!-- DATABASE CONNECTION STATUS INDICATOR -->
         <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-full border border-slate-700">
           <div id="dbIndicator" class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse"></div>
           <span id="dbText" class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">CONNECTING</span>
@@ -51,40 +85,173 @@
       </div>
     </div>
 
-    <!-- TAB NAVIGASI -->
-    <div class="bg-slate-900 border-b border-slate-700 px-4 flex gap-1">
-      <button id="tabBerkas" onclick="switchModule('berkas')" class="py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-folder-closed"></i> Penerimaan Berkas PO</button>
-      <button id="tabSample" onclick="switchModule('sample')" class="py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-vial"></i> Penyerahan Sample</button>
+    <!-- TABS MODULE NAVIGATION -->
+    <div class="bg-slate-900 border-b border-slate-700 no-print">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-1 overflow-x-auto">
+        <button id="tabBerkas" onclick="switchModule('berkas')" class="py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap transition">
+          <i class="fa-solid fa-folder-closed"></i> Penerimaan Berkas PO
+        </button>
+        <button id="tabSample" onclick="switchModule('sample')" class="py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap transition">
+          <i class="fa-solid fa-vial"></i> Penyerahan Sample
+        </button>
+        <button id="tabLogbook" onclick="switchModule('logbook')" class="py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap transition">
+          <i class="fa-solid fa-book-bookmark"></i> Logbook Aktivitas
+          <span id="logCounterBadge" class="ml-1 px-1.5 py-0.2 bg-orange-500/20 text-orange-400 text-[10px] rounded-full border border-orange-500/30 font-mono">0</span>
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6 no-print">
     
-    <!-- MODUL 1: BERKAS -->
+    <!-- MODUL 1: PENERIMAAN BERKAS PO -->
     <div id="moduleBerkasContainer" class="flex flex-col gap-6">
+      
+      <!-- DASHBOARD CARDS WITH ICON BADGES -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Berkas</p><h3 id="statTotal" class="text-2xl font-bold text-white mt-1">0</h3></div></div>
-        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Diceklis</p><h3 id="statChecked" class="text-2xl font-bold text-emerald-400 mt-1">0</h3></div></div>
-        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Terkunci</p><h3 id="statLocked" class="text-2xl font-bold text-amber-400 mt-1">0</h3></div></div>
-        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Tanggal</p><h3 id="statDates" class="text-2xl font-bold text-purple-400 mt-1">0</h3></div></div>
+        <!-- TOTAL BERKAS CARD -->
+        <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl shadow-lg flex flex-col justify-between">
+          <div class="flex justify-between items-center">
+            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Berkas</p>
+            <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-500/30 text-sm shadow-inner">
+              <i class="fa-solid fa-copy"></i>
+            </div>
+          </div>
+          <h3 id="statTotal" class="text-2xl font-bold text-white mt-1">0</h3>
+        </div>
+
+        <!-- SUDAH DICEKLIS CARD -->
+        <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl shadow-lg flex flex-col justify-between">
+          <div class="flex justify-between items-center">
+            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Sudah Diceklis</p>
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 text-sm shadow-inner">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+          </div>
+          <h3 id="statChecked" class="text-2xl font-bold text-emerald-400 mt-1">0</h3>
+        </div>
+
+        <!-- TERKUNCI CARD -->
+        <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl shadow-lg flex flex-col justify-between">
+          <div class="flex justify-between items-center">
+            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Terkunci</p>
+            <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30 text-sm shadow-inner">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+          </div>
+          <h3 id="statLocked" class="text-2xl font-bold text-amber-400 mt-1">0</h3>
+        </div>
+
+        <!-- TOTAL TANGGAL CARD -->
+        <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl shadow-lg flex flex-col justify-between">
+          <div class="flex justify-between items-center">
+            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Tanggal</p>
+            <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center border border-purple-500/30 text-sm shadow-inner">
+              <i class="fa-solid fa-calendar-days"></i>
+            </div>
+          </div>
+          <h3 id="statDates" class="text-2xl font-bold text-purple-400 mt-1">0</h3>
+        </div>
       </div>
 
+      <!-- SEARCH AND FILTER BAR WITH DROPDOWNS -->
+      <div class="bg-slate-800 border border-slate-700/60 p-3.5 rounded-xl flex flex-wrap gap-3 items-center justify-between shadow-lg">
+        <!-- SEARCH INPUT -->
+        <div class="relative flex-1 min-w-[240px]">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text" id="searchInput" oninput="renderTable()" placeholder="Cari No PO, Nama Vendor, Nominal..." class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500">
+        </div>
+
+        <!-- FILTER DROPDOWNS & REFRESH BUTTON -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <!-- FILTER DROPDOWN 1: SEMUA TANGGAL -->
+          <select id="dateFilterSelect" onchange="renderTable()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 outline-none focus:border-orange-500 cursor-pointer">
+            <option value="ALL">Semua Tanggal</option>
+          </select>
+
+          <!-- FILTER DROPDOWN 2: SEMUA STATUS -->
+          <select id="statusFilterSelect" onchange="renderTable()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 outline-none focus:border-orange-500 cursor-pointer">
+            <option value="ALL">Semua Status</option>
+            <option value="CHECKED">Sudah Diceklis</option>
+            <option value="UNCHECKED">Belum Diceklis</option>
+            <option value="LOCKED">Terkunci</option>
+          </select>
+
+          <!-- REFRESH BUTTON -->
+          <button onclick="loadBerkasData()" class="px-3.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-rotate"></i> Refresh Data
+          </button>
+        </div>
+      </div>
+
+      <!-- GROUPED TABLES CONTAINER (SORTED NEWEST DATES ON TOP) -->
       <div id="groupedTablesContainer" class="flex flex-col gap-6">
-        <p class="text-slate-500 text-center py-10">Memuat data dari database...</p>
+        <p class="text-slate-500 text-center py-12">Memuat data dari database...</p>
       </div>
     </div>
 
-    <!-- MODUL 2: SAMPLE -->
+    <!-- MODUL 2: PENYERAHAN SAMPLE -->
     <div id="moduleSampleContainer" class="hidden flex-col gap-6">
-      <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl p-5">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="font-bold text-white text-base flex items-center gap-2"><i class="fa-solid fa-vial text-orange-400"></i> Data Penyerahan Sample</h3>
+      <div class="bg-slate-800 border border-slate-700/60 rounded-2xl overflow-hidden shadow-xl p-5">
+        <div class="flex flex-wrap justify-between items-center mb-4 gap-3">
+          <div>
+            <h3 class="font-bold text-white text-base flex items-center gap-2">
+              <i class="fa-solid fa-vial text-orange-400"></i> Data Penyerahan Sample
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">Daftar rekapan penyerahan sample barang, waktu penginputan, dan verifikasi penerima</p>
+          </div>
           <button id="btnAddSample" onclick="openSampleModal()" class="hidden bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-md transition flex items-center gap-2">
-            <i class="fa-solid fa-plus"></i> Tambah Sample
+            <i class="fa-solid fa-plus"></i> Tambah Sample Baru
           </button>
         </div>
+
         <div id="sampleTableContent" class="overflow-x-auto">
           <p class="text-slate-500 text-center py-6">Memuat data sample...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODUL 3: LOGBOOK AKTIVITAS -->
+    <div id="moduleLogbookContainer" class="hidden flex-col gap-6">
+      <div class="bg-slate-800 border border-slate-700/60 rounded-2xl overflow-hidden shadow-xl p-5">
+        <div class="flex flex-wrap justify-between items-center mb-4 gap-3">
+          <div>
+            <h3 class="font-bold text-white text-base flex items-center gap-2">
+              <i class="fa-solid fa-book-bookmark text-orange-400"></i> Logbook Aktivitas Sistem
+            </h3>
+            <p id="logbookSubtitle" class="text-xs text-slate-400 mt-0.5">Riwayat seluruh aktivitas penyerahan, ceklis, dan perubahan data (Akses Staff: Hanya Lihat)</p>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <!-- ADMIN ONLY ACTIONS FOR LOGBOOK -->
+            <button id="btnClearLogbook" onclick="clearLogbookData()" class="hidden bg-red-600/80 hover:bg-red-500 text-white text-xs font-bold px-3.5 py-2 rounded-lg shadow-md transition flex items-center gap-1.5">
+              <i class="fa-solid fa-trash-can"></i> Bersihkan Logbook
+            </button>
+            <button onclick="loadLogbookData()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+              <i class="fa-solid fa-rotate"></i> Refresh Log
+            </button>
+          </div>
+        </div>
+
+        <!-- SEARCH AND CATEGORY FILTER FOR LOGBOOK -->
+        <div class="bg-slate-900/60 p-3 rounded-xl mb-4 border border-slate-700/50 flex flex-wrap gap-3 items-center justify-between">
+          <div class="relative flex-1 min-w-[200px]">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" id="logSearchInput" oninput="renderLogbookTable()" placeholder="Cari dalam logbook..." class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500">
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400 font-medium">Kategori:</span>
+            <select id="logCategoryFilter" onchange="renderLogbookTable()" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-orange-500">
+              <option value="ALL">Semua Kategori</option>
+              <option value="Penerimaan Berkas">Penerimaan Berkas</option>
+              <option value="Penyerahan Sample">Penyerahan Sample</option>
+              <option value="Sistem / Role">Sistem & Hak Akses</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="logbookTableContent" class="overflow-x-auto">
+          <p class="text-slate-500 text-center py-6">Memuat logbook aktivitas...</p>
         </div>
       </div>
     </div>
@@ -92,69 +259,168 @@
   </main>
 
   <!-- MODAL FORM SAMPLE (KHUSUS ADMIN) -->
-  <div id="sampleModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div id="sampleModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-      <h3 id="sampleModalTitle" class="text-lg font-bold text-white mb-4">Tambah Data Sample</h3>
+      <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
+        <h3 id="sampleModalTitle" class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-vial text-orange-400"></i> Tambah Data Sample
+        </h3>
+        <button onclick="closeSampleModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
       <input type="hidden" id="sampleId">
       <div class="space-y-3 text-xs">
-        <div><label class="text-slate-400 block mb-1">Tanggal</label><input type="date" id="sampleTanggal" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none"></div>
-        <div><label class="text-slate-400 block mb-1">Nama Barang / Sample</label><input type="text" id="sampleBarang" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none" placeholder="Masukkan nama barang"></div>
-        <div><label class="text-slate-400 block mb-1">Tujuan / Penerima</label><input type="text" id="sampleTujuan" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none" placeholder="Masukkan tujuan"></div>
-        <div><label class="text-slate-400 block mb-1">Keterangan</label><textarea id="sampleKeterangan" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none" placeholder="Keterangan tambahan..."></textarea></div>
+        <div>
+          <label class="text-slate-400 block mb-1 font-medium">Tanggal Penginputan</label>
+          <input type="date" id="sampleTanggal" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500">
+        </div>
+        <div>
+          <label class="text-slate-400 block mb-1 font-medium">Nama Barang / Sample</label>
+          <input type="text" id="sampleBarang" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="Masukkan nama barang/sample">
+        </div>
+        <div>
+          <label class="text-slate-400 block mb-1 font-medium">Tujuan / Penerima</label>
+          <input type="text" id="sampleTujuan" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="Masukkan nama tujuan/penerima">
+        </div>
+        <div>
+          <label class="text-slate-400 block mb-1 font-medium">URL Foto Barang / Sample (Opsional)</label>
+          <input type="url" id="sampleUrlFoto" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="https://images.unsplash.com/...">
+        </div>
+        <div>
+          <label class="text-slate-400 block mb-1 font-medium">Keterangan</label>
+          <textarea id="sampleKeterangan" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="Catatan/keterangan tambahan..."></textarea>
+        </div>
+        <div class="p-2.5 bg-slate-900/60 border border-slate-700/50 rounded-lg text-[11px] text-slate-400 flex items-center gap-2">
+          <i class="fa-solid fa-circle-info text-orange-400 text-sm"></i>
+          <span>Waktu / jam penginputan akan otomatis dicatat oleh sistem saat tombol simpan diklik.</span>
+        </div>
       </div>
       <div class="flex justify-end gap-2 mt-6">
-        <button onclick="closeSampleModal()" class="px-4 py-2 rounded-lg bg-slate-700 text-slate-300 text-xs font-semibold">Batal</button>
-        <button onclick="saveSampleData()" class="px-4 py-2 rounded-lg bg-orange-600 text-white text-xs font-bold shadow-lg">Simpan Data</button>
+        <button onclick="closeSampleModal()" class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold transition">Batal</button>
+        <button onclick="saveSampleData()" class="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-lg transition">Simpan Sample</button>
       </div>
+    </div>
+  </div>
+
+  <!-- AREA CETAK TANDA TERIMA -->
+  <div id="printArea" class="hidden"></div>
+
+  <!-- MODAL ZOOM FOTO LIGHTBOX -->
+  <div id="imageZoomModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 cursor-pointer no-print" onclick="closeImageZoom()">
+    <div class="relative max-w-3xl w-full bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl p-4 flex flex-col items-center gap-3 cursor-default" onclick="event.stopPropagation()">
+      <div class="w-full flex justify-between items-center pb-2 border-b border-slate-800">
+        <h4 id="imageZoomTitle" class="text-sm font-bold text-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-image text-orange-400"></i> Pratinjau Foto
+        </h4>
+        <button onclick="closeImageZoom()" class="text-slate-400 hover:text-white transition px-2 py-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div class="w-full max-h-[75vh] flex items-center justify-center overflow-hidden bg-black/40 rounded-xl p-2">
+        <img id="imageZoomSrc" src="" alt="Zoom Sample" class="max-h-[70vh] w-auto max-w-full object-contain rounded-lg shadow-lg">
+      </div>
+      <p class="text-[11px] text-slate-400 italic">Klik di luar atau tombol Tutup untuk kembali</p>
     </div>
   </div>
 
   <script>
     let documentsData = [];
     let sampleData = [];
-    let currentRole = 'penerima'; // Default: Staff / Penerima
+    let logbookData = [];
+    let currentRole = 'penerima'; // Default Role: Staff / Penerima
+    let isPreviewMode = false;
 
-    window.onload = () => { loadBerkasData(); };
+    // DATA DEMO SEED UNTUK TESTING INSTAN SEBELUM GAS DIDEPLOY
+    const mockBerkasSeed = [
+      { id: 'DOC-101', tanggal: '18/02/2026', noPo: 'BZOA26B160', vendor: 'KUMA MITRA', nominal: 9000000, notes: 'System Sudah di Revisi', isChecked: true, isLocked: true },
+      { id: 'DOC-102', tanggal: '18/02/2026', noPo: 'BZOA26B164', vendor: 'MAXINDO MITRA', nominal: 3885000, notes: '', isChecked: true, isLocked: true },
+      { id: 'DOC-103', tanggal: '18/02/2026', noPo: 'BBOA26A002', vendor: 'SINAR ABADI', nominal: 38834460, notes: '', isChecked: true, isLocked: true },
+      { id: 'DOC-104', tanggal: '18/02/2026', noPo: 'BBOA25L008', vendor: 'SINAR ABADI', nominal: 203791005, notes: '', isChecked: true, isLocked: true },
+      { id: 'DOC-105', tanggal: '18/02/2026', noPo: 'BBOA25L015', vendor: 'SINAR ABADI', nominal: 131530615, notes: '', isChecked: true, isLocked: true },
+      { id: 'DOC-106', tanggal: '10/02/2026', noPo: 'BZOA26G503', vendor: 'KARYA BUMEN', nominal: 798090, notes: 'Pengiriman lengkap', isChecked: false, isLocked: false },
+      { id: 'DOC-107', tanggal: '10/02/2026', noPo: 'BZOA26G500', vendor: 'CASH', nominal: 141140, notes: '', isChecked: false, isLocked: false },
+      { id: 'DOC-108', tanggal: '08/02/2026', noPo: 'BZOA26H050', vendor: 'TOKOPEDIA', nominal: 413355.96, notes: '', isChecked: true, isLocked: true },
+      { id: 'DOC-109', tanggal: '08/02/2026', noPo: 'BZOA26H043', vendor: 'POTTOIN AJA', nominal: 2350000, notes: '', isChecked: true, isLocked: true }
+    ];
+
+    const mockSampleSeed = [
+      { id: 'SMP-201', tanggal: '18/02/2026', jam: '14:25:10', namaBarang: 'Kain Katun Premium 40s', tujuan: 'QC Lab', keterangan: 'Pengujian ketahanan luntur warna', urlFoto: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=500&auto=format&fit=crop&q=60' },
+      { id: 'SMP-202', tanggal: '12/02/2026', jam: '09:15:30', namaBarang: 'Botol Kemasan Plastik 500ml', tujuan: 'Bagian R&D', keterangan: 'Sampel bahan uji presisi cap', urlFoto: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500&auto=format&fit=crop&q=60' },
+      { id: 'SMP-203', tanggal: '05/02/2026', jam: '11:40:05', namaBarang: 'Sparepart Bearing 6204', tujuan: 'Teknik / Maintenance', keterangan: 'Verifikasi dimensi poros', urlFoto: 'https://images.unsplash.com/photo-1616401784845-180882ba9ba8?w=500&auto=format&fit=crop&q=60' }
+    ];
+
+    const mockLogbookSeed = [
+      { id: 'LOG-301', timestamp: '12/08/2026 12:45:10', role: 'Staff / Penerima', category: 'Penerimaan Berkas', details: 'Melakukan ceklis berkas PO BZOA26B160 (KUMA MITRA)' },
+      { id: 'LOG-302', timestamp: '12/08/2026 11:30:22', role: 'Admin', category: 'Penyerahan Sample', details: 'Menambahkan data sample baru: Kain Katun Premium 40s (Jam: 14:25:10, Tujuan: QC Lab)' },
+      { id: 'LOG-303', timestamp: '11/08/2026 16:15:00', role: 'Staff / Penerima', category: 'Penerimaan Berkas', details: 'Mengisi catatan pada berkas BZOA26G503: Pengiriman lengkap' },
+      { id: 'LOG-304', timestamp: '10/08/2026 09:10:05', role: 'Admin', category: 'Sistem / Role', details: 'Inisialisasi sistem & pembaruan hak akses role Staff' }
+    ];
+
+    window.onload = () => { 
+      loadBerkasData(); 
+      loadLogbookData();
+    };
 
     function switchModule(mod) {
       document.getElementById('moduleBerkasContainer').classList.toggle('hidden', mod !== 'berkas');
       document.getElementById('moduleSampleContainer').classList.toggle('hidden', mod !== 'sample');
+      document.getElementById('moduleLogbookContainer').classList.toggle('hidden', mod !== 'logbook');
 
       document.getElementById('tabBerkas').className = mod === 'berkas' 
-        ? "py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap" 
-        : "py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap";
+        ? "py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap transition" 
+        : "py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap transition";
       
       document.getElementById('tabSample').className = mod === 'sample' 
-        ? "py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap" 
-        : "py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap";
+        ? "py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap transition" 
+        : "py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap transition";
+
+      document.getElementById('tabLogbook').className = mod === 'logbook' 
+        ? "py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap transition" 
+        : "py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap transition";
 
       if (mod === 'sample') loadSampleData();
+      if (mod === 'logbook') loadLogbookData();
     }
 
     function switchRole(role) {
+      const prevRole = currentRole;
       currentRole = role;
       const isAdmin = role === 'admin';
       
       document.getElementById('roleBadge').innerHTML = isAdmin 
-        ? '<i class="fa-solid fa-user-shield text-orange-400"></i> <span class="text-orange-400 font-bold">Admin</span>'
+        ? '<i class="fa-solid fa-user-shield text-orange-400"></i> <span class="text-orange-400 font-bold">Admin (Akses Penuh)</span>'
         : '<i class="fa-solid fa-user-check text-emerald-400"></i> <span class="text-emerald-400 font-bold">Staff / Penerima</span>';
         
       document.getElementById('btnRolePenerima').className = !isAdmin ? 'px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow' : 'px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition';
       document.getElementById('btnRoleAdmin').className = isAdmin ? 'px-3 py-1 rounded text-xs font-medium bg-orange-600 text-white shadow' : 'px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition';
       
-      // Tombol Tambah Sample HANYA MUNCUL untuk Admin
-      document.getElementById('btnAddSample').classList.toggle('hidden', !isAdmin);
+      const btnAddSample = document.getElementById('btnAddSample');
+      if (btnAddSample) btnAddSample.classList.toggle('hidden', !isAdmin);
+
+      const btnClearLogbook = document.getElementById('btnClearLogbook');
+      if (btnClearLogbook) btnClearLogbook.classList.toggle('hidden', !isAdmin);
+
+      document.getElementById('logbookSubtitle').innerText = isAdmin 
+        ? "Riwayat seluruh aktivitas penyerahan, ceklis, dan perubahan data (Akses Admin: Penuh / Dapat Menghapus Log)" 
+        : "Riwayat seluruh aktivitas penyerahan, ceklis, dan perubahan data (Akses Staff: Hanya Lihat)";
+
+      if (prevRole !== role) {
+        addLogEntry('Sistem / Role', `Beralih peran akses menjadi ${isAdmin ? 'Admin' : 'Staff / Penerima'}`);
+      }
 
       renderTable();
       renderSampleTable();
+      renderLogbookTable();
     }
 
-    // HELPER TANGGAL & PARSING FOR SORTING
     function parseDateObj(rawDate) {
       if (!rawDate) return new Date(0);
       if (typeof rawDate === 'string' && rawDate.includes('/')) {
         const parts = rawDate.split('/');
-        return new Date(parts[2], parts[1] - 1, parts[0]);
+        if (parts.length === 3) {
+          return new Date(parts[2], parts[1] - 1, parts[0]);
+        }
       }
       return new Date(rawDate);
     }
@@ -170,48 +436,136 @@
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num || 0);
     }
 
-    // --- DATA BERKAS PO ---
+    function getCurrentTimestamp() {
+      const now = new Date();
+      const d = String(now.getDate()).padStart(2, '0');
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const y = now.getFullYear();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      return `${d}/${m}/${y} ${hh}:${mm}:${ss}`;
+    }
+
+    function getCurrentTimeOnly() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      return `${hh}:${mm}:${ss}`;
+    }
+
     function loadBerkasData() {
+      if (!GAS_API_URL || GAS_API_URL.trim() === "" || GAS_API_URL.includes("URL_WEB_APP")) {
+        isPreviewMode = true;
+        documentsData = mockBerkasSeed;
+        setConnectionStatus('PREVIEW / DEMO', 'bg-blue-500', 'text-blue-400');
+        populateDateFilterOptions();
+        renderTable();
+        return;
+      }
+
+      setConnectionStatus('CONNECTING', 'bg-yellow-500 animate-pulse', 'text-slate-400');
+
       fetch(`${GAS_API_URL}?action=getBerkas`)
       .then(res => res.json())
       .then(data => {
         documentsData = Array.isArray(data) ? data : [];
-        
-        document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]";
-        document.getElementById('dbText').innerText = "CONNECTED";
-        document.getElementById('dbText').className = "text-[10px] font-bold uppercase text-green-500 tracking-wider";
-        
+        setConnectionStatus('CONNECTED', 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]', 'text-green-500');
+        populateDateFilterOptions();
         renderTable();
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.warn("Koneksi Apps Script Gagal, menggunakan mode lokal:", err);
+        documentsData = mockBerkasSeed;
+        setConnectionStatus('OFFLINE (DEMO)', 'bg-amber-500', 'text-amber-400');
+        populateDateFilterOptions();
+        renderTable();
+      });
+    }
+
+    function setConnectionStatus(text, bgClass, textClass) {
+      document.getElementById('dbIndicator').className = `w-2.5 h-2.5 rounded-full ${bgClass}`;
+      document.getElementById('dbText').innerText = text;
+      document.getElementById('dbText').className = `text-[10px] font-bold uppercase tracking-wider ${textClass}`;
+    }
+
+    function populateDateFilterOptions() {
+      const dateSelect = document.getElementById('dateFilterSelect');
+      if (!dateSelect) return;
+
+      const currentVal = dateSelect.value;
+      const datesSet = new Set();
+      documentsData.forEach(d => {
+        const formatted = formatDateDisplay(d.tanggal);
+        if (formatted && formatted !== '-') datesSet.add(formatted);
+      });
+
+      const sortedDates = Array.from(datesSet).sort((a, b) => parseDateObj(b) - parseDateObj(a));
+
+      let optionsHtml = '<option value="ALL">Semua Tanggal</option>';
+      sortedDates.forEach(dt => {
+        optionsHtml += `<option value="${dt}">${dt}</option>`;
+      });
+
+      dateSelect.innerHTML = optionsHtml;
+      if (currentVal && (currentVal === 'ALL' || datesSet.has(currentVal))) {
+        dateSelect.value = currentVal;
+      }
     }
 
     function renderTable() {
       const container = document.getElementById('groupedTablesContainer');
+      const searchVal = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase() : '';
+      const dateFilterVal = document.getElementById('dateFilterSelect') ? document.getElementById('dateFilterSelect').value : 'ALL';
+      const statusFilterVal = document.getElementById('statusFilterSelect') ? document.getElementById('statusFilterSelect').value : 'ALL';
+
       container.innerHTML = '';
       
-      if (!documentsData || documentsData.length === 0) {
-        container.innerHTML = '<p class="text-center text-slate-500 py-10">Data Berkas Kosong.</p>';
+      const filtered = documentsData.filter(d => {
+        const tglFormatted = formatDateDisplay(d.tanggal);
+        const po = (d.noPo || '').toLowerCase();
+        const vendor = (d.vendor || '').toLowerCase();
+        const nominal = (d.nominal || '').toString();
+
+        // 1. Text Search Filter
+        const matchesSearch = !searchVal || po.includes(searchVal) || vendor.includes(searchVal) || nominal.includes(searchVal);
+
+        // 2. Date Filter
+        const matchesDate = dateFilterVal === 'ALL' || tglFormatted === dateFilterVal;
+
+        // 3. Status Filter
+        let matchesStatus = true;
+        if (statusFilterVal === 'CHECKED') matchesStatus = d.isChecked;
+        else if (statusFilterVal === 'UNCHECKED') matchesStatus = !d.isChecked;
+        else if (statusFilterVal === 'LOCKED') matchesStatus = d.isLocked;
+
+        return matchesSearch && matchesDate && matchesStatus;
+      });
+
+      if (!filtered || filtered.length === 0) {
+        container.innerHTML = '<p class="text-center text-slate-500 py-12">Tidak Ada Data Berkas Ditemukan.</p>';
+        document.getElementById('statTotal').innerText = 0;
+        document.getElementById('statChecked').innerText = 0;
+        document.getElementById('statLocked').innerText = 0;
+        document.getElementById('statDates').innerText = 0;
         return;
       }
 
-      document.getElementById('statTotal').innerText = documentsData.length;
-      document.getElementById('statChecked').innerText = documentsData.filter(d => d.isChecked).length;
-      document.getElementById('statLocked').innerText = documentsData.filter(d => d.isLocked).length;
+      document.getElementById('statTotal').innerText = filtered.length;
+      document.getElementById('statChecked').innerText = filtered.filter(d => d.isChecked).length;
+      document.getElementById('statLocked').innerText = filtered.filter(d => d.isLocked).length;
 
       // GROUP BY TANGGAL
       const groups = {}; 
-      documentsData.forEach(d => { 
+      filtered.forEach(d => { 
         const tglFormatted = formatDateDisplay(d.tanggal);
         if (!groups[tglFormatted]) groups[tglFormatted] = []; 
         groups[tglFormatted].push(d); 
       });
 
-      // SORTING TANGGAL TERBARU DI ATAS
-      const sortedDates = Object.keys(groups).sort((a, b) => {
-        return parseDateObj(b) - parseDateObj(a);
-      });
-
+      // SORTING TANGGAL TERBARU DI POSISI ATAS
+      const sortedDates = Object.keys(groups).sort((a, b) => parseDateObj(b) - parseDateObj(a));
       document.getElementById('statDates').innerText = sortedDates.length;
 
       sortedDates.forEach(date => {
@@ -219,7 +573,6 @@
         const totalNominal = docs.reduce((acc, curr) => acc + (Number(curr.nominal) || 0), 0);
         const totalChecked = docs.filter(d => d.isChecked).length;
 
-        // BISA DICEKLIS / EDIT CATATAN OLEH STAFF MAUPUN ADMIN (KECUALI STATUS TERKUNCI)
         let rows = docs.map((d, i) => `
           <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 transition text-xs">
             <td class="py-3 px-4 text-center text-slate-500 font-mono">${i+1}</td>
@@ -227,7 +580,7 @@
             <td class="py-3 px-4 text-slate-200 font-semibold">${d.vendor}</td>
             <td class="py-3 px-4 text-emerald-400 font-mono font-bold">${formatRupiah(d.nominal)}</td>
             <td class="py-3 px-4 text-slate-400">
-              <input type="text" value="${d.notes || ''}" placeholder="${d.isLocked ? 'Terkunci' : 'Catatan...'}" 
+              <input type="text" value="${d.notes || ''}" placeholder="${d.isLocked ? 'Terkunci' : 'Tambah catatan...'}" 
               ${d.isLocked ? 'disabled' : ''} 
               onblur="updateDocNote('${d.id}', this.value)"
               class="w-full bg-slate-900/40 border border-slate-700/60 rounded px-2.5 py-1 text-xs text-slate-200 outline-none focus:border-orange-500 disabled:opacity-60">
@@ -264,7 +617,7 @@
                 <button onclick="ceklisSemuaGroup('${date}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
                   <i class="fa-solid fa-check-double"></i> Ceklis Semua
                 </button>
-                <button class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-1.5 rounded-lg shadow-md transition flex items-center gap-2">
+                <button onclick="printReceipt('${date}')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-1.5 rounded-lg shadow-md transition flex items-center gap-2">
                   <i class="fa-solid fa-print"></i> Cetak Tanda Terima
                 </button>
               </div>
@@ -292,60 +645,192 @@
 
     function toggleCheck(id, isChecked) {
       const item = documentsData.find(d => d.id === id);
-      if(item) item.isChecked = isChecked;
-      fetch(GAS_API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: isChecked, notes: item ? item.notes : '' })
-      });
+      if(item) {
+        item.isChecked = isChecked;
+        if(isChecked) item.isLocked = true;
+        
+        addLogEntry('Penerimaan Berkas', `${isChecked ? 'Menceklis' : 'Membatalkan ceklis'} PO ${item.noPo} (${item.vendor})`);
+      }
+      renderTable();
+
+      if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+        fetch(GAS_API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: isChecked, notes: item ? item.notes : '' })
+        });
+      }
     }
 
     function updateDocNote(id, noteVal) {
       const item = documentsData.find(d => d.id === id);
-      if(item) item.notes = noteVal;
-      fetch(GAS_API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: item ? item.isChecked : false, notes: noteVal })
-      });
+      if(item && item.notes !== noteVal) {
+        item.notes = noteVal;
+        addLogEntry('Penerimaan Berkas', `Mengubah catatan PO ${item.noPo}: "${noteVal}"`);
+      }
+
+      if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+        fetch(GAS_API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: item ? item.isChecked : false, notes: noteVal })
+        });
+      }
     }
 
     function ceklisSemuaGroup(dateStr) {
+      let count = 0;
       documentsData.forEach(d => {
         if (formatDateDisplay(d.tanggal) === dateStr && !d.isLocked) {
           d.isChecked = true;
-          fetch(GAS_API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'updatePenerimaStatus', id: d.id, isCompleted: true, notes: d.notes || '' })
-          });
+          d.isLocked = true;
+          count++;
+          if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+            fetch(GAS_API_URL, {
+              method: 'POST',
+              body: JSON.stringify({ action: 'updatePenerimaStatus', id: d.id, isCompleted: true, notes: d.notes || '' })
+            });
+          }
         }
       });
+      if (count > 0) {
+        addLogEntry('Penerimaan Berkas', `Menceklis semua berkas (${count} item) tanggal ${dateStr}`);
+      }
       renderTable();
     }
 
-    // --- DATA SAMPLE (ROLE STAFF HANYA BISA LIHAT, AKSI KHUSUS ADMIN) ---
+    function printReceipt(date) {
+      const docsForDate = documentsData.filter(d => formatDateDisplay(d.tanggal) === date);
+      if (docsForDate.length === 0) return;
+
+      addLogEntry('Penerimaan Berkas', `Mencetak Tanda Terima Berkas PO tanggal ${date}`);
+
+      const printArea = document.getElementById('printArea');
+      let totalNominal = 0;
+
+      let rowsHtml = docsForDate.map((doc, idx) => {
+        totalNominal += Number(doc.nominal) || 0;
+        return `
+          <tr>
+            <td style="text-align: center;">${idx + 1}</td>
+            <td><strong>${doc.noPo}</strong></td>
+            <td>${doc.vendor}</td>
+            <td style="text-align: right;">${formatRupiah(doc.nominal)}</td>
+            <td>${doc.notes || '-'}</td>
+            <td style="text-align: center;">${doc.isChecked ? 'SUDAH' : 'BELUM'}</td>
+          </tr>
+        `;
+      }).join('');
+
+      printArea.innerHTML = `
+        <div style="font-family: Arial, sans-serif; color: #000; background: #fff;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px;">
+            <div>
+              <h2 style="margin: 0; font-size: 18px; color: #000;">TANDA TERIMA BERKAS DOKUMEN PO</h2>
+              <p style="margin: 4px 0 0 0; font-size: 12px; color: #333;">SIPENBER - Sistem Penerimaan Berkas</p>
+            </div>
+            <div style="text-align: right;">
+              <h3 style="margin: 0; font-size: 14px; color: #000;">TANGGAL: ${date}</h3>
+              <p style="margin: 4px 0 0 0; font-size: 11px; color: #333;">Total Berkas: ${docsForDate.length}</p>
+            </div>
+          </div>
+
+          <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead>
+              <tr style="background-color: #f2f2f2;">
+                <th style="border: 1px solid #000; padding: 6px; width: 30px; text-align: center;">NO</th>
+                <th style="border: 1px solid #000; padding: 6px;">NO PO</th>
+                <th style="border: 1px solid #000; padding: 6px;">NAMA VENDOR / PT</th>
+                <th style="border: 1px solid #000; padding: 6px; text-align: right;">NOMINAL (RP)</th>
+                <th style="border: 1px solid #000; padding: 6px;">CATATAN PENERIMAAN</th>
+                <th style="border: 1px solid #000; padding: 6px; text-align: center;">STATUS CEKLIS</th>
+              </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" style="border: 1px solid #000; padding: 6px; text-align: right; font-weight: bold;">TOTAL NOMINAL:</td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: right; font-weight: bold;">${formatRupiah(totalNominal)}</td>
+                <td colspan="2" style="border: 1px solid #000; padding: 6px;"></td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div style="margin-top: 50px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; color: #000;">
+            <div style="width: 200px;">
+              <p>Diserahkan Oleh,</p>
+              <br><br><br>
+              <p>( ____________________ )</p>
+            </div>
+            <div style="width: 200px;">
+              <p>Diterima Oleh,</p>
+              <br><br><br>
+              <p>( ____________________ )</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      printArea.classList.remove('hidden');
+      setTimeout(() => {
+        window.print();
+        printArea.classList.add('hidden');
+      }, 100);
+    }
+
     function loadSampleData() {
+      if (isPreviewMode || !GAS_API_URL || GAS_API_URL.includes("URL_WEB_APP")) {
+        sampleData = mockSampleSeed;
+        renderSampleTable();
+        return;
+      }
+
       fetch(`${GAS_API_URL}?action=getSample`)
       .then(res => res.json())
       .then(data => {
         sampleData = Array.isArray(data) ? data : [];
         renderSampleTable();
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        sampleData = mockSampleSeed;
+        renderSampleTable();
+      });
     }
 
     function renderSampleTable() {
       const container = document.getElementById('sampleTableContent');
+      if (!container) return;
+
       if (!sampleData || sampleData.length === 0) {
         container.innerHTML = '<p class="text-center text-slate-500 py-6">Tidak ada data di sheet Sample.</p>';
         return;
       }
 
-      // SORTING SAMPLE TERBARU DI ATAS
+      // SORTING SAMPLE TERBARU DI POSISI ATAS
       sampleData.sort((a, b) => parseDateObj(b.tanggal) - parseDateObj(a.tanggal));
 
-      let rows = sampleData.map((s, i) => `
+      let rows = sampleData.map((s, i) => {
+        const photoUrl = s.urlFoto && s.urlFoto.trim() !== '' ? s.urlFoto : 'https://placehold.co/150x150/1e293b/f97316?text=Foto';
+        
+        const dateFormatted = formatDateDisplay(s.tanggal);
+        const timeDisplay = s.jam || (s.tanggal && s.tanggal.includes(' ') ? s.tanggal.split(' ')[1] : '08:00:00');
+
+        return `
         <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 text-xs">
           <td class="py-3 px-4 text-center text-slate-500 font-mono">${i+1}</td>
-          <td class="py-3 px-4 text-orange-400 font-mono">${formatDateDisplay(s.tanggal)}</td>
+          <td class="py-3 px-4 whitespace-nowrap">
+            <div class="text-orange-400 font-mono font-bold">${dateFormatted}</div>
+            <div class="text-[11px] text-slate-400 font-mono flex items-center gap-1 mt-0.5">
+              <i class="fa-regular fa-clock text-orange-500/70 text-[10px]"></i>
+              <span>${timeDisplay} WIB</span>
+            </div>
+          </td>
+          <td class="py-3 px-4 text-center">
+            <button onclick="openImageZoom('${photoUrl}', '${s.namaBarang.replace(/'/g, "\\'")}')" class="relative group inline-block focus:outline-none">
+              <img src="${photoUrl}" onerror="this.src='https://placehold.co/150x150/1e293b/f97316?text=No+Img'" alt="${s.namaBarang}" class="w-10 h-10 object-cover rounded-lg border border-slate-700 group-hover:border-orange-500 shadow transition transform group-hover:scale-105">
+              <div class="absolute inset-0 bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-[10px]">
+                <i class="fa-solid fa-magnifying-glass-plus"></i>
+              </div>
+            </button>
+          </td>
           <td class="py-3 px-4 font-bold text-white">${s.namaBarang}</td>
           <td class="py-3 px-4 text-slate-300">${s.tujuan}</td>
           <td class="py-3 px-4 text-slate-400">${s.keterangan}</td>
@@ -354,14 +839,16 @@
             <button onclick="deleteSampleData('${s.id}')" class="text-red-400 hover:text-red-300 px-2 py-1"><i class="fa-solid fa-trash"></i></button>
           </td>` : ''}
         </tr>
-      `).join('');
+      `;
+      }).join('');
 
       container.innerHTML = `
         <table class="w-full text-left">
           <thead class="bg-slate-900/50 text-slate-400 text-[10px] uppercase font-bold border-b border-slate-700">
             <tr>
               <th class="py-3 px-4 text-center w-12">NO</th>
-              <th class="py-3 px-4">TANGGAL</th>
+              <th class="py-3 px-4">TANGGAL & WAKTU</th>
+              <th class="py-3 px-4 text-center w-16">FOTO</th>
               <th class="py-3 px-4">NAMA BARANG / SAMPLE</th>
               <th class="py-3 px-4">TUJUAN</th>
               <th class="py-3 px-4">KETERANGAN</th>
@@ -372,13 +859,23 @@
         </table>`;
     }
 
-    // MODAL & FUNGSI SAMPLE (KHUSUS ADMIN)
+    function openImageZoom(url, title) {
+      document.getElementById('imageZoomSrc').src = url;
+      document.getElementById('imageZoomTitle').innerHTML = `<i class="fa-solid fa-image text-orange-400"></i> ${title || 'Foto Sample'}`;
+      document.getElementById('imageZoomModal').classList.remove('hidden');
+    }
+
+    function closeImageZoom() {
+      document.getElementById('imageZoomModal').classList.add('hidden');
+    }
+
     function openSampleModal() {
       if (currentRole !== 'admin') return;
       document.getElementById('sampleId').value = '';
       document.getElementById('sampleTanggal').valueAsDate = new Date();
       document.getElementById('sampleBarang').value = '';
       document.getElementById('sampleTujuan').value = '';
+      document.getElementById('sampleUrlFoto').value = '';
       document.getElementById('sampleKeterangan').value = '';
       document.getElementById('sampleModal').classList.remove('hidden');
     }
@@ -389,14 +886,38 @@
 
     function saveSampleData() {
       if (currentRole !== 'admin') return;
+      
+      const currentTime = getCurrentTimeOnly();
+      const inputDateVal = document.getElementById('sampleTanggal').value;
+      const formattedDate = formatDateDisplay(inputDateVal || new Date());
+      
       const payload = {
         action: 'saveSample',
         id: document.getElementById('sampleId').value,
-        tanggal: formatDateDisplay(document.getElementById('sampleTanggal').value),
+        tanggal: formattedDate,
+        jam: currentTime,
         namaBarang: document.getElementById('sampleBarang').value,
         tujuan: document.getElementById('sampleTujuan').value,
+        urlFoto: document.getElementById('sampleUrlFoto').value,
         keterangan: document.getElementById('sampleKeterangan').value
       };
+
+      addLogEntry('Penyerahan Sample', `Menambahkan sample baru: ${payload.namaBarang} (Jam: ${currentTime}, Tujuan: ${payload.tujuan})`);
+
+      if (isPreviewMode) {
+        sampleData.unshift({
+          id: 'SMP-' + Date.now(),
+          tanggal: payload.tanggal,
+          jam: payload.jam,
+          namaBarang: payload.namaBarang,
+          tujuan: payload.tujuan,
+          urlFoto: payload.urlFoto,
+          keterangan: payload.keterangan
+        });
+        closeSampleModal();
+        renderSampleTable();
+        return;
+      }
 
       fetch(GAS_API_URL, {
         method: 'POST',
@@ -409,12 +930,201 @@
 
     function deleteSampleData(id) {
       if (currentRole !== 'admin') return;
-      if (confirm('Hapus data sample ini?')) {
+      const target = sampleData.find(s => s.id === id);
+      const nama = target ? target.namaBarang : id;
+
+      Swal.fire({
+        title: 'Hapus Data Sample?',
+        text: `Apakah Anda yakin ingin menghapus sample "${nama}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#475569',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        background: '#1e293b',
+        color: '#f8fafc'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          addLogEntry('Penyerahan Sample', `Menghapus data sample: ${nama}`);
+          if (isPreviewMode) {
+            sampleData = sampleData.filter(s => s.id !== id);
+            renderSampleTable();
+            Swal.fire({ title: 'Terhapus!', text: 'Sample berhasil dihapus.', icon: 'success', background: '#1e293b', color: '#f8fafc', timer: 1500, showConfirmButton: false });
+            return;
+          }
+
+          fetch(GAS_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'deleteSample', id: id })
+          }).then(() => {
+            loadSampleData();
+            Swal.fire({ title: 'Terhapus!', text: 'Sample berhasil dihapus.', icon: 'success', background: '#1e293b', color: '#f8fafc', timer: 1500, showConfirmButton: false });
+          });
+        }
+      });
+    }
+
+    function addLogEntry(category, details) {
+      const newLog = {
+        id: 'LOG-' + Date.now(),
+        timestamp: getCurrentTimestamp(),
+        role: currentRole === 'admin' ? 'Admin' : 'Staff / Penerima',
+        category: category || 'Umum',
+        details: details || ''
+      };
+
+      logbookData.unshift(newLog);
+      updateLogCounterBadge();
+
+      if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
         fetch(GAS_API_URL, {
           method: 'POST',
-          body: JSON.stringify({ action: 'deleteSample', id: id })
-        }).then(() => loadSampleData());
+          body: JSON.stringify({ action: 'addLogbookEntry', logData: newLog })
+        }).catch(err => console.warn('Gagal sync logbook ke server:', err));
       }
+    }
+
+    function loadLogbookData() {
+      if (isPreviewMode || !GAS_API_URL || GAS_API_URL.includes("URL_WEB_APP")) {
+        logbookData = mockLogbookSeed;
+        updateLogCounterBadge();
+        renderLogbookTable();
+        return;
+      }
+
+      fetch(`${GAS_API_URL}?action=getLogs`)
+      .then(res => res.json())
+      .then(data => {
+        logbookData = Array.isArray(data) ? data : [];
+        updateLogCounterBadge();
+        renderLogbookTable();
+      })
+      .catch(err => {
+        logbookData = mockLogbookSeed;
+        updateLogCounterBadge();
+        renderLogbookTable();
+      });
+    }
+
+    function updateLogCounterBadge() {
+      const badge = document.getElementById('logCounterBadge');
+      if (badge) badge.innerText = logbookData.length;
+    }
+
+    function renderLogbookTable() {
+      const container = document.getElementById('logbookTableContent');
+      if (!container) return;
+
+      const searchVal = document.getElementById('logSearchInput') ? document.getElementById('logSearchInput').value.toLowerCase() : '';
+      const catFilter = document.getElementById('logCategoryFilter') ? document.getElementById('logCategoryFilter').value : 'ALL';
+
+      const filtered = logbookData.filter(log => {
+        const matchesCat = catFilter === 'ALL' || log.category === catFilter;
+        const matchesSearch = !searchVal || 
+          (log.timestamp || '').toLowerCase().includes(searchVal) ||
+          (log.role || '').toLowerCase().includes(searchVal) ||
+          (log.category || '').toLowerCase().includes(searchVal) ||
+          (log.details || '').toLowerCase().includes(searchVal);
+        return matchesCat && matchesSearch;
+      });
+
+      if (!filtered || filtered.length === 0) {
+        container.innerHTML = '<p class="text-center text-slate-500 py-8">Tidak ada catatan logbook yang sesuai.</p>';
+        return;
+      }
+
+      let rows = filtered.map((log, i) => {
+        const isAdminLog = (log.role || '').includes('Admin');
+        const roleBadgeHtml = isAdminLog 
+          ? '<span class="px-2 py-0.5 text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded font-bold"><i class="fa-solid fa-user-shield mr-1"></i>Admin</span>'
+          : '<span class="px-2 py-0.5 text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded font-bold"><i class="fa-solid fa-user mr-1"></i>Staff</span>';
+
+        return `
+          <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 text-xs transition">
+            <td class="py-3 px-4 text-center text-slate-500 font-mono">${i+1}</td>
+            <td class="py-3 px-4 text-slate-300 font-mono whitespace-nowrap">${log.timestamp}</td>
+            <td class="py-3 px-4">${roleBadgeHtml}</td>
+            <td class="py-3 px-4"><span class="text-xs text-slate-200 font-medium">${log.category}</span></td>
+            <td class="py-3 px-4 text-slate-300">${log.details}</td>
+            ${currentRole === 'admin' ? `
+            <td class="py-3 px-4 text-center">
+              <button onclick="deleteSingleLog('${log.id}')" class="text-slate-500 hover:text-red-400 p-1 transition" title="Hapus Log">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </td>` : ''}
+          </tr>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <table class="w-full text-left">
+          <thead class="bg-slate-900/50 text-slate-400 text-[10px] uppercase font-bold border-b border-slate-700">
+            <tr>
+              <th class="py-3 px-4 text-center w-12">NO</th>
+              <th class="py-3 px-4">WAKTU (TIMESTAMP)</th>
+              <th class="py-3 px-4">ROLE USER</th>
+              <th class="py-3 px-4">KATEGORI AKSI</th>
+              <th class="py-3 px-4">DETAIL AKTIVITAS</th>
+              ${currentRole === 'admin' ? '<th class="py-3 px-4 text-center w-12">AKSI</th>' : ''}
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-700/30">${rows}</tbody>
+        </table>`;
+    }
+
+    function deleteSingleLog(id) {
+      if (currentRole !== 'admin') return;
+      logbookData = logbookData.filter(l => l.id !== id);
+      updateLogCounterBadge();
+      renderLogbookTable();
+
+      if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+        fetch(GAS_API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'clearLogbook', idsToDelete: [id] })
+        });
+      }
+    }
+
+    function clearLogbookData() {
+      if (currentRole !== 'admin') return;
+
+      Swal.fire({
+        title: 'Bersihkan Seluruh Logbook?',
+        text: 'Tindakan ini akan menghapus semua riwayat aktivitas dari database!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#475569',
+        confirmButtonText: 'Ya, Bersihkan!',
+        cancelButtonText: 'Batal',
+        background: '#1e293b',
+        color: '#f8fafc'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          logbookData = [];
+          updateLogCounterBadge();
+          renderLogbookTable();
+
+          if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+            fetch(GAS_API_URL, {
+              method: 'POST',
+              body: JSON.stringify({ action: 'clearLogbook' })
+            });
+          }
+
+          Swal.fire({
+            title: 'Dibersihkan!',
+            text: 'Seluruh riwayat logbook berhasil dibersihkan.',
+            icon: 'success',
+            background: '#1e293b',
+            color: '#f8fafc',
+            timer: 1500,
+            showConfirmButton: false
+          });
+        }
+      });
     }
   </script>
 </body>
