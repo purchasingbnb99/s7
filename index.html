@@ -1,87 +1,63 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>SIPENBER</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen">
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
+  
+  <header class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-orange-500">SIPENBER</h1>
+    <div class="flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+       <div id="dbIndicator" class="w-2 h-2 rounded-full bg-yellow-500"></div>
+       <span class="text-[10px] font-bold uppercase">Database</span>
+    </div>
+  </header>
 
-  <!-- INDIKATOR KONEKSI -->
-  <div class="fixed top-4 right-4 flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
-    <div id="dbIndicator" class="w-2 h-2 rounded-full bg-red-500"></div>
-    <span class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Database</span>
+  <div id="content" class="space-y-4">
+    <p class="text-slate-500">Memuat data...</p>
   </div>
 
   <script>
-    // 1. MASUKKAN URL ANDA DI SINI
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxf0cuja3sYJA-qdv3mxZV9PeDjZzMd4DbL8oMk82HIqC78G0RydEW_gS1qxsdtLc1p7g/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxf0cuja3sYJA-qdv3mxZV9PeDjZzMd4DbL8oMk82HIqC78G0RydEW_gS1qxsdtLc1p7g/exec"; 
 
-    let documentsData = [];
-
-    window.onload = () => {
-      checkConnection();
-      fetchDocumentsFromBackend();
-    };
-
-    // 2. FUNGSI CEK KONEKSI
-    function checkConnection() {
-      fetch(GAS_API_URL + "?action=ping") // Pastikan Anda menambahkan fungsi ping di Code.gs
-      .then(() => {
-        document.getElementById('dbIndicator').className = "w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]";
-      })
-      .catch(() => {
+    async function checkConnection() {
+      try {
+        const res = await fetch(GAS_API_URL + "?action=ping");
+        if(res.ok) {
+          document.getElementById('dbIndicator').className = "w-2 h-2 rounded-full bg-green-500";
+          loadData();
+        }
+      } catch(e) {
         document.getElementById('dbIndicator').className = "w-2 h-2 rounded-full bg-red-500";
-      });
-    }
-
-    // 3. FUNGSI FETCH BERKAS YANG DIPERBAIKI
-    function fetchDocumentsFromBackend() {
-      fetch(`${GAS_API_URL}?action=getBerkas`)
-        .then(r => r.json())
-        .then(d => {
-          documentsData = d;
-          renderTable();
-        })
-        .catch(err => console.error("Database Error:", err));
-    }
-
-    function renderTable() {
-      const container = document.getElementById('groupedTablesContainer');
-      if (!container) return;
-      container.innerHTML = '';
-      
-      if (documentsData.length === 0) {
-        container.innerHTML = '<p class="text-center text-slate-500 py-10">Data tidak ditemukan atau server belum terhubung.</p>';
-        return;
+        document.getElementById('content').innerHTML = "<p class='text-red-400'>Gagal terhubung. Pastikan URL benar dan akses 'Anyone'.</p>";
       }
-
-      // Render manual jika ada data
-      const groups = {}; 
-      documentsData.forEach(d => { 
-        if(!groups[d.tanggal]) groups[d.tanggal] = []; 
-        groups[d.tanggal].push(d); 
-      });
-
-      Object.keys(groups).forEach(date => {
-        let rows = groups[date].map((d, i) => `
-          <tr class="border-b border-slate-700 text-xs">
-            <td class="p-3">${i+1}</td>
-            <td class="p-3 font-bold text-orange-400">${d.noPo}</td>
-            <td class="p-3">${d.vendor}</td>
-            <td class="p-3 text-emerald-400">${d.nominal}</td>
-          </tr>
-        `).join('');
-        container.innerHTML += `<div class="bg-slate-800 rounded-xl overflow-hidden mb-4"><div class="bg-slate-900 p-3 font-bold text-white">${date}</div><table class="w-full text-left">${rows}</table></div>`;
-      });
     }
-  </script>
 
-  <!-- HTML STRUKTUR -->
-  <header class="p-6"><h1 class="text-2xl font-bold text-orange-500">SIPENBER</h1></header>
-  <main class="max-w-5xl mx-auto p-4">
-    <div id="groupedTablesContainer"></div>
-  </main>
+    async function loadData() {
+      const res = await fetch(GAS_API_URL + "?action=getBerkas");
+      const data = await res.json();
+      render(data);
+    }
+
+    function render(data) {
+      const container = document.getElementById('content');
+      if(data.length === 0) { container.innerHTML = "<p class='text-slate-500'>Tidak ada data.</p>"; return; }
+      
+      let html = `<table class="w-full bg-slate-800 rounded-xl overflow-hidden text-sm">
+        <thead class="bg-slate-700 text-xs uppercase"><tr><th class="p-3">PO</th><th class="p-3">Vendor</th><th class="p-3">Nominal</th></tr></thead>
+        <tbody>`;
+      data.forEach(d => {
+        html += `<tr class="border-b border-slate-700">
+          <td class="p-3 font-bold text-orange-400">${d.noPo}</td>
+          <td class="p-3">${d.vendor}</td>
+          <td class="p-3 text-emerald-400">${d.nominal}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+    }
+
+    window.onload = checkConnection;
+  </script>
 </body>
 </html>
