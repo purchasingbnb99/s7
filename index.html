@@ -147,6 +147,7 @@
         </div>
       </div>
 
+      <!-- SEARCH AND FILTERS BAR -->
       <div class="bg-slate-800 border border-slate-700/60 p-3.5 rounded-xl flex flex-wrap gap-3 items-center justify-between shadow-lg">
         <div class="relative flex-1 min-w-[240px]">
           <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
@@ -169,8 +170,8 @@
             <i class="fa-solid fa-plus"></i> Tambah Berkas
           </button>
 
-          <button onclick="loadBerkasData()" class="px-3.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition">
-            <i class="fa-solid fa-rotate"></i> Refresh Data
+          <button id="btnRefreshData" onclick="refreshDataWithAnimation()" class="px-3.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition">
+            <i id="refreshIcon" class="fa-solid fa-rotate"></i> Refresh Data
           </button>
         </div>
       </div>
@@ -376,6 +377,7 @@
 
   <div id="printArea" class="hidden"></div>
 
+  <!-- LIGHTBOX IMAGE ZOOM MODAL -->
   <div id="imageZoomModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 cursor-pointer no-print" onclick="closeImageZoom()">
     <div class="relative max-w-3xl w-full bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl p-4 flex flex-col items-center gap-3 cursor-default" onclick="event.stopPropagation()">
       <div class="w-full flex justify-between items-center pb-2 border-b border-slate-800">
@@ -622,6 +624,39 @@
       const mm = String(now.getMinutes()).padStart(2, '0');
       const ss = String(now.getSeconds()).padStart(2, '0');
       return `${hh}:${mm}:${ss}`;
+    }
+
+    function refreshDataWithAnimation() {
+      const icon = document.getElementById('refreshIcon');
+      if (icon) icon.classList.add('fa-spin');
+
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) searchInput.value = '';
+
+      const dateFilter = document.getElementById('dateFilterSelect');
+      if (dateFilter) dateFilter.value = 'ALL';
+
+      const statusFilter = document.getElementById('statusFilterSelect');
+      if (statusFilter) statusFilter.value = 'ALL';
+
+      loadBerkasData();
+
+      setTimeout(() => {
+        if (icon) icon.classList.remove('fa-spin');
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 1800,
+          timerProgressBar: true,
+          background: '#1e293b',
+          color: '#f8fafc'
+        });
+        Toast.fire({
+          icon: 'success',
+          title: 'Data Berhasil Diperbarui!'
+        });
+      }, 600);
     }
 
     function loadBerkasData() {
