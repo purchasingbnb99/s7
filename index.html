@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SIPENBER - Sistem Penerimaan Berkas & Penyerahan Sample</title>
   
-  <!-- FAVICON & BOOKMARK LOGO S ORANGE (SVG) -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23f97316'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='65'>S</text></svg>">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23f97316'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='65'>S</text></svg>">
-  <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23f97316'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='65'>S</text></svg>">
+  <!-- FAVICON & BOOKMARK LOGO S ORANGE MUDA (#fb923c) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23fb923c'/><text x='50%' y='54%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='62'>S</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23fb923c'/><text x='50%' y='54%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='62'>S</text></svg>">
+  <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23fb923c'/><text x='50%' y='54%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='62'>S</text></svg>">
 
   <!-- TAILWIND CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -21,7 +21,6 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
 
-    /* PRINT STYLES FOR RECEIPT */
     @media print {
       body > *:not(#printArea) { display: none !important; }
       body { background: #ffffff !important; color: #000000 !important; }
@@ -43,17 +42,16 @@
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased">
 
   <script>
-    // MASUKKAN URL GOOGLE APPS SCRIPT BERAKHIRAN /exec DI SINI SETELAH DEPLOYMENT
+    // MASUKKAN URL GOOGLE APPS SCRIPT BERAKHIRAN /exec DI SINI
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxf0cuja3sYJA-qdv3mxZV9PeDjZzMd4DbL8oMk82HIqC78G0RydEW_gS1qxsdtLc1p7g/exec";
   </script>
 
-  <!-- HEADER NAVBAR -->
   <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-orange-500/20">S</div>
+        <div class="w-10 h-10 rounded-xl bg-amber-500/90 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-amber-500/20">S</div>
         <div>
-          <h1 class="font-bold text-lg text-orange-500 tracking-wide leading-none">SIPENBER</h1>
+          <h1 class="font-bold text-lg text-amber-500 tracking-wide leading-none">SIPENBER</h1>
           <p class="text-[10px] text-slate-400 mt-1">Sistem Penerimaan Berkas & Penyerahan Sample</p>
         </div>
       </div>
@@ -72,12 +70,12 @@
           <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow transition">
             <i class="fa-solid fa-user mr-1"></i> Staff / Penerima
           </button>
-          <button id="btnRoleAdmin" onclick="switchRole('admin')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition">
+          <button id="btnRoleAdmin" onclick="triggerAdminAuth()" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition">
             <i class="fa-solid fa-user-shield mr-1"></i> Admin
           </button>
         </div>
 
-        <!-- DATABASE CONNECTION STATUS INDICATOR -->
+        <!-- DATABASE CONNECTION STATUS -->
         <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-full border border-slate-700">
           <div id="dbIndicator" class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse"></div>
           <span id="dbText" class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">CONNECTING</span>
@@ -104,12 +102,10 @@
 
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6 no-print">
     
-    <!-- MODUL 1: PENERIMAAN BERKAS PO -->
     <div id="moduleBerkasContainer" class="flex flex-col gap-6">
       
-      <!-- DASHBOARD CARDS WITH ICON BADGES -->
+      <!-- DASHBOARD CARDS -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- TOTAL BERKAS CARD -->
         <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl shadow-lg flex flex-col justify-between">
           <div class="flex justify-between items-center">
             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Berkas</p>
@@ -120,7 +116,6 @@
           <h3 id="statTotal" class="text-2xl font-bold text-white mt-1">0</h3>
         </div>
 
-        <!-- SUDAH DICEKLIS CARD -->
         <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl shadow-lg flex flex-col justify-between">
           <div class="flex justify-between items-center">
             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Sudah Diceklis</p>
@@ -131,7 +126,6 @@
           <h3 id="statChecked" class="text-2xl font-bold text-emerald-400 mt-1">0</h3>
         </div>
 
-        <!-- TERKUNCI CARD -->
         <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl shadow-lg flex flex-col justify-between">
           <div class="flex justify-between items-center">
             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Terkunci</p>
@@ -142,7 +136,6 @@
           <h3 id="statLocked" class="text-2xl font-bold text-amber-400 mt-1">0</h3>
         </div>
 
-        <!-- TOTAL TANGGAL CARD -->
         <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl shadow-lg flex flex-col justify-between">
           <div class="flex justify-between items-center">
             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Tanggal</p>
@@ -154,22 +147,18 @@
         </div>
       </div>
 
-      <!-- SEARCH AND FILTER BAR WITH DROPDOWNS -->
+      <!-- SEARCH AND FILTERS BAR -->
       <div class="bg-slate-800 border border-slate-700/60 p-3.5 rounded-xl flex flex-wrap gap-3 items-center justify-between shadow-lg">
-        <!-- SEARCH INPUT -->
         <div class="relative flex-1 min-w-[240px]">
           <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
           <input type="text" id="searchInput" oninput="renderTable()" placeholder="Cari No PO, Nama Vendor, Nominal..." class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500">
         </div>
 
-        <!-- FILTER DROPDOWNS & REFRESH BUTTON -->
         <div class="flex items-center gap-2 flex-wrap">
-          <!-- FILTER DROPDOWN 1: SEMUA TANGGAL -->
           <select id="dateFilterSelect" onchange="renderTable()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 outline-none focus:border-orange-500 cursor-pointer">
             <option value="ALL">Semua Tanggal</option>
           </select>
 
-          <!-- FILTER DROPDOWN 2: SEMUA STATUS -->
           <select id="statusFilterSelect" onchange="renderTable()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 outline-none focus:border-orange-500 cursor-pointer">
             <option value="ALL">Semua Status</option>
             <option value="CHECKED">Sudah Diceklis</option>
@@ -177,26 +166,23 @@
             <option value="LOCKED">Terkunci</option>
           </select>
 
-          <!-- REFRESH BUTTON -->
           <button onclick="loadBerkasData()" class="px-3.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition">
             <i class="fa-solid fa-rotate"></i> Refresh Data
           </button>
         </div>
       </div>
 
-      <!-- GROUPED TABLES CONTAINER (SORTED NEWEST DATES ON TOP) -->
       <div id="groupedTablesContainer" class="flex flex-col gap-6">
         <p class="text-slate-500 text-center py-12">Memuat data dari database...</p>
       </div>
     </div>
 
-    <!-- MODUL 2: PENYERAHAN SAMPLE -->
     <div id="moduleSampleContainer" class="hidden flex-col gap-6">
       <div class="bg-slate-800 border border-slate-700/60 rounded-2xl overflow-hidden shadow-xl p-5">
         <div class="flex flex-wrap justify-between items-center mb-4 gap-3">
           <div>
             <h3 class="font-bold text-white text-base flex items-center gap-2">
-              <i class="fa-solid fa-vial text-orange-400"></i> Data Penyerahan Sample
+              <i class="fa-solid fa-vial text-orange-400"></i> Data Penyerahan Sample (Sheet DataSample)
             </h3>
             <p class="text-xs text-slate-400 mt-0.5">Daftar rekapan penyerahan sample barang, waktu penginputan, dan verifikasi penerima</p>
           </div>
@@ -211,7 +197,6 @@
       </div>
     </div>
 
-    <!-- MODUL 3: LOGBOOK AKTIVITAS -->
     <div id="moduleLogbookContainer" class="hidden flex-col gap-6">
       <div class="bg-slate-800 border border-slate-700/60 rounded-2xl overflow-hidden shadow-xl p-5">
         <div class="flex flex-wrap justify-between items-center mb-4 gap-3">
@@ -223,7 +208,6 @@
           </div>
           
           <div class="flex items-center gap-2">
-            <!-- ADMIN ONLY ACTIONS FOR LOGBOOK -->
             <button id="btnClearLogbook" onclick="clearLogbookData()" class="hidden bg-red-600/80 hover:bg-red-500 text-white text-xs font-bold px-3.5 py-2 rounded-lg shadow-md transition flex items-center gap-1.5">
               <i class="fa-solid fa-trash-can"></i> Bersihkan Logbook
             </button>
@@ -233,7 +217,6 @@
           </div>
         </div>
 
-        <!-- SEARCH AND CATEGORY FILTER FOR LOGBOOK -->
         <div class="bg-slate-900/60 p-3 rounded-xl mb-4 border border-slate-700/50 flex flex-wrap gap-3 items-center justify-between">
           <div class="relative flex-1 min-w-[200px]">
             <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
@@ -258,7 +241,7 @@
 
   </main>
 
-  <!-- MODAL FORM SAMPLE (KHUSUS ADMIN) -->
+  <!-- MODAL FORM SAMPLE -->
   <div id="sampleModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
@@ -303,10 +286,9 @@
     </div>
   </div>
 
-  <!-- AREA CETAK TANDA TERIMA -->
   <div id="printArea" class="hidden"></div>
 
-  <!-- MODAL ZOOM FOTO LIGHTBOX -->
+  <!-- LIGHTBOX IMAGE ZOOM MODAL -->
   <div id="imageZoomModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 cursor-pointer no-print" onclick="closeImageZoom()">
     <div class="relative max-w-3xl w-full bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl p-4 flex flex-col items-center gap-3 cursor-default" onclick="event.stopPropagation()">
       <div class="w-full flex justify-between items-center pb-2 border-b border-slate-800">
@@ -328,33 +310,27 @@
     let documentsData = [];
     let sampleData = [];
     let logbookData = [];
-    let currentRole = 'penerima'; // Default Role: Staff / Penerima
+    let currentRole = 'penerima';
     let isPreviewMode = false;
 
-    // DATA DEMO SEED UNTUK TESTING INSTAN SEBELUM GAS DIDEPLOY
+    // SEED DEMO SIAP PAKAI WITH DD/MM/YYYY FORMAT
     const mockBerkasSeed = [
       { id: 'DOC-101', tanggal: '18/02/2026', noPo: 'BZOA26B160', vendor: 'KUMA MITRA', nominal: 9000000, notes: 'System Sudah di Revisi', isChecked: true, isLocked: true },
       { id: 'DOC-102', tanggal: '18/02/2026', noPo: 'BZOA26B164', vendor: 'MAXINDO MITRA', nominal: 3885000, notes: '', isChecked: true, isLocked: true },
-      { id: 'DOC-103', tanggal: '18/02/2026', noPo: 'BBOA26A002', vendor: 'SINAR ABADI', nominal: 38834460, notes: '', isChecked: true, isLocked: true },
-      { id: 'DOC-104', tanggal: '18/02/2026', noPo: 'BBOA25L008', vendor: 'SINAR ABADI', nominal: 203791005, notes: '', isChecked: true, isLocked: true },
-      { id: 'DOC-105', tanggal: '18/02/2026', noPo: 'BBOA25L015', vendor: 'SINAR ABADI', nominal: 131530615, notes: '', isChecked: true, isLocked: true },
-      { id: 'DOC-106', tanggal: '10/02/2026', noPo: 'BZOA26G503', vendor: 'KARYA BUMEN', nominal: 798090, notes: 'Pengiriman lengkap', isChecked: false, isLocked: false },
-      { id: 'DOC-107', tanggal: '10/02/2026', noPo: 'BZOA26G500', vendor: 'CASH', nominal: 141140, notes: '', isChecked: false, isLocked: false },
-      { id: 'DOC-108', tanggal: '08/02/2026', noPo: 'BZOA26H050', vendor: 'TOKOPEDIA', nominal: 413355.96, notes: '', isChecked: true, isLocked: true },
-      { id: 'DOC-109', tanggal: '08/02/2026', noPo: 'BZOA26H043', vendor: 'POTTOIN AJA', nominal: 2350000, notes: '', isChecked: true, isLocked: true }
+      { id: 'DOC-103', tanggal: '08/11/2026', noPo: 'BZOD26F248-S', vendor: 'FASTEX INDO JAYA', nominal: 227550, notes: 'Pengiriman lengkap', isChecked: true, isLocked: true },
+      { id: 'DOC-104', tanggal: '08/10/2026', noPo: 'BZOA26F351-T', vendor: 'CASH ( MAKMUR ABADI )', nominal: 16720000, notes: '', isChecked: true, isLocked: true },
+      { id: 'DOC-105', tanggal: '05/08/2026', noPo: 'BZOA25F320', vendor: 'BAMBANG ( @DESY MKT )', nominal: 22630198, notes: '', isChecked: true, isLocked: true }
     ];
 
     const mockSampleSeed = [
       { id: 'SMP-201', tanggal: '18/02/2026', jam: '14:25:10', namaBarang: 'Kain Katun Premium 40s', tujuan: 'QC Lab', keterangan: 'Pengujian ketahanan luntur warna', urlFoto: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=500&auto=format&fit=crop&q=60' },
       { id: 'SMP-202', tanggal: '12/02/2026', jam: '09:15:30', namaBarang: 'Botol Kemasan Plastik 500ml', tujuan: 'Bagian R&D', keterangan: 'Sampel bahan uji presisi cap', urlFoto: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500&auto=format&fit=crop&q=60' },
-      { id: 'SMP-203', tanggal: '05/02/2026', jam: '11:40:05', namaBarang: 'Sparepart Bearing 6204', tujuan: 'Teknik / Maintenance', keterangan: 'Verifikasi dimensi poros', urlFoto: 'https://images.unsplash.com/photo-1616401784845-180882ba9ba8?w=500&auto=format&fit=crop&q=60' }
+      { id: 'SMP-203', tanggal: '05/02/2026', jam: '11:40:05', namaBarang: 'PO SOC BZOA26F259-T QTY 7.608 YARD', tujuan: 'Teknik / Maintenance', keterangan: 'PARSIAL 23 JUL 2026 QTY 2.030 YARD > PARSIAL 24 JUL 2026 QTY 870 YARD > PARSIAL 29 JUL 2026 QTY 1.160 YARD', urlFoto: 'https://images.unsplash.com/photo-1616401784845-180882ba9ba8?w=500&auto=format&fit=crop&q=60' }
     ];
 
     const mockLogbookSeed = [
       { id: 'LOG-301', timestamp: '12/08/2026 12:45:10', role: 'Staff / Penerima', category: 'Penerimaan Berkas', details: 'Melakukan ceklis berkas PO BZOA26B160 (KUMA MITRA)' },
-      { id: 'LOG-302', timestamp: '12/08/2026 11:30:22', role: 'Admin', category: 'Penyerahan Sample', details: 'Menambahkan data sample baru: Kain Katun Premium 40s (Jam: 14:25:10, Tujuan: QC Lab)' },
-      { id: 'LOG-303', timestamp: '11/08/2026 16:15:00', role: 'Staff / Penerima', category: 'Penerimaan Berkas', details: 'Mengisi catatan pada berkas BZOA26G503: Pengiriman lengkap' },
-      { id: 'LOG-304', timestamp: '10/08/2026 09:10:05', role: 'Admin', category: 'Sistem / Role', details: 'Inisialisasi sistem & pembaruan hak akses role Staff' }
+      { id: 'LOG-302', timestamp: '12/08/2026 11:30:22', role: 'Admin', category: 'Penyerahan Sample', details: 'Menambahkan data sample baru ke DataSample' }
     ];
 
     window.onload = () => { 
@@ -381,6 +357,70 @@
 
       if (mod === 'sample') loadSampleData();
       if (mod === 'logbook') loadLogbookData();
+    }
+
+    function triggerAdminAuth() {
+      if (currentRole === 'admin') return;
+
+      Swal.fire({
+        title: 'Verifikasi Akses Admin',
+        text: 'Masukkan Kata Sandi Admin (Cek Sheet Settings):',
+        input: 'password',
+        inputAttributes: {
+          autocapitalize: 'off',
+          placeholder: 'Masukkan password...'
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Masuk Admin',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#f97316',
+        cancelButtonColor: '#475569',
+        background: '#1e293b',
+        color: '#f8fafc',
+        preConfirm: (inputPass) => {
+          if (!inputPass) {
+            Swal.showValidationMessage('Kata sandi tidak boleh kosong!');
+            return false;
+          }
+
+          if (isPreviewMode || !GAS_API_URL || GAS_API_URL.includes("URL_WEB_APP")) {
+            if (inputPass === 'admin123') return true;
+            Swal.showValidationMessage('Password Salah! (Default Demo: admin123)');
+            return false;
+          }
+
+          return fetch(GAS_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'verifyAdminPassword', password: inputPass })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.isValid) {
+              return true;
+            } else {
+              Swal.showValidationMessage('Kata sandi admin salah!');
+              return false;
+            }
+          })
+          .catch(() => {
+            Swal.showValidationMessage('Gagal menghubungi server verifikasi');
+            return false;
+          });
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          switchRole('admin');
+          Swal.fire({
+            title: 'Berhasil Login!',
+            text: 'Mode Admin Aktif.',
+            icon: 'success',
+            background: '#1e293b',
+            color: '#f8fafc',
+            timer: 1500,
+            showConfirmButton: false
+          });
+        }
+      });
     }
 
     function switchRole(role) {
@@ -414,11 +454,25 @@
       renderLogbookTable();
     }
 
+    // STRICT DATE PARSER TO DD/MM/YYYY
     function parseDateObj(rawDate) {
       if (!rawDate) return new Date(0);
       if (typeof rawDate === 'string' && rawDate.includes('/')) {
         const parts = rawDate.split('/');
         if (parts.length === 3) {
+          // Check if DD/MM/YYYY or YYYY/MM/DD
+          if (parts[0].length === 4) {
+            return new Date(parts[0], parts[1] - 1, parts[2]);
+          }
+          return new Date(parts[2], parts[1] - 1, parts[0]);
+        }
+      }
+      if (typeof rawDate === 'string' && rawDate.includes('-')) {
+        const parts = rawDate.split('-');
+        if (parts.length === 3) {
+          if (parts[0].length === 4) {
+            return new Date(parts[0], parts[1] - 1, parts[2]);
+          }
           return new Date(parts[2], parts[1] - 1, parts[0]);
         }
       }
@@ -426,10 +480,22 @@
     }
 
     function formatDateDisplay(rawDate) {
-      if (!rawDate) return '-';
+      if (!rawDate || rawDate === '-') return '-';
+      
+      if (typeof rawDate === 'string' && rawDate.includes('/')) {
+        const parts = rawDate.split('/');
+        if (parts.length === 3 && parts[0].length <= 2 && parts[2].length === 4) {
+          return `${String(parts[0]).padStart(2, '0')}/${String(parts[1]).padStart(2, '0')}/${parts[2]}`;
+        }
+      }
+
       const d = parseDateObj(rawDate);
       if (isNaN(d.getTime())) return rawDate;
-      return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
     }
 
     function formatRupiah(num) {
@@ -476,7 +542,6 @@
         renderTable();
       })
       .catch(err => {
-        console.warn("Koneksi Apps Script Gagal, menggunakan mode lokal:", err);
         documentsData = mockBerkasSeed;
         setConnectionStatus('OFFLINE (DEMO)', 'bg-amber-500', 'text-amber-400');
         populateDateFilterOptions();
@@ -528,13 +593,9 @@
         const vendor = (d.vendor || '').toLowerCase();
         const nominal = (d.nominal || '').toString();
 
-        // 1. Text Search Filter
         const matchesSearch = !searchVal || po.includes(searchVal) || vendor.includes(searchVal) || nominal.includes(searchVal);
-
-        // 2. Date Filter
         const matchesDate = dateFilterVal === 'ALL' || tglFormatted === dateFilterVal;
 
-        // 3. Status Filter
         let matchesStatus = true;
         if (statusFilterVal === 'CHECKED') matchesStatus = d.isChecked;
         else if (statusFilterVal === 'UNCHECKED') matchesStatus = !d.isChecked;
@@ -556,7 +617,6 @@
       document.getElementById('statChecked').innerText = filtered.filter(d => d.isChecked).length;
       document.getElementById('statLocked').innerText = filtered.filter(d => d.isLocked).length;
 
-      // GROUP BY TANGGAL
       const groups = {}; 
       filtered.forEach(d => { 
         const tglFormatted = formatDateDisplay(d.tanggal);
@@ -564,7 +624,6 @@
         groups[tglFormatted].push(d); 
       });
 
-      // SORTING TANGGAL TERBARU DI POSISI ATAS
       const sortedDates = Object.keys(groups).sort((a, b) => parseDateObj(b) - parseDateObj(a));
       document.getElementById('statDates').innerText = sortedDates.length;
 
@@ -648,7 +707,6 @@
       if(item) {
         item.isChecked = isChecked;
         if(isChecked) item.isLocked = true;
-        
         addLogEntry('Penerimaan Berkas', `${isChecked ? 'Menceklis' : 'Membatalkan ceklis'} PO ${item.noPo} (${item.vendor})`);
       }
       renderTable();
@@ -800,21 +858,19 @@
       if (!container) return;
 
       if (!sampleData || sampleData.length === 0) {
-        container.innerHTML = '<p class="text-center text-slate-500 py-6">Tidak ada data di sheet Sample.</p>';
+        container.innerHTML = '<p class="text-center text-slate-500 py-6">Tidak ada data di sheet DataSample.</p>';
         return;
       }
 
-      // SORTING SAMPLE TERBARU DI POSISI ATAS
       sampleData.sort((a, b) => parseDateObj(b.tanggal) - parseDateObj(a.tanggal));
 
       let rows = sampleData.map((s, i) => {
         const photoUrl = s.urlFoto && s.urlFoto.trim() !== '' ? s.urlFoto : 'https://placehold.co/150x150/1e293b/f97316?text=Foto';
-        
         const dateFormatted = formatDateDisplay(s.tanggal);
-        const timeDisplay = s.jam || (s.tanggal && s.tanggal.includes(' ') ? s.tanggal.split(' ')[1] : '08:00:00');
+        const timeDisplay = s.jam || '08:00:00';
 
         return `
-        <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 text-xs">
+        <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 text-xs align-top">
           <td class="py-3 px-4 text-center text-slate-500 font-mono">${i+1}</td>
           <td class="py-3 px-4 whitespace-nowrap">
             <div class="text-orange-400 font-mono font-bold">${dateFormatted}</div>
@@ -831,28 +887,28 @@
               </div>
             </button>
           </td>
-          <td class="py-3 px-4 font-bold text-white">${s.namaBarang}</td>
-          <td class="py-3 px-4 text-slate-300">${s.tujuan}</td>
-          <td class="py-3 px-4 text-slate-400">${s.keterangan}</td>
+          <td class="py-3 px-4 font-bold text-white max-w-[200px] break-words whitespace-pre-wrap">${s.namaBarang}</td>
+          <td class="py-3 px-4 text-slate-300 max-w-[180px] break-words whitespace-pre-wrap">${s.tujuan}</td>
+          <td class="py-3 px-4 text-slate-400 max-w-[300px] break-words whitespace-pre-wrap leading-relaxed">${s.keterangan}</td>
           ${currentRole === 'admin' ? `
           <td class="py-3 px-4 text-center">
-            <button onclick="deleteSampleData('${s.id}')" class="text-red-400 hover:text-red-300 px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+            <button onclick="deleteSampleData('${s.id}')" class="text-red-400 hover:text-red-300 px-2 py-1 transition"><i class="fa-solid fa-trash"></i></button>
           </td>` : ''}
         </tr>
       `;
       }).join('');
 
       container.innerHTML = `
-        <table class="w-full text-left">
+        <table class="w-full text-left border-collapse">
           <thead class="bg-slate-900/50 text-slate-400 text-[10px] uppercase font-bold border-b border-slate-700">
             <tr>
               <th class="py-3 px-4 text-center w-12">NO</th>
-              <th class="py-3 px-4">TANGGAL & WAKTU</th>
+              <th class="py-3 px-4 w-36">TANGGAL & WAKTU</th>
               <th class="py-3 px-4 text-center w-16">FOTO</th>
               <th class="py-3 px-4">NAMA BARANG / SAMPLE</th>
               <th class="py-3 px-4">TUJUAN</th>
               <th class="py-3 px-4">KETERANGAN</th>
-              ${currentRole === 'admin' ? '<th class="py-3 px-4 text-center">AKSI</th>' : ''}
+              ${currentRole === 'admin' ? '<th class="py-3 px-4 text-center w-16">AKSI</th>' : ''}
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-700/30">${rows}</tbody>
@@ -981,7 +1037,7 @@
         fetch(GAS_API_URL, {
           method: 'POST',
           body: JSON.stringify({ action: 'addLogbookEntry', logData: newLog })
-        }).catch(err => console.warn('Gagal sync logbook ke server:', err));
+        }).catch(err => console.warn('Gagal sync logbook:', err));
       }
     }
 
@@ -1046,7 +1102,7 @@
             <td class="py-3 px-4 text-slate-300 font-mono whitespace-nowrap">${log.timestamp}</td>
             <td class="py-3 px-4">${roleBadgeHtml}</td>
             <td class="py-3 px-4"><span class="text-xs text-slate-200 font-medium">${log.category}</span></td>
-            <td class="py-3 px-4 text-slate-300">${log.details}</td>
+            <td class="py-3 px-4 text-slate-300 max-w-xs break-words">${log.details}</td>
             ${currentRole === 'admin' ? `
             <td class="py-3 px-4 text-center">
               <button onclick="deleteSingleLog('${log.id}')" class="text-slate-500 hover:text-red-400 p-1 transition" title="Hapus Log">
@@ -1058,7 +1114,7 @@
       }).join('');
 
       container.innerHTML = `
-        <table class="w-full text-left">
+        <table class="w-full text-left border-collapse">
           <thead class="bg-slate-900/50 text-slate-400 text-[10px] uppercase font-bold border-b border-slate-700">
             <tr>
               <th class="py-3 px-4 text-center w-12">NO</th>
