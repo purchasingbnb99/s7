@@ -3,1137 +3,228 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIPENBER - Sistem Penerimaan Berkas & Penyerahan Sample</title>
-  
-  <!-- FAVICON LOGO S ORANGE (SVG) -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23f97316'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='65'>S</text></svg>">
-
+  <title>SIPENBER - Sistem Penerimaan Berkas PO</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
-
-    @media print {
-      body > *:not(#printArea) { display: none !important; }
-      body { background: #ffffff !important; color: #000000 !important; }
-      #printArea { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: #ffffff !important; color: #000000 !important; padding: 20px; }
-      table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-      th, td { border: 1px solid #000 !important; padding: 8px; text-align: left; font-size: 12px; color: #000 !important; }
-      th { background-color: #f2f2f2 !important; font-weight: bold; }
-    }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
 
-  <!-- CONFIGURATION -->
   <script>
+    // MASUKKAN URL WEB APP HASIL DEPLOYMENT ANDA DI SINI (BERAKHIRAN /exec)
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxf0cuja3sYJA-qdv3mxZV9PeDjZzMd4DbL8oMk82HIqC78G0RydEW_gS1qxsdtLc1p7g/exec";
   </script>
 
-  <!-- TOP HEADER -->
-  <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30 no-print">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <!-- HEADER -->
+  <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-orange-500/30">S</div>
+        <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center font-bold text-xl text-white shadow-lg">S</div>
         <div>
-          <h1 class="font-bold text-lg text-orange-500 tracking-wide">SIPENBER</h1>
-          <p class="text-xs text-slate-400">Sistem Penerimaan Berkas & Penyerahan Sample</p>
+          <h1 class="font-bold text-lg text-orange-500 tracking-wide leading-none">SIPENBER</h1>
+          <p class="text-[10px] text-slate-400 mt-1">Sistem Penerimaan Berkas PO</p>
         </div>
       </div>
-
+      
       <div class="flex items-center gap-3">
-        <button onclick="toggleLogbookModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm transition">
-          <i class="fa-solid fa-clock-rotate-left text-orange-400"></i>
-          <span>Logbook</span>
-          <span id="logCountBadge" class="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full font-semibold">0</span>
-        </button>
-
-        <div class="bg-slate-700/50 p-1 rounded-lg border border-slate-600 flex items-center gap-2 text-xs">
-          <span class="text-slate-400 pl-2">Akses:</span>
-          <span id="activeRoleText" class="font-semibold text-emerald-400 flex items-center gap-1">
-            <i class="fa-solid fa-user-check"></i> <span id="roleLabel">Staff / Penerima</span>
-          </span>
+        <!-- AKSES BADGE -->
+        <div class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 text-xs flex items-center gap-2">
+          <span class="text-slate-400">Akses:</span>
+          <span id="roleBadge" class="text-emerald-400 font-bold flex items-center gap-1"><i class="fa-solid fa-user-check"></i> Staff / Penerima</span>
         </div>
 
+        <!-- SWITCH ROLE -->
         <div class="bg-slate-900 p-1 rounded-lg flex gap-1 border border-slate-700">
-          <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium transition bg-blue-600 text-white shadow">
-            <i class="fa-solid fa-user-check mr-1"></i> Staff / Penerima
-          </button>
-          <button id="btnRoleAdmin" onclick="switchRole('admin')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition">
-            <i class="fa-solid fa-shield-halved mr-1"></i> Admin
-          </button>
+          <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow"><i class="fa-solid fa-user"></i> Staff / Penerima</button>
+          <button id="btnRoleAdmin" onclick="switchRole('admin')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition"><i class="fa-solid fa-user-shield"></i> Admin</button>
+        </div>
+
+        <!-- INDIKATOR KONEKSI -->
+        <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-full border border-slate-700">
+          <div id="dbIndicator" class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse"></div>
+          <span id="dbText" class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">CONNECTING</span>
         </div>
       </div>
     </div>
 
-    <!-- MODULE TAB NAVIGATION -->
-    <div class="bg-slate-900 border-b border-slate-700 px-4 sm:px-6 lg:px-8 flex gap-2">
-      <button id="tabBerkas" onclick="switchModule('berkas')" class="py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2">
-        <i class="fa-solid fa-folder-closed"></i> Penerimaan Berkas PO
-      </button>
-      <button id="tabSample" onclick="switchModule('sample')" class="py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2">
-        <i class="fa-solid fa-vial"></i> Penyerahan Sample
-      </button>
+    <!-- TABS NAVIGATION -->
+    <div class="bg-slate-900 border-b border-slate-700 px-4 flex gap-1">
+      <button class="py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-folder-closed"></i> Penerimaan Berkas PO</button>
     </div>
   </header>
 
-  <!-- MAIN CONTENT CONTAINER -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6 no-print">
-
-    <!-- MODULE 1: BERKAS DOKUMEN -->
-    <div id="moduleBerkasContainer" class="flex flex-col gap-6">
-      <!-- STATS CARDS -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl flex items-center justify-between">
-          <div><p class="text-xs text-slate-400 font-medium">TOTAL BERKAS</p><h3 id="statTotal" class="text-2xl font-bold text-white mt-1">0</h3></div>
-          <div class="w-10 h-10 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg"><i class="fa-solid fa-copy"></i></div>
-        </div>
-        <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl flex items-center justify-between">
-          <div><p class="text-xs text-slate-400 font-medium">SUDAH DICEKLIS</p><h3 id="statChecked" class="text-2xl font-bold text-emerald-400 mt-1">0</h3></div>
-          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg"><i class="fa-solid fa-circle-check"></i></div>
-        </div>
-        <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl flex items-center justify-between">
-          <div><p class="text-xs text-slate-400 font-medium">TERKUNCI</p><h3 id="statLocked" class="text-2xl font-bold text-amber-400 mt-1">0</h3></div>
-          <div class="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg"><i class="fa-solid fa-lock"></i></div>
-        </div>
-        <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl flex items-center justify-between">
-          <div><p class="text-xs text-slate-400 font-medium">TOTAL TANGGAL</p><h3 id="statDates" class="text-2xl font-bold text-purple-400 mt-1">0</h3></div>
-          <div class="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg"><i class="fa-solid fa-calendar-days"></i></div>
-        </div>
-      </div>
-
-      <!-- CONTROLS & FILTERS -->
-      <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl flex flex-wrap gap-3 items-center justify-between">
-        <div class="flex flex-1 gap-2 min-w-[280px]">
-          <div class="relative flex-1">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-            <input type="text" id="searchInput" oninput="renderTable()" placeholder="Cari No PO, Nama Vendor..." class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500">
-          </div>
-          <select id="filterDate" onchange="renderTable()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-orange-500"><option value="">Semua Tanggal</option></select>
-          <select id="filterStatus" onchange="renderTable()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-orange-500">
-            <option value="">Semua Status</option>
-            <option value="checked">Sudah Diceklis</option>
-            <option value="unchecked">Belum Diceklis</option>
-            <option value="locked">Terkunci</option>
-          </select>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="fetchDocumentsFromBackend()" class="px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm flex items-center gap-2"><i class="fa-solid fa-rotate"></i> Refresh</button>
-          <button id="btnCreateBatch" onclick="openCreateModal()" class="hidden px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm flex items-center gap-2"><i class="fa-solid fa-plus"></i> Buat Penerimaan Berkas</button>
-        </div>
-      </div>
-
-      <!-- GROUPED TABLES -->
-      <div id="groupedTablesContainer" class="flex flex-col gap-6"></div>
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
+    <!-- STATISTIK CARD -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Berkas</p><h3 id="statTotal" class="text-2xl font-bold text-white mt-1">0</h3></div></div>
+      <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Diceklis</p><h3 id="statChecked" class="text-2xl font-bold text-emerald-400 mt-1">0</h3></div></div>
+      <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Terkunci</p><h3 id="statLocked" class="text-2xl font-bold text-amber-400 mt-1">0</h3></div></div>
+      <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Tanggal</p><h3 id="statDates" class="text-2xl font-bold text-purple-400 mt-1">0</h3></div></div>
     </div>
 
-    <!-- MODULE 2: PENYERAHAN SAMPLE -->
-    <div id="moduleSampleContainer" class="hidden flex-col gap-6">
-      <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl flex flex-wrap gap-3 items-center justify-between">
-        <div class="relative flex-1 min-w-[280px]">
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-          <input type="text" id="searchSampleInput" oninput="renderSampleTable()" placeholder="Cari Nama Barang/Sample, Tujuan, Tanggal..." class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500">
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="fetchSampleFromBackend()" class="px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm flex items-center gap-2"><i class="fa-solid fa-rotate"></i> Refresh Sample</button>
-          <button id="btnCreateSample" onclick="openCreateSampleModal()" class="hidden px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm flex items-center gap-2 shadow-lg shadow-orange-600/30"><i class="fa-solid fa-plus"></i> Input Penyerahan Sample</button>
-        </div>
-      </div>
-
-      <div class="bg-slate-800 border border-slate-700/60 rounded-xl overflow-hidden shadow-xl">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm text-slate-300">
-            <thead class="bg-slate-900/90 uppercase text-[11px] font-semibold text-slate-400 border-b border-slate-700">
-              <tr>
-                <th class="py-3.5 px-4 w-12 text-center">NO</th>
-                <th class="py-3.5 px-4">TANGGAL PENYERAHAN</th>
-                <th class="py-3.5 px-4">NAMA BARANG / SAMPLE</th>
-                <th class="py-3.5 px-4">TUJUAN SAMPLE</th>
-                <th class="py-3.5 px-4">KETERANGAN</th>
-                <th class="py-3.5 px-4 text-center">BUKTI FOTO</th>
-                <th class="py-3.5 px-4 text-center">AKSI</th>
-              </tr>
-            </thead>
-            <tbody id="sampleTableBody" class="divide-y divide-slate-700/50"></tbody>
-          </table>
-        </div>
-      </div>
+    <!-- TABEL DATA BERKAS -->
+    <div id="groupedTablesContainer" class="flex flex-col gap-6">
+      <p class="text-slate-500 text-center py-10">Memuat data dari database...</p>
     </div>
-
-    <!-- EMPTY STATE -->
-    <div id="emptyState" class="hidden bg-slate-800 border border-slate-700/60 rounded-xl flex-col items-center justify-center py-16 text-center">
-      <div class="w-16 h-16 rounded-full bg-slate-700/50 flex items-center justify-center text-slate-500 text-2xl mb-3"><i class="fa-solid fa-folder-open"></i></div>
-      <p class="text-slate-300 font-medium">Tidak Ada Data Ditemukan</p>
-    </div>
-
   </main>
 
-  <!-- PRINT AREA -->
-  <div id="printArea" class="hidden"></div>
-
-  <!-- MODAL: ADMIN PASSWORD -->
-  <div id="modalPassword" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
-    <div class="bg-slate-800 border border-slate-700 rounded-xl max-w-sm w-full p-6 shadow-2xl">
-      <div class="text-center mb-5">
-        <div class="w-12 h-12 rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl mx-auto mb-2"><i class="fa-solid fa-lock"></i></div>
-        <h3 class="text-lg font-bold text-white">Verifikasi Hak Akses Admin</h3>
-        <p class="text-xs text-slate-400 mt-1">Masukkan kata sandi Admin untuk melangkah lebih jauh</p>
-      </div>
-      <input type="password" id="inputAdminPassword" placeholder="Password Admin" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-orange-500 mb-4">
-      <div class="flex gap-2">
-        <button onclick="closePasswordModal()" class="flex-1 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-medium">Batal</button>
-        <button onclick="submitAdminPassword()" class="flex-1 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium">Verifikasi</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: INPUT/EDIT SAMPLE (ADMIN ONLY) -->
-  <div id="modalSampleForm" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
-    <div class="bg-slate-800 border border-slate-700 rounded-xl max-w-lg w-full p-6 shadow-2xl">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-4">
-        <h3 id="sampleModalTitle" class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-vial text-orange-400"></i> Input Penyerahan Sample</h3>
-        <button onclick="closeSampleModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
-
-      <input type="hidden" id="sampleEditId">
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="block text-slate-400 font-medium mb-1">Tanggal Penyerahan</label>
-          <input type="date" id="sampleTanggal" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-orange-500">
-        </div>
-        <div>
-          <label class="block text-slate-400 font-medium mb-1">Nama Barang / Sample *</label>
-          <input type="text" id="sampleNamaBarang" placeholder="Contoh: Biji Plastik HDPE Grade A" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-orange-500">
-        </div>
-        <div>
-          <label class="block text-slate-400 font-medium mb-1">Tujuan Sample *</label>
-          <input type="text" id="sampleTujuan" placeholder="Contoh: PT. Makmur Jaya / Tim QC" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-orange-500">
-        </div>
-        <div>
-          <label class="block text-slate-400 font-medium mb-1">Keterangan Catatan</label>
-          <textarea id="sampleKeterangan" rows="2" placeholder="Catatan spesifikasi/kondisi sample..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-orange-500"></textarea>
-        </div>
-        <div>
-          <label class="block text-slate-400 font-medium mb-1">Bukti Foto Penyerahan (Kamera / Galeri)</label>
-          <input type="file" id="sampleFotoInput" accept="image/*" capture="environment" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-300 text-xs">
-        </div>
-      </div>
-
-      <div class="pt-4 border-t border-slate-700 flex justify-end gap-2 mt-5">
-        <button onclick="closeSampleModal()" class="px-4 py-2 rounded-lg bg-slate-700 text-slate-300 text-xs">Batal</button>
-        <button onclick="saveSampleData()" class="px-4 py-2 rounded-lg bg-orange-600 text-white text-xs font-semibold shadow-lg shadow-orange-600/30">Simpan Data Sample</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: EDIT BERKAS -->
-  <div id="modalEditDoc" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
-    <div class="bg-slate-800 border border-slate-700 rounded-xl max-w-lg w-full p-6 shadow-2xl">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-4">
-        <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-pen-to-square text-blue-400 mr-2"></i>Edit Data Berkas</h3>
-        <button onclick="closeEditModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
-      <input type="hidden" id="editDocId">
-      <div class="space-y-3 text-xs">
-        <div><label class="block text-slate-400 mb-1">Tanggal</label><input type="text" id="editTanggal" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100"></div>
-        <div><label class="block text-slate-400 mb-1">No PO</label><input type="text" id="editNoPo" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100"></div>
-        <div><label class="block text-slate-400 mb-1">Vendor</label><input type="text" id="editNamaVendor" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100"></div>
-        <div><label class="block text-slate-400 mb-1">Nominal</label><input type="number" id="editNominal" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100"></div>
-      </div>
-      <div class="pt-4 border-t border-slate-700 flex justify-end gap-2 mt-5">
-        <button onclick="closeEditModal()" class="px-4 py-2 rounded-lg bg-slate-700 text-slate-300 text-xs">Batal</button>
-        <button onclick="submitEditDocument()" class="px-4 py-2 rounded-lg bg-blue-600 text-white text-xs font-semibold">Simpan Perubahan</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: CREATE BATCH BERKAS -->
-  <div id="modalCreateBatch" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
-    <div class="bg-slate-800 border border-slate-700 rounded-xl max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[90vh]">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-700 mb-4">
-        <div><h3 class="text-lg font-bold text-white">Buat Form Penerimaan Berkas</h3><p class="text-xs text-slate-400">Tambahkan daftar dokumen berkas baru sekaligus</p></div>
-        <button onclick="closeCreateModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
-      <div class="flex-1 overflow-y-auto space-y-3 pr-1" id="batchItemsContainer"></div>
-      <div class="pt-4 border-t border-slate-700 flex items-center justify-between mt-4">
-        <button onclick="addBatchRow()" class="px-3 py-2 rounded-lg bg-slate-700 text-slate-200 text-xs font-medium"><i class="fa-solid fa-plus mr-1"></i>Tambah Baris</button>
-        <div class="flex gap-2">
-          <button onclick="closeCreateModal()" class="px-4 py-2 rounded-lg bg-slate-700 text-slate-300 text-sm">Batal</button>
-          <button onclick="saveBatchDocuments()" class="px-4 py-2 rounded-lg bg-orange-600 text-white text-sm">Simpan Berkas</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: LOGBOOK -->
-  <div id="modalLogbook" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
-    <div class="bg-slate-800 border border-slate-700 rounded-xl max-w-3xl w-full p-6 shadow-2xl flex flex-col max-h-[85vh]">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-700 mb-4">
-        <div class="flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-orange-400 text-lg"></i><h3 class="text-lg font-bold text-white">Riwayat Logbook Aktivitas</h3></div>
-        <button onclick="toggleLogbookModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
-      <div class="flex flex-wrap gap-2 mb-3">
-        <select id="logRoleFilter" onchange="renderLogbookTable()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200">
-          <option value="">Semua Role</option>
-          <option value="admin">Admin</option>
-          <option value="penerima">Staff / Penerima</option>
-        </select>
-        <input type="text" id="logSearch" oninput="renderLogbookTable()" placeholder="Cari aktivitas..." class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200">
-        <button id="btnClearLog" onclick="clearLogbookData()" class="hidden px-3 py-1.5 rounded-lg bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600 hover:text-white text-xs font-medium"><i class="fa-solid fa-trash-can mr-1"></i>Bersihkan Log</button>
-      </div>
-      <div class="flex-1 overflow-y-auto border border-slate-700/60 rounded-lg">
-        <table class="w-full text-left text-xs text-slate-300">
-          <thead class="bg-slate-900/90 text-slate-400 sticky top-0 border-b border-slate-700">
-            <tr><th class="py-2.5 px-3">WAKTU</th><th class="py-2.5 px-3">ROLE</th><th class="py-2.5 px-3">AKSI</th><th class="py-2.5 px-3">DETAIL ACTIVITY</th></tr>
-          </thead>
-          <tbody id="logbookTableBody" class="divide-y divide-slate-700/50"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
   <script>
-    let currentRole = 'penerima';
-    let currentModule = 'berkas';
-    let isAdminLoggedIn = false;
-
     let documentsData = [];
-    let sampleData = [];
-    let logsData = [];
+    let currentRole = 'penerima';
 
-    const LOCAL_DOCS_KEY = 'SIPENBER_DOCS_DATA';
-    const LOCAL_SAMPLE_KEY = 'SIPENBER_SAMPLE_DATA';
-    const LOCAL_LOGS_KEY = 'SIPENBER_LOGS_DATA';
-
-    window.onload = () => {
-      loadLocalData();
-      if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-        fetchDocumentsFromBackend();
-        fetchSampleFromBackend();
-        fetchLogsFromBackend();
-      }
-      renderTable();
-      renderSampleTable();
-      updateLogCountBadge();
-    };
-
-    function switchModule(mod) {
-      currentModule = mod;
-      document.getElementById('moduleBerkasContainer').classList.toggle('hidden', mod !== 'berkas');
-      document.getElementById('moduleSampleContainer').classList.toggle('hidden', mod !== 'sample');
-
-      document.getElementById('tabBerkas').className = mod === 'berkas' ? 'py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2' : 'py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2';
-      document.getElementById('tabSample').className = mod === 'sample' ? 'py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2' : 'py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2';
-    }
+    window.onload = () => { loadAllData(); };
 
     function switchRole(role) {
-      if (role === 'admin') {
-        if (!isAdminLoggedIn) {
-          openPasswordModal();
-          return;
-        }
-      } else {
-        isAdminLoggedIn = false;
-      }
-      setRoleState(role);
-    }
-
-    function setRoleState(role) {
       currentRole = role;
       const isAdmin = role === 'admin';
-
-      document.getElementById('roleLabel').innerText = isAdmin ? 'Admin' : 'Staff / Penerima';
-      document.getElementById('activeRoleText').className = isAdmin ? 'font-semibold text-orange-400 flex items-center gap-1' : 'font-semibold text-emerald-400 flex items-center gap-1';
-
-      document.getElementById('btnRolePenerima').className = !isAdmin ? 'px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow' : 'px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white';
-      document.getElementById('btnRoleAdmin').className = isAdmin ? 'px-3 py-1 rounded text-xs font-medium bg-orange-600 text-white shadow' : 'px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white';
-
-      document.getElementById('btnCreateBatch').classList.toggle('hidden', !isAdmin);
-      document.getElementById('btnCreateSample').classList.toggle('hidden', !isAdmin);
-      document.getElementById('btnClearLog').classList.toggle('hidden', !isAdmin);
-
-      renderTable();
-      renderSampleTable();
-    }
-
-    function openPasswordModal() {
-      document.getElementById('inputAdminPassword').value = '';
-      document.getElementById('modalPassword').classList.remove('hidden');
-    }
-
-    function closePasswordModal() {
-      document.getElementById('modalPassword').classList.add('hidden');
-    }
-
-    function submitAdminPassword() {
-      const inputPass = document.getElementById('inputAdminPassword').value;
-      if (!inputPass) return;
-
-      if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-        fetch(GAS_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'verifyAdminPassword', password: inputPass })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success || data.status === 'success') {
-            isAdminLoggedIn = true;
-            closePasswordModal();
-            setRoleState('admin');
-            showToast('Berhasil masuk sebagai Admin', 'success');
-          } else {
-            showToast('Password Admin salah!', 'error');
-          }
-        })
-        .catch(() => {
-          if (inputPass === 'admin123') {
-            isAdminLoggedIn = true;
-            closePasswordModal();
-            setRoleState('admin');
-            showToast('Berhasil masuk sebagai Admin', 'success');
-          } else {
-            showToast('Password Admin salah!', 'error');
-          }
-        });
-      } else {
-        if (inputPass === 'admin123') {
-          isAdminLoggedIn = true;
-          closePasswordModal();
-          setRoleState('admin');
-          showToast('Berhasil masuk sebagai Admin', 'success');
-        } else {
-          showToast('Password Admin salah!', 'error');
-        }
-      }
-    }
-
-    // ------------------------------------------
-    // FUNGSI KOMPRESI DENGAN CANVAS
-    // ------------------------------------------
-    function compressImage(file, maxWidth = 600, quality = 0.4) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = event => {
-          const img = new Image();
-          img.src = event.target.result;
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-
-            if (width > maxWidth) {
-              height = Math.round((height * maxWidth) / width);
-              width = maxWidth;
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-          };
-          img.onerror = err => reject(err);
-        };
-        reader.onerror = err => reject(err);
-      });
-    }
-
-    // FUNGSI UPLOAD AMAN BEBAS PERINGATAN SSL FIREFOX
-    async function uploadImageToCDN(file) {
-      return await compressImage(file, 600, 0.4);
-    }
-
-    function fetchSampleFromBackend() {
-      if (!GAS_API_URL || GAS_API_URL.trim() === "" || GAS_API_URL.includes("ISI_DENGAN_URL")) return;
-
-      fetch(`${GAS_API_URL}?action=getSample`)
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            sampleData = data;
-            saveLocalSample();
-            renderSampleTable();
-          }
-        })
-        .catch(err => console.error('Sample fetch error:', err));
-    }
-
-    function openCreateSampleModal() {
-      if (currentRole !== 'admin') return;
-      document.getElementById('sampleEditId').value = '';
-      document.getElementById('sampleModalTitle').innerHTML = '<i class="fa-solid fa-vial text-orange-400"></i> Input Penyerahan Sample';
-      document.getElementById('sampleTanggal').value = new Date().toISOString().split('T')[0];
-      document.getElementById('sampleNamaBarang').value = '';
-      document.getElementById('sampleTujuan').value = '';
-      document.getElementById('sampleKeterangan').value = '';
-      document.getElementById('sampleFotoInput').value = '';
-      document.getElementById('modalSampleForm').classList.remove('hidden');
-    }
-
-    function openEditSampleModal(id) {
-      if (currentRole !== 'admin') return;
-      const smp = sampleData.find(s => s.id === id);
-      if (!smp) return;
-
-      document.getElementById('sampleEditId').value = smp.id;
-      document.getElementById('sampleModalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-400"></i> Edit Data Sample';
       
-      let dateVal = smp.tanggal;
-      if (dateVal && dateVal.includes('/')) {
-        const parts = dateVal.split('/');
-        dateVal = `${parts[2]}-${parts[1]}-${parts[0]}`;
-      }
-      document.getElementById('sampleTanggal').value = dateVal || '';
-      document.getElementById('sampleNamaBarang').value = smp.namaBarang || '';
-      document.getElementById('sampleTujuan').value = smp.tujuan || '';
-      document.getElementById('sampleKeterangan').value = smp.keterangan || '';
-      document.getElementById('sampleFotoInput').value = '';
-      document.getElementById('modalSampleForm').classList.remove('hidden');
+      document.getElementById('roleBadge').innerHTML = isAdmin 
+        ? '<i class="fa-solid fa-user-shield text-orange-400"></i> <span class="text-orange-400 font-bold">Admin</span>'
+        : '<i class="fa-solid fa-user-check text-emerald-400"></i> <span class="text-emerald-400 font-bold">Staff / Penerima</span>';
+        
+      document.getElementById('btnRolePenerima').className = !isAdmin ? 'px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow' : 'px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition';
+      document.getElementById('btnRoleAdmin').className = isAdmin ? 'px-3 py-1 rounded text-xs font-medium bg-orange-600 text-white shadow' : 'px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition';
+      renderTable();
     }
 
-    function closeSampleModal() {
-      document.getElementById('modalSampleForm').classList.add('hidden');
+    function formatDateDisplay(rawDate) {
+      if (!rawDate) return '-';
+      const d = new Date(rawDate);
+      if (isNaN(d.getTime())) return rawDate;
+      return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
     }
 
-    async function saveSampleData() {
-      const editId = document.getElementById('sampleEditId').value;
-      const tanggalInput = document.getElementById('sampleTanggal').value;
-      const namaBarang = document.getElementById('sampleNamaBarang').value;
-      const tujuan = document.getElementById('sampleTujuan').value;
-      const keterangan = document.getElementById('sampleKeterangan').value;
-      const fileInput = document.getElementById('sampleFotoInput');
-
-      if (!namaBarang || !tujuan) {
-        showToast('Isi Nama Barang dan Tujuan Sample!', 'warning');
-        return;
-      }
-
-      let uploadedUrl = '';
-      if (fileInput.files && fileInput.files[0]) {
-        showToast('Memproses foto...', 'info');
-        try {
-          uploadedUrl = await uploadImageToCDN(fileInput.files[0]);
-        } catch (e) {
-          console.error('Upload error:', e);
-        }
-      }
-
-      const formattedDate = formatDateString(tanggalInput);
-      showToast('Menyimpan data sample...', 'info');
-
-      const payload = {
-        action: editId ? 'updateSample' : 'createSample',
-        id: editId || '',
-        tanggal: formattedDate,
-        namaBarang: namaBarang,
-        tujuan: tujuan,
-        keterangan: keterangan,
-        urlFoto: uploadedUrl
-      };
-
-      if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-        fetch(GAS_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(res => {
-          if (res.status === 'success' || res.success) {
-            showToast('Foto & Data Sample Berhasil Tersimpan!', 'success');
-            closeSampleModal();
-            fetchSampleFromBackend();
-          } else {
-            showToast('Gagal menyimpan ke server', 'error');
-          }
-        })
-        .catch(err => {
-          console.error('Fetch Error:', err);
-          showToast('Koneksi server terganggu', 'error');
-        });
-      } else {
-        showToast('Data tersimpan secara lokal', 'success');
-        closeSampleModal();
-      }
+    function formatRupiah(num) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num || 0);
     }
 
-    function deleteSample(id) {
-      if (currentRole !== 'admin') return;
-
-      const smp = sampleData.find(s => s.id === id);
-      if (!smp) return;
-
-      Swal.fire({
-        title: 'Hapus Data Sample?',
-        text: `Sample "${smp.namaBarang}" tujuan ${smp.tujuan} akan dihapus permanen.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        confirmButtonText: 'Ya, Hapus!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          sampleData = sampleData.filter(s => s.id !== id);
-          saveLocalSample();
-          renderSampleTable();
-          addLogEntry('Hapus Sample', `Menghapus sample: ${smp.namaBarang}`);
-
-          if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-            fetch(GAS_API_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify({ action: 'deleteSample', id: id })
-            });
-          }
-          showToast('Data sample dihapus', 'success');
-        }
-      });
-    }
-
-    function renderSampleTable() {
-      const tbody = document.getElementById('sampleTableBody');
-      const searchVal = document.getElementById('searchSampleInput').value.toLowerCase();
-      const isAdmin = currentRole === 'admin';
-
-      tbody.innerHTML = '';
-
-      const filtered = sampleData.filter(s => {
-        const barang = (s.namaBarang || '').toLowerCase();
-        const tujuan = (s.tujuan || '').toLowerCase();
-        const tgl = (s.tanggal || '').toLowerCase();
-        const ket = (s.keterangan || '').toLowerCase();
-        return !searchVal || barang.includes(searchVal) || tujuan.includes(searchVal) || tgl.includes(searchVal) || ket.includes(searchVal);
-      });
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500">Tidak ada catatan penyerahan sample ditemukan</td></tr>`;
-        return;
-      }
-
-      filtered.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-700/30 transition border-b border-slate-700/50';
-
-        tr.innerHTML = `
-          <td class="py-3.5 px-4 text-center text-xs text-slate-500">${index + 1}</td>
-          <td class="py-3.5 px-4 font-mono text-xs text-slate-300">${item.tanggal || '-'}</td>
-          <td class="py-3.5 px-4 font-bold text-orange-400">${item.namaBarang}</td>
-          <td class="py-3.5 px-4 font-medium text-slate-200">${item.tujuan}</td>
-          <td class="py-3.5 px-4 text-xs text-slate-400">${item.keterangan || '-'}</td>
-          <td class="py-3.5 px-4 text-center">
-            ${item.urlFoto ? `
-              <button onclick="previewPhoto('${item.urlFoto}')" class="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white rounded text-xs font-semibold inline-flex items-center gap-1 transition">
-                <i class="fa-solid fa-image"></i> Lihat Foto
-              </button>
-            ` : '<span class="text-xs text-slate-600">Tanpa Foto</span>'}
-          </td>
-          <td class="py-3.5 px-4 text-center">
-            ${isAdmin ? `
-              <div class="flex items-center justify-center gap-1.5">
-                <button onclick="openEditSampleModal('${item.id}')" class="px-2 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white rounded text-xs transition"><i class="fa-solid fa-pen-to-square"></i></button>
-                <button onclick="deleteSample('${item.id}')" class="px-2 py-1 bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-600 hover:text-white rounded text-xs transition"><i class="fa-solid fa-trash-can"></i></button>
-              </div>
-            ` : '<span class="text-xs text-slate-500"><i class="fa-solid fa-eye mr-1"></i>Hanya Lihat</span>'}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    // FUNGSI PRATINJAU FOTO POPUP MODAL
-    function previewPhoto(url) {
-      Swal.fire({
-        imageUrl: url,
-        imageAlt: 'Bukti Penyerahan Sample',
-        showCloseButton: true,
-        showConfirmButton: false,
-        background: '#1e293b',
-        customClass: {
-          image: 'rounded-lg max-h-[75vh] object-contain'
-        }
-      });
-    }
-
-    // ------------------------------------------
-    // BERKAS MODULE LOGIC
-    // ------------------------------------------
-    function fetchDocumentsFromBackend() {
-      if (!GAS_API_URL || GAS_API_URL.trim() === "" || GAS_API_URL.includes("ISI_DENGAN_URL")) return;
-
-      showToast('Memuat berkas server...', 'info');
+    function loadAllData() {
       fetch(`${GAS_API_URL}?action=getBerkas`)
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            documentsData = data;
-            saveLocalDocs();
-            renderTable();
-          }
-        });
+      .then(res => res.json())
+      .then(data => {
+        documentsData = Array.isArray(data) ? data : [];
+        
+        document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]";
+        document.getElementById('dbText').innerText = "CONNECTED";
+        document.getElementById('dbText').className = "text-[10px] font-bold uppercase text-green-500 tracking-wider";
+        
+        renderTable();
+      })
+      .catch(err => {
+        document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-red-500";
+        document.getElementById('dbText').innerText = "ERROR CONNECTION";
+        document.getElementById('dbText').className = "text-[10px] font-bold uppercase text-red-500 tracking-wider";
+        console.error(err);
+      });
     }
 
     function renderTable() {
       const container = document.getElementById('groupedTablesContainer');
-      const emptyState = document.getElementById('emptyState');
-      const searchVal = document.getElementById('searchInput').value.toLowerCase();
-      const filterDate = document.getElementById('filterDate').value;
-      const filterStatus = document.getElementById('filterStatus').value;
-
       container.innerHTML = '';
-      updateFilterDateOptions();
-
-      const filtered = documentsData.filter(doc => {
-        const po = (doc.noPo || doc.po || '').toLowerCase();
-        const vendor = (doc.namaVendor || doc.vendor || '').toLowerCase();
-        const nominal = (doc.nominal || '').toString();
-
-        const matchSearch = !searchVal || po.includes(searchVal) || vendor.includes(searchVal) || nominal.includes(searchVal);
-        const matchDate = !filterDate || doc.tanggal === filterDate;
-        
-        let matchStatus = true;
-        if (filterStatus === 'checked') matchStatus = doc.isChecked;
-        if (filterStatus === 'unchecked') matchStatus = !doc.isChecked;
-        if (filterStatus === 'locked') matchStatus = doc.isLocked;
-
-        return matchSearch && matchDate && matchStatus;
-      });
-
-      if (filtered.length === 0) {
-        emptyState.classList.remove('hidden');
-        emptyState.classList.add('flex');
-        updateDashboardStats();
+      
+      if (!documentsData || documentsData.length === 0) {
+        container.innerHTML = '<p class="text-center text-slate-500 py-10">Data Berkas Kosong.</p>';
         return;
       }
 
-      emptyState.classList.add('hidden');
-      emptyState.classList.remove('flex');
+      document.getElementById('statTotal').innerText = documentsData.length;
+      document.getElementById('statChecked').innerText = documentsData.filter(d => d.isChecked).length;
+      document.getElementById('statLocked').innerText = documentsData.filter(d => d.isLocked).length;
+      
+      const dates = [...new Set(documentsData.map(d => formatDateDisplay(d.tanggal)))].filter(Boolean);
+      document.getElementById('statDates').innerText = dates.length;
 
-      const groups = {};
-      filtered.forEach(item => {
-        const dateKey = item.tanggal || 'Tanpa Tanggal';
-        if (!groups[dateKey]) groups[dateKey] = [];
-        groups[dateKey].push(item);
+      const groups = {}; 
+      documentsData.forEach(d => { 
+        const tgl = formatDateDisplay(d.tanggal);
+        if (!groups[tgl]) groups[tgl] = []; 
+        groups[tgl].push(d); 
       });
 
       Object.keys(groups).forEach(date => {
         const docs = groups[date];
-        const totalNominal = docs.reduce((sum, d) => sum + (Number(d.nominal) || 0), 0);
-        const completedCount = docs.filter(d => d.isChecked).length;
-        const isAdmin = currentRole === 'admin';
+        const totalNominal = docs.reduce((acc, curr) => acc + (Number(curr.nominal) || 0), 0);
+        const totalChecked = docs.filter(d => d.isChecked).length;
 
-        const card = document.createElement('div');
-        card.className = 'bg-slate-800 border border-slate-700/60 rounded-xl overflow-hidden shadow-xl';
+        let rows = docs.map((d, i) => `
+          <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 transition text-xs">
+            <td class="py-3 px-4 text-center text-slate-500 font-mono">${i+1}</td>
+            <td class="py-3 px-4 font-bold text-orange-400 font-mono">${d.noPo}</td>
+            <td class="py-3 px-4 text-slate-200 font-semibold">${d.vendor}</td>
+            <td class="py-3 px-4 text-emerald-400 font-mono font-bold">${formatRupiah(d.nominal)}</td>
+            <td class="py-3 px-4 text-slate-400">
+              <input type="text" value="${d.notes || ''}" placeholder="${d.isLocked ? 'Terkunci' : 'Catatan...'}" 
+              ${d.isLocked && currentRole !== 'admin' ? 'disabled' : ''} 
+              class="w-full bg-slate-900/40 border border-slate-700/60 rounded px-2.5 py-1 text-xs text-slate-200 outline-none focus:border-orange-500">
+            </td>
+            <td class="py-3 px-4 text-center">
+              <input type="checkbox" ${d.isChecked ? 'checked' : ''} 
+              ${d.isLocked && currentRole !== 'admin' ? 'disabled' : ''} 
+              onchange="toggleCheck('${d.id}', this.checked)" 
+              class="accent-orange-500 w-4 h-4 cursor-pointer">
+            </td>
+            <td class="py-3 px-4 text-center font-medium">
+              ${d.isLocked ? '<span class="text-amber-400 flex items-center justify-center gap-1"><i class="fa-solid fa-lock"></i> Terkunci</span>' : '<span class="text-slate-500">-</span>'}
+            </td>
+          </tr>
+        `).join('');
 
-        let rowsHtml = '';
-        docs.forEach((item, index) => {
-          const isLocked = item.isLocked;
-
-          rowsHtml += `
-            <tr class="hover:bg-slate-700/30 transition border-b border-slate-700/50">
-              <td class="py-3 px-4 text-center text-xs font-semibold text-slate-500">${index + 1}</td>
-              <td class="py-3 px-4 font-bold text-orange-400 font-mono">${item.noPo || item.po}</td>
-              <td class="py-3 px-4 font-medium text-slate-200">${item.namaVendor || item.vendor}</td>
-              <td class="py-3 px-4 font-mono text-emerald-400">Rp ${Number(item.nominal).toLocaleString('id-ID')}</td>
-              <td class="py-3 px-4">
-                <input type="text" value="${item.notes || ''}" 
-                  onblur="updateNotes('${item.id}', this.value)" 
-                  ${isLocked && !isAdmin ? 'disabled' : ''}
-                  placeholder="${isLocked && !isAdmin ? 'Terkunci' : 'Tambah catatan...'}"
-                  class="w-full bg-slate-900/60 border border-slate-700/80 rounded px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-orange-500 disabled:opacity-50 disabled:bg-slate-800">
-              </td>
-              <td class="py-3 px-4 text-center">
-                <input type="checkbox" ${item.isChecked ? 'checked' : ''} 
-                  onchange="toggleChecklist('${item.id}', this.checked)"
-                  ${isLocked && !isAdmin ? 'disabled' : ''}
-                  class="w-4 h-4 accent-orange-500 rounded cursor-pointer disabled:cursor-not-allowed">
-              </td>
-              <td class="py-3 px-4 text-center">
-                <div class="flex items-center justify-center gap-1.5">
-                  ${isAdmin ? `
-                    <button onclick="openEditModal('${item.id}')" title="Edit Berkas" class="px-2 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white rounded text-xs transition"><i class="fa-solid fa-pen-to-square"></i></button>
-                  ` : ''}
-
-                  ${isAdmin && isLocked ? `
-                    <button onclick="unlockDoc('${item.id}')" title="Buka Kunci" class="px-2 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500 hover:text-slate-900 rounded text-xs font-semibold flex items-center gap-1 transition"><i class="fa-solid fa-lock-open"></i> Unlock</button>
-                  ` : `
-                    <span class="text-xs text-slate-500">${isLocked ? '<i class="fa-solid fa-lock text-amber-400"></i> Terkunci' : '-'}</span>
-                  `}
-
-                  ${isAdmin ? `
-                    <button onclick="deleteDocument('${item.id}')" title="Hapus Berkas" class="px-2 py-1 bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-600 hover:text-white rounded text-xs transition"><i class="fa-solid fa-trash-can"></i></button>
-                  ` : ''}
+        container.innerHTML += `
+          <div class="bg-slate-800/90 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+            <div class="bg-slate-900/90 px-5 py-3.5 flex flex-wrap justify-between items-center border-b border-slate-700 gap-4">
+              <div class="flex items-center gap-3">
+                <div class="bg-blue-600/20 text-blue-400 p-2.5 rounded-xl border border-blue-500/30">
+                  <i class="fa-solid fa-calendar-days text-lg"></i>
                 </div>
-              </td>
-            </tr>
-          `;
-        });
-
-        card.innerHTML = `
-          <div class="bg-slate-900/90 px-5 py-4 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-lg"><i class="fa-solid fa-calendar-check"></i></div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <h3 class="font-bold text-base text-white font-mono">${date}</h3>
-                  <span class="bg-slate-700 text-slate-300 text-xs px-2 py-0.5 rounded-full font-medium">${docs.length} Berkas</span>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-white text-base font-mono">${date}</h3>
+                    <span class="text-[11px] bg-slate-700/80 text-slate-300 px-2.5 py-0.5 rounded-full font-medium">${docs.length} Berkas</span>
+                  </div>
+                  <p class="text-xs text-slate-400 mt-0.5">Total Nominal: <span class="text-emerald-400 font-bold font-mono">${formatRupiah(totalNominal)}</span> | Progress: <span class="text-white font-bold">${totalChecked} dari ${docs.length} Selesai</span></p>
                 </div>
-                <p class="text-xs text-slate-400 mt-0.5">
-                  Total Nominal: <span class="font-bold text-emerald-400">Rp ${totalNominal.toLocaleString('id-ID')}</span> | 
-                  Progress: <span class="font-semibold text-white">${completedCount} dari ${docs.length} Selesai</span>
-                </p>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button class="bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                  <i class="fa-solid fa-check-double"></i> Ceklis Semua
+                </button>
+                <button class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-1.5 rounded-lg shadow-md transition flex items-center gap-2">
+                  <i class="fa-solid fa-print"></i> Cetak Tanda Terima
+                </button>
               </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
-              <button onclick="toggleChecklistAll('${date}', true)" class="px-3 py-1.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"><i class="fa-solid fa-check-double"></i> Ceklis Semua</button>
-              ${isAdmin ? `
-                <button onclick="toggleChecklistAll('${date}', false)" class="px-3 py-1.5 bg-amber-600/20 text-amber-400 border border-amber-500/30 hover:bg-amber-600 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"><i class="fa-solid fa-rotate-left"></i> Batal Ceklis Semua</button>
-                <button onclick="deleteGroupDate('${date}')" class="px-3 py-1.5 bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"><i class="fa-solid fa-trash-can"></i> Hapus Semua Tanggal Ini</button>
-              ` : ''}
-              <button onclick="printReceipt('${date}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-blue-600/30 transition"><i class="fa-solid fa-print"></i> Cetak Tanda Terima</button>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead class="bg-slate-900/50 text-slate-400 text-[10px] uppercase font-bold border-b border-slate-700/50">
+                  <tr>
+                    <th class="py-3 px-4 text-center w-12">NO</th>
+                    <th class="py-3 px-4">NO PO</th>
+                    <th class="py-3 px-4">NAMA VENDOR / PT</th>
+                    <th class="py-3 px-4">NOMINAL (RP)</th>
+                    <th class="py-3 px-4">CATATAN PENERIMAAN</th>
+                    <th class="py-3 px-4 text-center">CEKLIS</th>
+                    <th class="py-3 px-4 text-center">AKSI / STATUS</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-700/30">${rows}</tbody>
+              </table>
             </div>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-300">
-              <thead class="bg-slate-900/50 uppercase text-[11px] font-semibold text-slate-400 border-b border-slate-700/80">
-                <tr>
-                  <th class="py-3 px-4 w-12 text-center">NO</th>
-                  <th class="py-3 px-4">NO PO</th>
-                  <th class="py-3 px-4">NAMA VENDOR / PT</th>
-                  <th class="py-3 px-4">NOMINAL (RP)</th>
-                  <th class="py-3 px-4">CATATAN PENERIMAAN</th>
-                  <th class="py-3 px-4 text-center">CEKLIS</th>
-                  <th class="py-3 px-4 text-center">AKSI / STATUS</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-700/50">${rowsHtml}</tbody>
-            </table>
-          </div>
-        `;
-
-        container.appendChild(card);
-      });
-
-      updateDashboardStats();
-    }
-
-    // HELPER UTILITIES
-    function openEditModal(id) {
-      if (currentRole !== 'admin') return;
-      const doc = documentsData.find(d => d.id === id);
-      if (!doc) return;
-      document.getElementById('editDocId').value = doc.id;
-      document.getElementById('editTanggal').value = doc.tanggal || '';
-      document.getElementById('editNoPo').value = doc.noPo || doc.po || '';
-      document.getElementById('editNamaVendor').value = doc.namaVendor || doc.vendor || '';
-      document.getElementById('editNominal').value = doc.nominal || 0;
-      document.getElementById('modalEditDoc').classList.remove('hidden');
-    }
-    function closeEditModal() { document.getElementById('modalEditDoc').classList.add('hidden'); }
-
-    function submitEditDocument() {
-      const id = document.getElementById('editDocId').value;
-      const tanggal = document.getElementById('editTanggal').value;
-      const po = document.getElementById('editNoPo').value;
-      const vendor = document.getElementById('editNamaVendor').value;
-      const nominal = document.getElementById('editNominal').value;
-
-      const doc = documentsData.find(d => d.id === id);
-      if (doc) {
-        doc.tanggal = tanggal;
-        doc.noPo = po; doc.po = po;
-        doc.namaVendor = vendor; doc.vendor = vendor;
-        doc.nominal = Number(nominal) || 0;
-
-        saveLocalDocs(); renderTable(); closeEditModal();
-        addLogEntry('Edit Berkas', `Mengedit berkas ID: ${id}`);
-
-        if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-          fetch(GAS_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'updateDocumentDetails', id: id, tanggal: tanggal, noPo: po, namaVendor: vendor, nominal: Number(nominal) || 0 })
-          });
-        }
-        showToast('Berkas berhasil diperbarui!', 'success');
-      }
-    }
-
-    function toggleChecklist(id, isChecked) {
-      const doc = documentsData.find(d => d.id === id);
-      if (!doc) return;
-      doc.isChecked = isChecked;
-      if (isChecked) doc.isLocked = true;
-      saveLocalDocs(); renderTable();
-      addLogEntry('Ceklis Berkas', `PO ${doc.noPo || doc.po} ceklis: ${isChecked}`);
-
-      if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-        fetch(GAS_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: isChecked, notes: doc.notes || '' })
-        });
-      }
-    }
-
-    function updateNotes(id, notes) {
-      const doc = documentsData.find(d => d.id === id);
-      if (doc) {
-        doc.notes = notes; saveLocalDocs();
-        if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-          fetch(GAS_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: doc.isChecked, notes: notes })
-          });
-        }
-      }
-    }
-
-    function unlockDoc(id) {
-      if (currentRole !== 'admin') return;
-      const doc = documentsData.find(d => d.id === id);
-      if (!doc) return;
-      doc.isLocked = false; saveLocalDocs(); renderTable();
-      addLogEntry('Buka Kunci', `PO ${doc.noPo || doc.po} dibuka kunci`);
-
-      if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-        fetch(GAS_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'unlockDocument', id: id })
-        });
-      }
-    }
-
-    function deleteDocument(id) {
-      if (currentRole !== 'admin') return;
-      const doc = documentsData.find(d => d.id === id);
-      if (!doc) return;
-      Swal.fire({
-        title: 'Hapus Berkas?', text: `PO ${doc.noPo || doc.po} akan dihapus`, icon: 'warning',
-        showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Hapus!'
-      }).then((r) => {
-        if (r.isConfirmed) {
-          documentsData = documentsData.filter(d => d.id !== id);
-          saveLocalDocs(); renderTable();
-          addLogEntry('Hapus Berkas', `Menghapus PO ${doc.noPo || doc.po}`);
-          if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-            fetch(GAS_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'deleteDocument', id: id }) });
-          }
-          showToast('Berkas dihapus', 'success');
-        }
+          </div>`;
       });
     }
 
-    function toggleChecklistAll(date, shouldCheck) {
-      const docsToUpdate = documentsData.filter(d => d.tanggal === date && (!d.isLocked || currentRole === 'admin'));
-      if (docsToUpdate.length === 0) return;
-      docsToUpdate.forEach(doc => { doc.isChecked = shouldCheck; if (shouldCheck) doc.isLocked = true; });
-      saveLocalDocs(); renderTable();
-      addLogEntry(shouldCheck ? 'Ceklis Semua' : 'Batal Ceklis', `Tanggal ${date}`);
-      if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-        docsToUpdate.forEach(doc => {
-          fetch(GAS_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'updatePenerimaStatus', id: doc.id, isCompleted: shouldCheck, notes: doc.notes || '' }) });
-        });
-      }
-    }
-
-    function deleteGroupDate(date) {
-      if (currentRole !== 'admin') return;
-      const docsForDate = documentsData.filter(d => d.tanggal === date);
-      if (docsForDate.length === 0) return;
-      Swal.fire({
-        title: `Hapus Data ${date}?`, text: `Akan menghapus ${docsForDate.length} berkas.`, icon: 'warning',
-        showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Hapus All'
-      }).then((r) => {
-        if (r.isConfirmed) {
-          const idsToDelete = docsForDate.map(d => d.id);
-          documentsData = documentsData.filter(d => d.tanggal !== date);
-          saveLocalDocs(); renderTable();
-          addLogEntry('Hapus Group', `Group ${date}`);
-          if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-            fetch(GAS_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'deleteGroupDate', ids: idsToDelete }) });
-          }
-          showToast('Data tanggal dihapus', 'success');
-        }
+    function toggleCheck(id, isChecked) {
+      const item = documentsData.find(d => d.id === id);
+      if(item) item.isChecked = isChecked;
+      fetch(GAS_API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: isChecked, notes: item ? item.notes : '' })
       });
-    }
-
-    function printReceipt(date) {
-      const docsForDate = documentsData.filter(d => d.tanggal === date);
-      if (docsForDate.length === 0) return;
-      const printArea = document.getElementById('printArea');
-      let totalNominal = 0;
-      let rowsHtml = '';
-      docsForDate.forEach((doc, idx) => {
-        totalNominal += Number(doc.nominal) || 0;
-        rowsHtml += `<tr><td style="text-align:center;">${idx + 1}</td><td><strong>${doc.noPo || doc.po}</strong></td><td>${doc.namaVendor || doc.vendor}</td><td style="text-align:right;">Rp ${Number(doc.nominal).toLocaleString('id-ID')}</td><td>${doc.notes || '-'}</td><td style="text-align:center;">${doc.isChecked ? 'SUDAH' : 'BELUM'}</td></tr>`;
-      });
-
-      printArea.innerHTML = `
-        <div style="font-family: Arial; color:#000; background:#fff;">
-          <div style="display:flex; justify-content:space-between; border-bottom:2px solid #000; padding-bottom:10px;">
-            <div><h2 style="margin:0; font-size:18px;">TANDA TERIMA BERKAS DOKUMEN</h2><p style="margin:4px 0 0 0; font-size:12px;">SIPENBER</p></div>
-            <div style="text-align:right;"><h3 style="margin:0; font-size:14px;">TANGGAL: ${date}</h3><p style="margin:4px 0 0 0; font-size:11px;">Total Berkas: ${docsForDate.length}</p></div>
-          </div>
-          <table style="width:100%; border-collapse:collapse; margin-top:15px;">
-            <thead><tr style="background-color:#f2f2f2;"><th>NO</th><th>NO PO</th><th>VENDOR</th><th>NOMINAL (RP)</th><th>CATATAN</th><th>CEKLIS</th></tr></thead>
-            <tbody>${rowsHtml}</tbody>
-            <tfoot><tr><td colspan="3" style="text-align:right; font-weight:bold;">TOTAL:</td><td style="text-align:right; font-weight:bold;">Rp ${totalNominal.toLocaleString('id-ID')}</td><td colspan="2"></td></tr></tfoot>
-          </table>
-        </div>
-      `;
-      printArea.classList.remove('hidden');
-      setTimeout(() => { window.print(); printArea.classList.add('hidden'); }, 100);
-    }
-
-    function openCreateModal() {
-      const container = document.getElementById('batchItemsContainer');
-      container.innerHTML = ''; addBatchRow();
-      document.getElementById('modalCreateBatch').classList.remove('hidden');
-    }
-    function closeCreateModal() { document.getElementById('modalCreateBatch').classList.add('hidden'); }
-
-    function addBatchRow() {
-      const container = document.getElementById('batchItemsContainer');
-      const row = document.createElement('div');
-      row.className = 'batch-row grid grid-cols-12 gap-2 p-3 bg-slate-900/60 rounded-lg border border-slate-700/60 items-center';
-      const today = new Date().toISOString().split('T')[0];
-      row.innerHTML = `
-        <div class="col-span-3"><input type="date" value="${today}" class="input-tanggal w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-slate-100"></div>
-        <div class="col-span-3"><input type="text" placeholder="No PO" class="input-po w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-slate-100 font-mono"></div>
-        <div class="col-span-3"><input type="text" placeholder="Nama Vendor" class="input-vendor w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-slate-100"></div>
-        <div class="col-span-2"><input type="number" placeholder="Nominal" class="input-nominal w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-slate-100 font-mono"></div>
-        <div class="col-span-1 text-center"><button onclick="this.closest('.batch-row').remove()" class="text-slate-500 hover:text-red-400"><i class="fa-solid fa-trash"></i></button></div>
-      `;
-      container.appendChild(row);
-    }
-
-    function saveBatchDocuments() {
-      const rows = document.querySelectorAll('.batch-row');
-      const newItems = [];
-      rows.forEach(row => {
-        const tanggal = row.querySelector('.input-tanggal').value;
-        const po = row.querySelector('.input-po').value;
-        const vendor = row.querySelector('.input-vendor').value;
-        const nominal = row.querySelector('.input-nominal').value;
-        if (tanggal && po && vendor) {
-          newItems.push({
-            id: 'DOC-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-            tanggal: formatDateString(tanggal),
-            noPo: po, po: po, namaVendor: vendor, vendor: vendor,
-            nominal: Number(nominal) || 0, notes: '', isChecked: false, isLocked: false
-          });
-        }
-      });
-      if (newItems.length === 0) return showToast('Isi minimal 1 berkas!', 'warning');
-
-      documentsData = [...newItems, ...documentsData];
-      saveLocalDocs(); renderTable(); closeCreateModal();
-      addLogEntry('Input Batch', `Tambah ${newItems.length} berkas`);
-
-      if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-        fetch(GAS_API_URL, {
-          method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'createBerkasBatch', items: newItems })
-        }).then(() => fetchDocumentsFromBackend());
-      }
-    }
-
-    function updateDashboardStats() {
-      document.getElementById('statTotal').innerText = documentsData.length;
-      document.getElementById('statChecked').innerText = documentsData.filter(d => d.isChecked).length;
-      document.getElementById('statLocked').innerText = documentsData.filter(d => d.isLocked).length;
-      document.getElementById('statDates').innerText = new Set(documentsData.map(d => d.tanggal)).size;
-    }
-
-    function updateFilterDateOptions() {
-      const select = document.getElementById('filterDate');
-      const currentVal = select.value;
-      const uniqueDates = [...new Set(documentsData.map(d => d.tanggal))];
-      select.innerHTML = '<option value="">Semua Tanggal</option>';
-      uniqueDates.forEach(date => {
-        if (date) {
-          const opt = document.createElement('option');
-          opt.value = date; opt.innerText = date;
-          if (date === currentVal) opt.selected = true;
-          select.appendChild(opt);
-        }
-      });
-    }
-
-    // LOGBOOK
-    function fetchLogsFromBackend() {
-      if (!GAS_API_URL || GAS_API_URL.trim() === "" || GAS_API_URL.includes("ISI_DENGAN_URL")) return;
-      fetch(`${GAS_API_URL}?action=getLogs`).then(res => res.json()).then(data => { if (Array.isArray(data)) { logsData = data; saveLocalLogs(); updateLogCountBadge(); } });
-    }
-
-    function addLogEntry(actionName, details) {
-      const newLog = { id: 'LOG-' + Date.now(), timestamp: new Date().toLocaleString('id-ID'), role: currentRole, action: actionName, details: details };
-      logsData.unshift(newLog); saveLocalLogs(); updateLogCountBadge();
-      if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-        fetch(GAS_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'addLogbookEntry', logData: newLog }) });
-      }
-    }
-
-    function renderLogbookTable() {
-      const tbody = document.getElementById('logbookTableBody');
-      const roleFilter = document.getElementById('logRoleFilter').value;
-      const searchVal = document.getElementById('logSearch').value.toLowerCase();
-      tbody.innerHTML = '';
-      const filtered = logsData.filter(log => (!roleFilter || log.role === roleFilter) && (!searchVal || log.details.toLowerCase().includes(searchVal) || log.action.toLowerCase().includes(searchVal)));
-      filtered.forEach(log => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-700/20';
-        tr.innerHTML = `<td class="py-2 px-3 text-slate-400 font-mono">${log.timestamp}</td><td class="py-2 px-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${log.role === 'admin' ? 'bg-orange-500/20 text-orange-400' : 'bg-blue-500/20 text-blue-400'}">${log.role.toUpperCase()}</span></td><td class="py-2 px-3 font-semibold text-slate-200">${log.action}</td><td class="py-2 px-3 text-slate-300">${log.details}</td>`;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function clearLogbookData() {
-      if (currentRole !== 'admin') return;
-      Swal.fire({ title: 'Bersihkan Logbook?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Bersihkan!' }).then((r) => {
-        if (r.isConfirmed) {
-          logsData = []; saveLocalLogs(); renderLogbookTable(); updateLogCountBadge();
-          if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-            fetch(GAS_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'clearLogbook', idsToDelete: [] }) });
-          }
-          showToast('Logbook dibersihkan', 'success');
-        }
-      });
-    }
-
-    function toggleLogbookModal() {
-      const modal = document.getElementById('modalLogbook');
-      modal.classList.toggle('hidden');
-      if (!modal.classList.contains('hidden')) renderLogbookTable();
-    }
-    function updateLogCountBadge() { document.getElementById('logCountBadge').innerText = logsData.length; }
-
-    // LOCALSTORAGE & FORMATTER UTILS
-    function saveLocalDocs() { localStorage.setItem(LOCAL_DOCS_KEY, JSON.stringify(documentsData)); }
-    function saveLocalSample() { localStorage.setItem(LOCAL_SAMPLE_KEY, JSON.stringify(sampleData)); }
-    function saveLocalLogs() { localStorage.setItem(LOCAL_LOGS_KEY, JSON.stringify(logsData)); }
-
-    function loadLocalData() {
-      try { documentsData = JSON.parse(localStorage.getItem(LOCAL_DOCS_KEY)) || []; } catch(e) { documentsData = []; }
-      try { sampleData = JSON.parse(localStorage.getItem(LOCAL_SAMPLE_KEY)) || []; } catch(e) { sampleData = []; }
-      try { logsData = JSON.parse(localStorage.getItem(LOCAL_LOGS_KEY)) || []; } catch(e) { logsData = []; }
-    }
-
-    function formatDateString(dateStr) {
-      if (!dateStr) return '';
-      const parts = dateStr.split('-');
-      return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
-    }
-
-    function showToast(message, icon = 'info') {
-      Swal.mixin({ toast: true, position: 'bottom-end', showConfirmButton: false, timer: 3000, timerProgressBar: true }).fire({ icon: icon, title: message });
     }
   </script>
 </body>
