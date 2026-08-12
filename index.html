@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIPENBER - Sistem Penerimaan Berkas & Penyerahan Sample</title>
+  <title>SIPENBER - Sistem Penerimaan Berkas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -15,7 +15,7 @@
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
 
   <script>
-    // MASUKKAN URL BERAKHIRAN /exec HASIL NEW DEPLOYMENT "ANYONE" DI SINI
+    // MASUKKAN URL HASIL DEPLOYMENT BERAKHIRAN /exec
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxf0cuja3sYJA-qdv3mxZV9PeDjZzMd4DbL8oMk82HIqC78G0RydEW_gS1qxsdtLc1p7g/exec";
   </script>
 
@@ -24,13 +24,11 @@
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center font-bold text-xl text-white shadow-lg">S</div>
-        <div>
-          <h1 class="font-bold text-lg text-orange-500 tracking-wide">SIPENBER</h1>
-        </div>
+        <h1 class="font-bold text-lg text-orange-500 tracking-wide">SIPENBER</h1>
       </div>
       
       <div class="flex items-center gap-4">
-        <!-- ROLE SWITCH -->
+        <!-- SWITCH ROLE -->
         <div class="bg-slate-900 p-1 rounded-lg flex gap-1 border border-slate-700">
           <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow">Staff</button>
           <button id="btnRoleAdmin" onclick="switchRole('admin')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition">Admin</button>
@@ -44,7 +42,7 @@
       </div>
     </div>
 
-    <!-- TABS -->
+    <!-- TABS NAVIGATION -->
     <div class="bg-slate-900 border-b border-slate-700 px-4 flex gap-1 overflow-x-auto">
       <button onclick="switchModule('berkas')" id="tabBerkas" class="py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-folder-closed"></i> Penerimaan Berkas</button>
       <button onclick="switchModule('sample')" id="tabSample" class="py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-vial"></i> Penyerahan Sample</button>
@@ -53,8 +51,6 @@
   </header>
 
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
-    
-    <!-- MODULE 1: BERKAS -->
     <div id="moduleBerkasContainer" class="flex flex-col gap-6">
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase">Total Berkas</p><h3 id="statTotal" class="text-xl font-bold">0</h3></div></div>
@@ -63,18 +59,8 @@
         <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase">Total Tanggal</p><h3 id="statDates" class="text-xl font-bold text-purple-400">0</h3></div></div>
       </div>
       <div id="groupedTablesContainer" class="flex flex-col gap-6">
-        <p class="text-slate-500 text-center py-10">Menghubungkan ke database...</p>
+        <p class="text-slate-500 text-center py-10">Menghubungkan ke sheet DataBerkas...</p>
       </div>
-    </div>
-
-    <!-- MODULE 2: SAMPLE -->
-    <div id="moduleSampleContainer" class="hidden flex-col gap-6">
-      <div id="sampleTableContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-6 text-slate-300 text-center">Modul Penyerahan Sample Aktif</div>
-    </div>
-
-    <!-- MODULE 3: PO KEMBALI -->
-    <div id="modulePoKembaliContainer" class="hidden flex-col gap-5">
-      <div id="poKembaliTablesContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-6 text-slate-300 text-center">Modul Catatan PO Kembali Aktif</div>
     </div>
   </main>
 
@@ -82,22 +68,10 @@
     let documentsData = [];
     let currentRole = 'penerima';
 
-    window.onload = () => {
-      loadAllData();
-    };
+    window.onload = () => { loadAllData(); };
 
     function switchModule(mod) {
       document.getElementById('moduleBerkasContainer').classList.toggle('hidden', mod !== 'berkas');
-      document.getElementById('moduleSampleContainer').classList.toggle('hidden', mod !== 'sample');
-      document.getElementById('modulePoKembaliContainer').classList.toggle('hidden', mod !== 'pokembali');
-      
-      const tabB = document.getElementById('tabBerkas');
-      const tabS = document.getElementById('tabSample');
-      const tabP = document.getElementById('tabPoKembali');
-
-      tabB.className = mod === 'berkas' ? "py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap" : "py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap";
-      tabS.className = mod === 'sample' ? "py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap" : "py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap";
-      tabP.className = mod === 'pokembali' ? "py-2.5 px-4 text-xs font-semibold text-emerald-400 border-b-2 border-emerald-500 flex items-center gap-2 whitespace-nowrap" : "py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap";
     }
 
     function switchRole(role) {
@@ -109,22 +83,15 @@
     }
 
     function loadAllData() {
-      // PENANGANAN CORS BYPASS DENGAN REDIRECT FOLLOW
-      fetch(`${GAS_API_URL}?action=getBerkas`, {
-        method: 'GET',
-        redirect: 'follow',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8'
-        }
-      })
+      fetch(`${GAS_API_URL}?action=getBerkas`)
       .then(res => {
-        if (!res.ok) throw new Error("HTTP Status " + res.status);
+        if (!res.ok) throw new Error("HTTP error " + res.status);
         return res.json();
       })
       .then(data => {
         documentsData = Array.isArray(data) ? data : [];
         
-        // INDIKATOR HIJAU (CONNECTED)
+        // INDIKATOR KONEKSI BERHASIL
         document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]";
         document.getElementById('dbText').innerText = "Connected";
         document.getElementById('dbText').className = "text-[10px] font-bold uppercase text-green-500 tracking-wider";
@@ -132,13 +99,12 @@
         renderTable();
       })
       .catch(err => {
-        // INDIKATOR MERAH (ERROR)
         document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-red-500";
         document.getElementById('dbText').innerText = "Error Connection";
         document.getElementById('dbText').className = "text-[10px] font-bold uppercase text-red-500 tracking-wider";
         document.getElementById('groupedTablesContainer').innerHTML = 
-          `<p class="text-center text-red-400 py-10">Gagal terhubung ke database.<br><span class="text-xs text-slate-500">Pastikan Otorisasi Akun sudah diberikan dan Deployment diatur ke "Anyone".</span></p>`;
-        console.error("Fetch Error Detail:", err);
+          `<p class="text-center text-red-400 py-10">Gagal terhubung ke database.<br><span class="text-xs text-slate-500">Pastikan Anda telah melakukan New Deployment berstatus "Anyone".</span></p>`;
+        console.error("Error Fetching Data:", err);
       });
     }
 
@@ -147,7 +113,7 @@
       container.innerHTML = '';
       
       if (!documentsData || documentsData.length === 0) {
-        container.innerHTML = '<p class="text-center text-slate-500 py-10">Terhubung ke database, namun belum ada baris data pada Sheet "Berkas".</p>';
+        container.innerHTML = '<p class="text-center text-slate-500 py-10">Terhubung ke database, namun belum ada baris data pada Sheet "DataBerkas".</p>';
         document.getElementById('statTotal').innerText = 0;
         document.getElementById('statChecked').innerText = 0;
         document.getElementById('statLocked').innerText = 0;
@@ -203,8 +169,6 @@
       if(item) item.isChecked = isChecked;
       fetch(GAS_API_URL, {
         method: 'POST',
-        redirect: 'follow',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: isChecked, notes: item ? item.notes : '' })
       });
     }
