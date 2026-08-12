@@ -2,143 +2,67 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIPENBER - Sistem Penerimaan Berkas & Penyerahan Sample</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23f97316'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='65'>S</text></svg>">
+  <title>SIPENBER</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #1e293b; }
-    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-    .no-print { display: block; }
-    @media print { .no-print { display: none !important; } #printArea { display: block !important; } }
-  </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+  <!-- INDIKATOR KONEKSI -->
+  <div class="fixed top-4 right-4 flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+    <div id="dbIndicator" class="w-2 h-2 rounded-full bg-red-500"></div>
+    <span class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Database</span>
+  </div>
 
   <script>
-    // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
+    // 1. MASUKKAN URL ANDA DI SINI
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxf0cuja3sYJA-qdv3mxZV9PeDjZzMd4DbL8oMk82HIqC78G0RydEW_gS1qxsdtLc1p7g/exec";
-  </script>
 
-  <!-- HEADER -->
-  <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30 no-print">
-    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center font-bold text-xl text-white shadow-lg">S</div>
-        <div>
-          <h1 class="font-bold text-lg text-orange-500 tracking-wide">SIPENBER</h1>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <div class="bg-slate-900 p-1 rounded-lg flex gap-1 border border-slate-700">
-          <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium transition bg-blue-600 text-white shadow">Staff</button>
-          <button id="btnRoleAdmin" onclick="switchRole('admin')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition">Admin</button>
-        </div>
-      </div>
-    </div>
-    <!-- TABS -->
-    <div class="bg-slate-900 border-b border-slate-700 px-4 flex gap-1 overflow-x-auto">
-      <button id="tabBerkas" onclick="switchModule('berkas')" class="py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-folder-closed"></i> Penerimaan Berkas</button>
-      <button id="tabSample" onclick="switchModule('sample')" class="py-2.5 px-4 text-xs font-semibold text-slate-400 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-vial"></i> Penyerahan Sample</button>
-      <button id="tabPoKembali" onclick="switchModule('pokembali')" class="py-2.5 px-4 text-xs font-semibold text-slate-400 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-arrow-rotate-left"></i> Catatan PO Kembali</button>
-    </div>
-  </header>
-
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
-    <!-- MODULE 1: BERKAS -->
-    <div id="moduleBerkasContainer" class="flex flex-col gap-6">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase">Total Berkas</p><h3 id="statTotal" class="text-xl font-bold">0</h3></div></div>
-        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase">Diceklis</p><h3 id="statChecked" class="text-xl font-bold text-emerald-400">0</h3></div></div>
-        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase">Terkunci</p><h3 id="statLocked" class="text-xl font-bold text-amber-400">0</h3></div></div>
-        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase">Total Tanggal</p><h3 id="statDates" class="text-xl font-bold text-purple-400">0</h3></div></div>
-      </div>
-      <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex gap-3">
-        <input type="text" id="searchInput" oninput="renderTable()" placeholder="Cari No PO..." class="flex-1 bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm outline-none">
-        <button id="btnCreateBatch" onclick="openCreateModal()" class="hidden px-4 py-2 bg-orange-600 rounded text-white text-sm font-bold"><i class="fa-solid fa-plus"></i></button>
-      </div>
-      <div id="groupedTablesContainer" class="flex flex-col gap-6"></div>
-    </div>
-
-    <!-- MODULE 2: SAMPLE -->
-    <div id="moduleSampleContainer" class="hidden flex-col gap-6">
-      <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex justify-between">
-        <input type="text" id="searchSampleInput" oninput="renderSampleTable()" placeholder="Cari Sample..." class="flex-1 bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm outline-none">
-        <button id="btnCreateSample" onclick="openCreateSampleModal()" class="hidden px-4 ml-2 bg-orange-600 rounded text-white text-sm font-bold"><i class="fa-solid fa-plus"></i></button>
-      </div>
-      <div id="sampleTableBody" class="bg-slate-800 border border-slate-700 rounded-xl overflow-x-auto"></div>
-    </div>
-
-    <!-- MODULE 3: PO KEMBALI -->
-    <div id="modulePoKembaliContainer" class="hidden flex-col gap-5">
-      <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex gap-3">
-        <select id="filterBulanPo" onchange="fetchPoKembaliFromBackend()" class="bg-slate-900 border border-slate-700 rounded px-2 text-sm outline-none font-bold">
-           <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option><option value="05">Mei</option><option value="06">Jun</option>
-           <option value="07">Jul</option><option value="08">Agu</option><option value="09">Sep</option><option value="10">Okt</option><option value="11">Nov</option><option value="12">Des</option>
-        </select>
-        <select id="filterTahunPo" onchange="fetchPoKembaliFromBackend()" class="bg-slate-900 border border-slate-700 rounded px-2 text-sm outline-none font-bold">
-           <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
-        </select>
-        <input type="text" id="searchPoKembaliInput" oninput="renderPoKembaliTable()" placeholder="Cari..." class="flex-1 bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm outline-none">
-        <button id="btnCreatePoKembali" onclick="openCreatePoKembaliModal()" class="hidden px-4 bg-emerald-600 rounded text-white text-sm font-bold"><i class="fa-solid fa-plus"></i></button>
-      </div>
-      <div id="poKembaliTablesContainer" class="grid grid-cols-1 gap-6"></div>
-    </div>
-  </main>
-
-  <script>
     let documentsData = [];
-    let sampleData = [];
-    let poKembaliData = [];
-    let currentRole = 'penerima';
 
     window.onload = () => {
-      const now = new Date();
-      document.getElementById('filterBulanPo').value = ('0' + (now.getMonth() + 1)).slice(-2);
-      document.getElementById('filterTahunPo').value = now.getFullYear();
-
-      // Inisialisasi data awal
+      checkConnection();
       fetchDocumentsFromBackend();
-      fetchSampleFromBackend();
-      fetchPoKembaliFromBackend();
     };
 
-    function switchModule(mod) {
-      document.getElementById('moduleBerkasContainer').classList.toggle('hidden', mod !== 'berkas');
-      document.getElementById('moduleSampleContainer').classList.toggle('hidden', mod !== 'sample');
-      document.getElementById('modulePoKembaliContainer').classList.toggle('hidden', mod !== 'pokembali');
+    // 2. FUNGSI CEK KONEKSI
+    function checkConnection() {
+      fetch(GAS_API_URL + "?action=ping") // Pastikan Anda menambahkan fungsi ping di Code.gs
+      .then(() => {
+        document.getElementById('dbIndicator').className = "w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]";
+      })
+      .catch(() => {
+        document.getElementById('dbIndicator').className = "w-2 h-2 rounded-full bg-red-500";
+      });
     }
 
-    function switchRole(role) {
-      currentRole = role;
-      document.getElementById('btnCreateBatch').classList.toggle('hidden', role !== 'admin');
-      document.getElementById('btnCreateSample').classList.toggle('hidden', role !== 'admin');
-      document.getElementById('btnCreatePoKembali').classList.toggle('hidden', role !== 'admin');
-      renderTable(); renderSampleTable(); renderPoKembaliTable();
-    }
-
-    // --- INTEGRASI BACKEND ---
+    // 3. FUNGSI FETCH BERKAS YANG DIPERBAIKI
     function fetchDocumentsFromBackend() {
-      fetch(`${GAS_API_URL}?action=getBerkas`).then(r=>r.json()).then(d=>{ documentsData=d; renderTable(); });
+      fetch(`${GAS_API_URL}?action=getBerkas`)
+        .then(r => r.json())
+        .then(d => {
+          documentsData = d;
+          renderTable();
+        })
+        .catch(err => console.error("Database Error:", err));
     }
 
     function renderTable() {
       const container = document.getElementById('groupedTablesContainer');
-      const searchVal = document.getElementById('searchInput').value.toLowerCase();
+      if (!container) return;
       container.innerHTML = '';
       
-      const filtered = documentsData.filter(d => !searchVal || (d.noPo||'').toLowerCase().includes(searchVal));
-      
-      document.getElementById('statTotal').innerText = filtered.length;
-      
+      if (documentsData.length === 0) {
+        container.innerHTML = '<p class="text-center text-slate-500 py-10">Data tidak ditemukan atau server belum terhubung.</p>';
+        return;
+      }
+
+      // Render manual jika ada data
       const groups = {}; 
-      filtered.forEach(d => { if(!groups[d.tanggal]) groups[d.tanggal] = []; groups[d.tanggal].push(d); });
+      documentsData.forEach(d => { 
+        if(!groups[d.tanggal]) groups[d.tanggal] = []; 
+        groups[d.tanggal].push(d); 
+      });
 
       Object.keys(groups).forEach(date => {
         let rows = groups[date].map((d, i) => `
@@ -147,32 +71,17 @@
             <td class="p-3 font-bold text-orange-400">${d.noPo}</td>
             <td class="p-3">${d.vendor}</td>
             <td class="p-3 text-emerald-400">${d.nominal}</td>
-            <td class="p-3"><input type="checkbox" ${d.isChecked ? 'checked' : ''} onchange="toggleDocCheck('${d.id}', this.checked)" class="accent-orange-500"></td>
           </tr>
         `).join('');
-        container.innerHTML += `<div class="bg-slate-800 rounded-xl overflow-hidden"><div class="bg-slate-900 p-3 font-bold text-white">${date}</div><table class="w-full text-left">${rows}</table></div>`;
+        container.innerHTML += `<div class="bg-slate-800 rounded-xl overflow-hidden mb-4"><div class="bg-slate-900 p-3 font-bold text-white">${date}</div><table class="w-full text-left">${rows}</table></div>`;
       });
     }
-
-    function toggleDocCheck(id, isChecked) {
-      const d = documentsData.find(x=>x.id===id); if(d) d.isChecked = isChecked;
-      fetch(GAS_API_URL, {method:'POST', body:JSON.stringify({action:'updatePenerimaStatus', id:id, isCompleted:isChecked, notes:d.notes})});
-    }
-
-    function fetchSampleFromBackend() { fetch(`${GAS_API_URL}?action=getSample`).then(r=>r.json()).then(d=>{ sampleData=d; renderSampleTable(); }); }
-    function renderSampleTable() { /* LOGIKA RENDER SAMPLE */ }
-    
-    function fetchPoKembaliFromBackend() {
-      const m = document.getElementById('filterBulanPo').value;
-      const y = document.getElementById('filterTahunPo').value;
-      fetch(`${GAS_API_URL}?action=getPoKembali&month=${m}&year=${y}`).then(r=>r.json()).then(d=>{ poKembaliData=d; renderPoKembaliTable(); });
-    }
-    function renderPoKembaliTable() { /* LOGIKA RENDER PO KEMBALI */ }
-    
-    // FUNGSI MODAL SIMPEL
-    function openCreateModal() { Swal.fire('Silakan buat data melalui Form'); }
-    function openCreateSampleModal() { Swal.fire('Silakan buat data Sample'); }
-    function openCreatePoKembaliModal() { Swal.fire('Silakan buat data PO Kembali'); }
   </script>
+
+  <!-- HTML STRUKTUR -->
+  <header class="p-6"><h1 class="text-2xl font-bold text-orange-500">SIPENBER</h1></header>
+  <main class="max-w-5xl mx-auto p-4">
+    <div id="groupedTablesContainer"></div>
+  </main>
 </body>
 </html>
