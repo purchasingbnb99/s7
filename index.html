@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SIPENBER - Sistem Penerimaan Berkas & Penyerahan Sample</title>
   
-  <!-- FAVICON & BOOKMARK LOGO S ORANGE MUDA (#fb923c) -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23fb923c'/><text x='50%' y='54%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='62'>S</text></svg>">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23fb923c'/><text x='50%' y='54%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='62'>S</text></svg>">
-  <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23fb923c'/><text x='50%' y='54%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='62'>S</text></svg>">
+  <!-- FAVICON & BOOKMARK LOGO S ORANGE PRESISI (#f97316) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23f97316'/><text x='50%' y='54%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='62'>S</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23f97316'/><text x='50%' y='54%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='62'>S</text></svg>">
+  <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23f97316'/><text x='50%' y='54%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-family='Arial, sans-serif' font-weight='bold' font-size='62'>S</text></svg>">
 
   <!-- TAILWIND CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -49,9 +49,9 @@
   <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-amber-500/90 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-amber-500/20">S</div>
+        <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-orange-500/20">S</div>
         <div>
-          <h1 class="font-bold text-lg text-amber-500 tracking-wide leading-none">SIPENBER</h1>
+          <h1 class="font-bold text-lg text-orange-500 tracking-wide leading-none">SIPENBER</h1>
           <p class="text-[10px] text-slate-400 mt-1">Sistem Penerimaan Berkas & Penyerahan Sample</p>
         </div>
       </div>
@@ -104,7 +104,7 @@
     
     <div id="moduleBerkasContainer" class="flex flex-col gap-6">
       
-      <!-- DASHBOARD CARDS -->
+      <!-- DASHBOARD CARDS WITH BADGE ICONS -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl shadow-lg flex flex-col justify-between">
           <div class="flex justify-between items-center">
@@ -165,6 +165,10 @@
             <option value="UNCHECKED">Belum Diceklis</option>
             <option value="LOCKED">Terkunci</option>
           </select>
+
+          <button id="btnAdminAddBerkas" onclick="openBerkasModal()" class="hidden bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-md transition flex items-center gap-1.5">
+            <i class="fa-solid fa-plus"></i> Tambah Berkas
+          </button>
 
           <button onclick="loadBerkasData()" class="px-3.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition">
             <i class="fa-solid fa-rotate"></i> Refresh Data
@@ -282,6 +286,46 @@
       <div class="flex justify-end gap-2 mt-6">
         <button onclick="closeSampleModal()" class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold transition">Batal</button>
         <button onclick="saveSampleData()" class="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-lg transition">Simpan Sample</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FORM BERKAS (KHUSUS ADMIN) -->
+  <div id="berkasModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-folder-plus text-orange-400"></i> Tambah Berkas PO Baru
+        </h3>
+        <button onclick="closeBerkasModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="text-slate-400 block mb-1 font-medium">Tanggal Berkas</label>
+          <input type="date" id="berkasTanggal" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500">
+        </div>
+        <div>
+          <label class="text-slate-400 block mb-1 font-medium">Nomor PO</label>
+          <input type="text" id="berkasNoPo" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="Contoh: BZOA26B160">
+        </div>
+        <div>
+          <label class="text-slate-400 block mb-1 font-medium">Nama Vendor / PT</label>
+          <input type="text" id="berkasVendor" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="Contoh: KUMA MITRA">
+        </div>
+        <div>
+          <label class="text-slate-400 block mb-1 font-medium">Nominal (Rp)</label>
+          <input type="number" id="berkasNominal" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="Masukkan nominal angka">
+        </div>
+        <div>
+          <label class="text-slate-400 block mb-1 font-medium">Catatan / Keterangan</label>
+          <input type="text" id="berkasCatatan" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="Catatan awal (opsional)">
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-6">
+        <button onclick="closeBerkasModal()" class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold transition">Batal</button>
+        <button onclick="saveBerkasData()" class="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-lg transition">Simpan Berkas</button>
       </div>
     </div>
   </div>
@@ -412,7 +456,7 @@
           switchRole('admin');
           Swal.fire({
             title: 'Berhasil Login!',
-            text: 'Mode Admin Aktif.',
+            text: 'Mode Admin Aktif dengan Hak Akses Penuh.',
             icon: 'success',
             background: '#1e293b',
             color: '#f8fafc',
@@ -438,6 +482,9 @@
       const btnAddSample = document.getElementById('btnAddSample');
       if (btnAddSample) btnAddSample.classList.toggle('hidden', !isAdmin);
 
+      const btnAdminAddBerkas = document.getElementById('btnAdminAddBerkas');
+      if (btnAdminAddBerkas) btnAdminAddBerkas.classList.toggle('hidden', !isAdmin);
+
       const btnClearLogbook = document.getElementById('btnClearLogbook');
       if (btnClearLogbook) btnClearLogbook.classList.toggle('hidden', !isAdmin);
 
@@ -454,13 +501,11 @@
       renderLogbookTable();
     }
 
-    // STRICT DATE PARSER TO DD/MM/YYYY
     function parseDateObj(rawDate) {
       if (!rawDate) return new Date(0);
       if (typeof rawDate === 'string' && rawDate.includes('/')) {
         const parts = rawDate.split('/');
         if (parts.length === 3) {
-          // Check if DD/MM/YYYY or YYYY/MM/DD
           if (parts[0].length === 4) {
             return new Date(parts[0], parts[1] - 1, parts[2]);
           }
@@ -632,29 +677,53 @@
         const totalNominal = docs.reduce((acc, curr) => acc + (Number(curr.nominal) || 0), 0);
         const totalChecked = docs.filter(d => d.isChecked).length;
 
-        let rows = docs.map((d, i) => `
+        let rows = docs.map((d, i) => {
+          const isDisabled = d.isLocked && currentRole !== 'admin';
+          return `
           <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 transition text-xs">
             <td class="py-3 px-4 text-center text-slate-500 font-mono">${i+1}</td>
             <td class="py-3 px-4 font-bold text-orange-400 font-mono">${d.noPo}</td>
             <td class="py-3 px-4 text-slate-200 font-semibold">${d.vendor}</td>
             <td class="py-3 px-4 text-emerald-400 font-mono font-bold">${formatRupiah(d.nominal)}</td>
             <td class="py-3 px-4 text-slate-400">
-              <input type="text" value="${d.notes || ''}" placeholder="${d.isLocked ? 'Terkunci' : 'Tambah catatan...'}" 
-              ${d.isLocked ? 'disabled' : ''} 
+              <input type="text" value="${d.notes || ''}" placeholder="${isDisabled ? 'Terkunci' : 'Tambah catatan...'}" 
+              ${isDisabled ? 'disabled' : ''} 
               onblur="updateDocNote('${d.id}', this.value)"
               class="w-full bg-slate-900/40 border border-slate-700/60 rounded px-2.5 py-1 text-xs text-slate-200 outline-none focus:border-orange-500 disabled:opacity-60">
             </td>
             <td class="py-3 px-4 text-center">
               <input type="checkbox" ${d.isChecked ? 'checked' : ''} 
-              ${d.isLocked ? 'disabled' : ''} 
+              ${isDisabled ? 'disabled' : ''} 
               onchange="toggleCheck('${d.id}', this.checked)" 
               class="accent-orange-500 w-4 h-4 cursor-pointer disabled:cursor-not-allowed">
             </td>
             <td class="py-3 px-4 text-center font-medium">
-              ${d.isLocked ? '<span class="text-amber-400 flex items-center justify-center gap-1"><i class="fa-solid fa-lock"></i> Terkunci</span>' : '<span class="text-slate-500">-</span>'}
+              ${d.isLocked ? `
+                <div class="flex items-center justify-center gap-1.5">
+                  <span class="text-amber-400 flex items-center gap-1"><i class="fa-solid fa-lock"></i> Terkunci</span>
+                  ${currentRole === 'admin' ? `
+                    <button onclick="unlockSingleDoc('${d.id}')" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 py-0.5 rounded transition" title="Buka Kunci Dokumen">
+                      <i class="fa-solid fa-lock-open text-orange-400"></i> Buka
+                    </button>
+                    <button onclick="deleteSingleDoc('${d.id}')" class="text-xs text-red-400 hover:text-red-300 px-1 py-0.5 transition" title="Hapus Berkas">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  ` : ''}
+                </div>
+              ` : `
+                <div class="flex items-center justify-center gap-2">
+                  <span class="text-slate-500">Terbuka</span>
+                  ${currentRole === 'admin' ? `
+                    <button onclick="deleteSingleDoc('${d.id}')" class="text-xs text-red-400 hover:text-red-300 px-1 py-0.5 transition" title="Hapus Berkas">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  ` : ''}
+                </div>
+              `}
             </td>
           </tr>
-        `).join('');
+        `;
+        }).join('');
 
         container.innerHTML += `
           <div class="bg-slate-800/90 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
@@ -719,6 +788,57 @@
       }
     }
 
+    function unlockSingleDoc(id) {
+      if (currentRole !== 'admin') return;
+      const item = documentsData.find(d => d.id === id);
+      if (item) {
+        item.isLocked = false;
+        item.isChecked = false;
+        addLogEntry('Penerimaan Berkas', `Membuka kunci berkas PO ${item.noPo} (${item.vendor})`);
+      }
+      renderTable();
+
+      if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+        fetch(GAS_API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'unlockDocument', id: id })
+        });
+      }
+    }
+
+    function deleteSingleDoc(id) {
+      if (currentRole !== 'admin') return;
+      const item = documentsData.find(d => d.id === id);
+      const poName = item ? item.noPo : id;
+
+      Swal.fire({
+        title: 'Hapus Berkas PO?',
+        text: `Apakah Anda yakin ingin menghapus PO ${poName}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#475569',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        background: '#1e293b',
+        color: '#f8fafc'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          documentsData = documentsData.filter(d => d.id !== id);
+          addLogEntry('Penerimaan Berkas', `Menghapus berkas PO ${poName}`);
+          renderTable();
+
+          if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+            fetch(GAS_API_URL, {
+              method: 'POST',
+              body: JSON.stringify({ action: 'deleteDocument', id: id })
+            });
+          }
+          Swal.fire({ title: 'Terhapus!', text: 'Berkas PO berhasil dihapus.', icon: 'success', background: '#1e293b', color: '#f8fafc', timer: 1500, showConfirmButton: false });
+        }
+      });
+    }
+
     function updateDocNote(id, noteVal) {
       const item = documentsData.find(d => d.id === id);
       if(item && item.notes !== noteVal) {
@@ -734,10 +854,71 @@
       }
     }
 
+    function openBerkasModal() {
+      if (currentRole !== 'admin') return;
+      document.getElementById('berkasTanggal').valueAsDate = new Date();
+      document.getElementById('berkasNoPo').value = '';
+      document.getElementById('berkasVendor').value = '';
+      document.getElementById('berkasNominal').value = '';
+      document.getElementById('berkasCatatan').value = '';
+      document.getElementById('berkasModal').classList.remove('hidden');
+    }
+
+    function closeBerkasModal() {
+      document.getElementById('berkasModal').classList.add('hidden');
+    }
+
+    function saveBerkasData() {
+      if (currentRole !== 'admin') return;
+
+      const inputDateVal = document.getElementById('berkasTanggal').value;
+      const formattedDate = formatDateDisplay(inputDateVal || new Date());
+      const noPo = document.getElementById('berkasNoPo').value || 'PO-BARU';
+      const vendor = document.getElementById('berkasVendor').value || 'VENDOR';
+      const nominal = Number(document.getElementById('berkasNominal').value) || 0;
+      const notes = document.getElementById('berkasCatatan').value || '';
+
+      const payload = {
+        action: 'createBerkasBatch',
+        tanggal: formattedDate,
+        noPo: noPo,
+        vendor: vendor,
+        nominal: nominal,
+        notes: notes
+      };
+
+      addLogEntry('Penerimaan Berkas', `Menambahkan berkas PO baru: ${noPo} (${vendor})`);
+
+      if (isPreviewMode) {
+        documentsData.unshift({
+          id: 'DOC-' + Date.now(),
+          tanggal: formattedDate,
+          noPo: noPo,
+          vendor: vendor,
+          nominal: nominal,
+          notes: notes,
+          isChecked: false,
+          isLocked: false
+        });
+        closeBerkasModal();
+        populateDateFilterOptions();
+        renderTable();
+        return;
+      }
+
+      fetch(GAS_API_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      }).then(() => {
+        closeBerkasModal();
+        loadBerkasData();
+      });
+    }
+
     function ceklisSemuaGroup(dateStr) {
       let count = 0;
       documentsData.forEach(d => {
-        if (formatDateDisplay(d.tanggal) === dateStr && !d.isLocked) {
+        if (formatDateDisplay(d.tanggal) === dateStr && (!d.isLocked || currentRole === 'admin')) {
           d.isChecked = true;
           d.isLocked = true;
           count++;
@@ -865,22 +1046,38 @@
       sampleData.sort((a, b) => parseDateObj(b.tanggal) - parseDateObj(a.tanggal));
 
       let rows = sampleData.map((s, i) => {
-        const photoUrl = s.urlFoto && s.urlFoto.trim() !== '' ? s.urlFoto : 'https://placehold.co/150x150/1e293b/f97316?text=Foto';
+        let photoUrl = 'https://placehold.co/150x150/1e293b/f97316?text=Foto';
+        
+        if (s.urlFoto && s.urlFoto.trim().startsWith('http')) {
+          photoUrl = s.urlFoto.trim();
+        } else if (s.keterangan && s.keterangan.includes('data:image')) {
+          const match = s.keterangan.match(/data:image\/[a-zA-Z]+;base64,[^\s"']+/);
+          if (match) photoUrl = match[0];
+        }
+
         const dateFormatted = formatDateDisplay(s.tanggal);
-        const timeDisplay = s.jam || '08:00:00';
+        let timeDisplay = s.jam || '08:00:00';
+        if (timeDisplay && !timeDisplay.includes('WIB')) {
+          timeDisplay = `${timeDisplay} WIB`;
+        }
+
+        let cleanKeterangan = s.keterangan || '-';
+        if (cleanKeterangan.includes('data:image')) {
+          cleanKeterangan = cleanKeterangan.replace(/data:image\/[a-zA-Z]+;base64,[^\s"']+/g, '[Gambar Lampiran]').trim();
+        }
 
         return `
-        <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 text-xs align-top">
+        <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 text-xs align-top transition">
           <td class="py-3 px-4 text-center text-slate-500 font-mono">${i+1}</td>
           <td class="py-3 px-4 whitespace-nowrap">
             <div class="text-orange-400 font-mono font-bold">${dateFormatted}</div>
             <div class="text-[11px] text-slate-400 font-mono flex items-center gap-1 mt-0.5">
               <i class="fa-regular fa-clock text-orange-500/70 text-[10px]"></i>
-              <span>${timeDisplay} WIB</span>
+              <span>${timeDisplay}</span>
             </div>
           </td>
           <td class="py-3 px-4 text-center">
-            <button onclick="openImageZoom('${photoUrl}', '${s.namaBarang.replace(/'/g, "\\'")}')" class="relative group inline-block focus:outline-none">
+            <button onclick="openImageZoom('${photoUrl}', '${(s.namaBarang || 'Foto').replace(/'/g, "\\'")}')" class="relative group inline-block focus:outline-none">
               <img src="${photoUrl}" onerror="this.src='https://placehold.co/150x150/1e293b/f97316?text=No+Img'" alt="${s.namaBarang}" class="w-10 h-10 object-cover rounded-lg border border-slate-700 group-hover:border-orange-500 shadow transition transform group-hover:scale-105">
               <div class="absolute inset-0 bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-[10px]">
                 <i class="fa-solid fa-magnifying-glass-plus"></i>
@@ -889,10 +1086,10 @@
           </td>
           <td class="py-3 px-4 font-bold text-white max-w-[200px] break-words whitespace-pre-wrap">${s.namaBarang}</td>
           <td class="py-3 px-4 text-slate-300 max-w-[180px] break-words whitespace-pre-wrap">${s.tujuan}</td>
-          <td class="py-3 px-4 text-slate-400 max-w-[300px] break-words whitespace-pre-wrap leading-relaxed">${s.keterangan}</td>
+          <td class="py-3 px-4 text-slate-400 max-w-[320px] break-words whitespace-pre-wrap leading-relaxed max-h-32 overflow-y-auto">${cleanKeterangan}</td>
           ${currentRole === 'admin' ? `
           <td class="py-3 px-4 text-center">
-            <button onclick="deleteSampleData('${s.id}')" class="text-red-400 hover:text-red-300 px-2 py-1 transition"><i class="fa-solid fa-trash"></i></button>
+            <button onclick="deleteSampleData('${s.id}')" class="text-red-400 hover:text-red-300 px-2 py-1 transition" title="Hapus Sample"><i class="fa-solid fa-trash"></i></button>
           </td>` : ''}
         </tr>
       `;
