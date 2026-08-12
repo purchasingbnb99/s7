@@ -400,12 +400,12 @@
     let currentRole = 'penerima';
     let isPreviewMode = false;
 
-    // SEED DEMO SIAP PAKAI WITH COMPLETE UNTRUNCATED TEXT
+    // SEED DEMO SIAP PAKAI WITH STRICT DD/MM/YYYY FORMAT
     const mockBerkasSeed = [
       { id: 'DOC-101', tanggal: '18/02/2026', noPo: 'BZOA26B160', vendor: 'KUMA MITRA', nominal: 9000000, notes: 'System Sudah di Revisi', isChecked: true, isLocked: true },
       { id: 'DOC-102', tanggal: '18/02/2026', noPo: 'BZOA26B164', vendor: 'MAXINDO MITRA', nominal: 3885000, notes: '', isChecked: true, isLocked: true },
-      { id: 'DOC-103', tanggal: '08/11/2026', noPo: 'BZOD26F248-S', vendor: 'FASTEX INDO JAYA', nominal: 227550, notes: 'Pengiriman lengkap', isChecked: true, isLocked: true },
-      { id: 'DOC-104', tanggal: '08/10/2026', noPo: 'BZOA26F351-T', vendor: 'CASH ( MAKMUR ABADI )', nominal: 16720000, notes: '', isChecked: true, isLocked: true },
+      { id: 'DOC-103', tanggal: '11/08/2026', noPo: 'BZOD26F248-S', vendor: 'FASTEX INDO JAYA', nominal: 227550, notes: 'Pengiriman lengkap', isChecked: true, isLocked: true },
+      { id: 'DOC-104', tanggal: '10/08/2026', noPo: 'BZOA26F351-T', vendor: 'CASH ( MAKMUR ABADI )', nominal: 16720000, notes: '', isChecked: true, isLocked: true },
       { id: 'DOC-105', tanggal: '05/08/2026', noPo: 'BZOA25F320', vendor: 'BAMBANG ( @DESY MKT )', nominal: 22630198, notes: '', isChecked: true, isLocked: true }
     ];
 
@@ -562,40 +562,38 @@
     }
 
     function parseDateObj(rawDate) {
-      if (!rawDate) return new Date(0);
-      if (typeof rawDate === 'string' && rawDate.includes('/')) {
-        const parts = rawDate.split('/');
-        if (parts.length === 3) {
-          if (parts[0].length === 4) {
-            return new Date(parts[0], parts[1] - 1, parts[2]);
-          }
-          return new Date(parts[2], parts[1] - 1, parts[0]);
+      if (!rawDate || rawDate === '-') return new Date(0);
+      if (rawDate instanceof Date) return rawDate;
+
+      if (typeof rawDate === 'string') {
+        const trimmed = rawDate.trim();
+
+        // Format YYYY-MM-DD atau YYYY/MM/DD
+        if (/^\d{4}[-/]\d{1,2}[-/]\d{1,2}/.test(trimmed)) {
+          const parts = trimmed.split(/[-/]/);
+          return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        }
+
+        // Format DD/MM/YYYY atau DD-MM-YYYY (Indonesian format: Day/Month/Year)
+        if (/^\d{1,2}[-/]\d{1,2}[-/]\d{4}/.test(trimmed)) {
+          const parts = trimmed.split(/[-/]/);
+          const day = parseInt(parts[0], 10);
+          const month = parseInt(parts[1], 10);
+          const year = parseInt(parts[2], 10);
+          return new Date(year, month - 1, day);
         }
       }
-      if (typeof rawDate === 'string' && rawDate.includes('-')) {
-        const parts = rawDate.split('-');
-        if (parts.length === 3) {
-          if (parts[0].length === 4) {
-            return new Date(parts[0], parts[1] - 1, parts[2]);
-          }
-          return new Date(parts[2], parts[1] - 1, parts[0]);
-        }
-      }
-      return new Date(rawDate);
+
+      const d = new Date(rawDate);
+      return isNaN(d.getTime()) ? new Date(0) : d;
     }
 
     function formatDateDisplay(rawDate) {
       if (!rawDate || rawDate === '-') return '-';
-      
-      if (typeof rawDate === 'string' && rawDate.includes('/')) {
-        const parts = rawDate.split('/');
-        if (parts.length === 3 && parts[0].length <= 2 && parts[2].length === 4) {
-          return `${String(parts[0]).padStart(2, '0')}/${String(parts[1]).padStart(2, '0')}/${parts[2]}`;
-        }
-      }
 
+      // Selalu konversi eksplisit ke Objek Date untuk menjamin output dd/MM/yyyy
       const d = parseDateObj(rawDate);
-      if (isNaN(d.getTime())) return rawDate;
+      if (isNaN(d.getTime()) || d.getTime() === 0) return String(rawDate);
 
       const dd = String(d.getDate()).padStart(2, '0');
       const mm = String(d.getMonth() + 1).padStart(2, '0');
