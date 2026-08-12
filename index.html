@@ -147,7 +147,6 @@
         </div>
       </div>
 
-      <!-- SEARCH AND FILTERS BAR -->
       <div class="bg-slate-800 border border-slate-700/60 p-3.5 rounded-xl flex flex-wrap gap-3 items-center justify-between shadow-lg">
         <div class="relative flex-1 min-w-[240px]">
           <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
@@ -245,7 +244,6 @@
 
   </main>
 
-  <!-- MODAL FORM SAMPLE -->
   <div id="sampleModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
@@ -276,7 +274,7 @@
         </div>
         <div>
           <label class="text-slate-400 block mb-1 font-medium">Keterangan</label>
-          <textarea id="sampleKeterangan" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="Catatan/keterangan tambahan..."></textarea>
+          <textarea id="sampleKeterangan" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="Catatan/keterangan tambahan..."></textarea>
         </div>
         <div class="p-2.5 bg-slate-900/60 border border-slate-700/50 rounded-lg text-[11px] text-slate-400 flex items-center gap-2">
           <i class="fa-solid fa-circle-info text-orange-400 text-sm"></i>
@@ -290,49 +288,94 @@
     </div>
   </div>
 
-  <!-- MODAL FORM BERKAS (KHUSUS ADMIN) -->
   <div id="berkasModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
-    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-3xl w-full p-6 shadow-2xl flex flex-col max-h-[90vh]">
       <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
         <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-folder-plus text-orange-400"></i> Tambah Berkas PO Baru
+          <i class="fa-solid fa-folder-plus text-orange-400"></i> Input Berkas PO Baru (Batch Banyak Item)
         </h3>
         <button onclick="closeBerkasModal()" class="text-slate-400 hover:text-white">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
+
+      <div class="mb-4">
+        <label class="text-slate-400 block mb-1 font-medium text-xs">Pilih Tanggal Group Berkas</label>
+        <input type="date" id="berkasTanggal" class="w-full max-w-xs bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-100 outline-none focus:border-orange-500">
+      </div>
+
+      <!-- TABLE EDITABLE ROW -->
+      <div class="flex-1 overflow-y-auto mb-4 border border-slate-700 rounded-xl bg-slate-900/50 p-2">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-800 text-slate-400 text-[10px] uppercase font-bold border-b border-slate-700">
+            <tr>
+              <th class="p-2 text-center w-8">#</th>
+              <th class="p-2">NOMOR PO</th>
+              <th class="p-2">NAMA VENDOR / PT</th>
+              <th class="p-2 w-32">NOMINAL (RP)</th>
+              <th class="p-2">CATATAN (OPT)</th>
+              <th class="p-2 text-center w-10">AKSI</th>
+            </tr>
+          </thead>
+          <tbody id="batchTableBody" class="divide-y divide-slate-700/50">
+            <!-- Dynamic rows injected via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-700">
+        <button onclick="addBatchRow()" class="bg-slate-700 hover:bg-slate-600 text-orange-400 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+          <i class="fa-solid fa-plus"></i> Tambah Baris
+        </button>
+
+        <div class="flex gap-2">
+          <button onclick="closeBerkasModal()" class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold transition">Batal</button>
+          <button onclick="saveBerkasDataBatch()" class="px-5 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-lg transition flex items-center gap-1.5">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Simpan Semua Berkas
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="editBerkasModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-orange-400"></i> Edit Detail Berkas PO
+        </h3>
+        <button onclick="closeEditBerkasModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <input type="hidden" id="editDocId">
       <div class="space-y-3 text-xs">
         <div>
-          <label class="text-slate-400 block mb-1 font-medium">Tanggal Berkas</label>
-          <input type="date" id="berkasTanggal" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500">
-        </div>
-        <div>
           <label class="text-slate-400 block mb-1 font-medium">Nomor PO</label>
-          <input type="text" id="berkasNoPo" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="Contoh: BZOA26B160">
+          <input type="text" id="editDocNoPo" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500">
         </div>
         <div>
           <label class="text-slate-400 block mb-1 font-medium">Nama Vendor / PT</label>
-          <input type="text" id="berkasVendor" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="Contoh: KUMA MITRA">
+          <input type="text" id="editDocVendor" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500">
         </div>
         <div>
           <label class="text-slate-400 block mb-1 font-medium">Nominal (Rp)</label>
-          <input type="number" id="berkasNominal" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="Masukkan nominal angka">
+          <input type="number" id="editDocNominal" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500">
         </div>
         <div>
-          <label class="text-slate-400 block mb-1 font-medium">Catatan / Keterangan</label>
-          <input type="text" id="berkasCatatan" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500" placeholder="Catatan awal (opsional)">
+          <label class="text-slate-400 block mb-1 font-medium">Catatan Penerimaan</label>
+          <input type="text" id="editDocNotes" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 outline-none focus:border-orange-500">
         </div>
       </div>
       <div class="flex justify-end gap-2 mt-6">
-        <button onclick="closeBerkasModal()" class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold transition">Batal</button>
-        <button onclick="saveBerkasData()" class="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-lg transition">Simpan Berkas</button>
+        <button onclick="closeEditBerkasModal()" class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold transition">Batal</button>
+        <button onclick="saveEditSingleBerkas()" class="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-lg transition">Simpan Perubahan</button>
       </div>
     </div>
   </div>
 
   <div id="printArea" class="hidden"></div>
 
-  <!-- LIGHTBOX IMAGE ZOOM MODAL -->
   <div id="imageZoomModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 cursor-pointer no-print" onclick="closeImageZoom()">
     <div class="relative max-w-3xl w-full bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl p-4 flex flex-col items-center gap-3 cursor-default" onclick="event.stopPropagation()">
       <div class="w-full flex justify-between items-center pb-2 border-b border-slate-800">
@@ -357,7 +400,7 @@
     let currentRole = 'penerima';
     let isPreviewMode = false;
 
-    // SEED DEMO SIAP PAKAI WITH DD/MM/YYYY FORMAT
+    // SEED DEMO SIAP PAKAI WITH COMPLETE UNTRUNCATED TEXT
     const mockBerkasSeed = [
       { id: 'DOC-101', tanggal: '18/02/2026', noPo: 'BZOA26B160', vendor: 'KUMA MITRA', nominal: 9000000, notes: 'System Sudah di Revisi', isChecked: true, isLocked: true },
       { id: 'DOC-102', tanggal: '18/02/2026', noPo: 'BZOA26B164', vendor: 'MAXINDO MITRA', nominal: 3885000, notes: '', isChecked: true, isLocked: true },
@@ -367,9 +410,26 @@
     ];
 
     const mockSampleSeed = [
-      { id: 'SMP-201', tanggal: '18/02/2026', jam: '14:25:10', namaBarang: 'Kain Katun Premium 40s', tujuan: 'QC Lab', keterangan: 'Pengujian ketahanan luntur warna', urlFoto: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=500&auto=format&fit=crop&q=60' },
-      { id: 'SMP-202', tanggal: '12/02/2026', jam: '09:15:30', namaBarang: 'Botol Kemasan Plastik 500ml', tujuan: 'Bagian R&D', keterangan: 'Sampel bahan uji presisi cap', urlFoto: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500&auto=format&fit=crop&q=60' },
-      { id: 'SMP-203', tanggal: '05/02/2026', jam: '11:40:05', namaBarang: 'PO SOC BZOA26F259-T QTY 7.608 YARD', tujuan: 'Teknik / Maintenance', keterangan: 'PARSIAL 23 JUL 2026 QTY 2.030 YARD > PARSIAL 24 JUL 2026 QTY 870 YARD > PARSIAL 29 JUL 2026 QTY 1.160 YARD', urlFoto: 'https://images.unsplash.com/photo-1616401784845-180882ba9ba8?w=500&auto=format&fit=crop&q=60' }
+      { 
+        id: 'SMP-201', 
+        tanggal: '10/08/2026', 
+        timestamp: '10/08/2026, 18.26.39', 
+        jam: '18.26.39', 
+        namaBarang: 'Elasttik', 
+        tujuan: 'Felis', 
+        keterangan: 'PO SOC kan ada jadi ada 3 PO ya:\n\n1. BZOA26F259-T QTY 7.608 YARD\n> PARSIAL 23 JUL 2026 QTY 2.030 YARD\n> PARSIAL 24 JUL 2026 QTY 870 YARD\n> PARSIAL 29 JUL 2026 QTY 1.160 YARD\n> PARSIAL 31 JUL 2026 QTY 870 YARD\n\n2. BZOA26F451-T QTY 7.912 YARD\n3. BZOD26F248-S QTY 50 YARD ( SAMPLE BERBAYAR )\n\nPak Hasil Produksi Berikut nya, tolong di pisahin 50 yard di Roll ya pak , u/ PO BZOD26F248-S ( SAMPLE BERBAYAR )', 
+        urlFoto: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=500&auto=format&fit=crop&q=60' 
+      },
+      { 
+        id: 'SMP-202', 
+        tanggal: '10/08/2026', 
+        timestamp: '10/08/2026, 18.57.52', 
+        jam: '18.57.52', 
+        namaBarang: 'webbing', 
+        tujuan: 'felis', 
+        keterangan: 'untuk SJ Qty 870 Yard, yg mana mau di revisi ?\n\nkan ada 2 tuh SJ dengan Qty 870 Yard :\n1. SJ F2607125 TGL 24 JUL 2026\n2. SJ F2607170 TGL 31 JUL 2026', 
+        urlFoto: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500&auto=format&fit=crop&q=60' 
+      }
     ];
 
     const mockLogbookSeed = [
@@ -705,6 +765,9 @@
                     <button onclick="unlockSingleDoc('${d.id}')" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 py-0.5 rounded transition" title="Buka Kunci Dokumen">
                       <i class="fa-solid fa-lock-open text-orange-400"></i> Buka
                     </button>
+                    <button onclick="openEditSingleDocModal('${d.id}')" class="text-blue-400 hover:text-blue-300 px-1 py-0.5 transition" title="Edit Detail Berkas">
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
                     <button onclick="deleteSingleDoc('${d.id}')" class="text-xs text-red-400 hover:text-red-300 px-1 py-0.5 transition" title="Hapus Berkas">
                       <i class="fa-solid fa-trash"></i>
                     </button>
@@ -714,6 +777,9 @@
                 <div class="flex items-center justify-center gap-2">
                   <span class="text-slate-500">Terbuka</span>
                   ${currentRole === 'admin' ? `
+                    <button onclick="openEditSingleDocModal('${d.id}')" class="text-blue-400 hover:text-blue-300 px-1 py-0.5 transition" title="Edit Detail Berkas">
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
                     <button onclick="deleteSingleDoc('${d.id}')" class="text-xs text-red-400 hover:text-red-300 px-1 py-0.5 transition" title="Hapus Berkas">
                       <i class="fa-solid fa-trash"></i>
                     </button>
@@ -806,6 +872,64 @@
       }
     }
 
+    function openEditSingleDocModal(id) {
+      if (currentRole !== 'admin') return;
+      const item = documentsData.find(d => d.id === id);
+      if (!item) return;
+
+      document.getElementById('editDocId').value = item.id;
+      document.getElementById('editDocNoPo').value = item.noPo || '';
+      document.getElementById('editDocVendor').value = item.vendor || '';
+      document.getElementById('editDocNominal').value = item.nominal || '';
+      document.getElementById('editDocNotes').value = item.notes || '';
+      document.getElementById('editBerkasModal').classList.remove('hidden');
+    }
+
+    function closeEditBerkasModal() {
+      document.getElementById('editBerkasModal').classList.add('hidden');
+    }
+
+    function saveEditSingleBerkas() {
+      if (currentRole !== 'admin') return;
+
+      const id = document.getElementById('editDocId').value;
+      const noPo = document.getElementById('editDocNoPo').value || '-';
+      const vendor = document.getElementById('editDocVendor').value || '-';
+      const nominal = Number(document.getElementById('editDocNominal').value) || 0;
+      const notes = document.getElementById('editDocNotes').value || '';
+
+      const item = documentsData.find(d => d.id === id);
+      if (item) {
+        item.noPo = noPo;
+        item.vendor = vendor;
+        item.nominal = nominal;
+        item.notes = notes;
+      }
+
+      addLogEntry('Penerimaan Berkas', `Mengedit berkas PO ${noPo} (${vendor})`);
+
+      if (isPreviewMode) {
+        closeEditBerkasModal();
+        renderTable();
+        return;
+      }
+
+      fetch(GAS_API_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'updateSingleBerkas',
+          id: id,
+          noPo: noPo,
+          vendor: vendor,
+          nominal: nominal,
+          notes: notes
+        })
+      }).then(() => {
+        closeEditBerkasModal();
+        loadBerkasData();
+      });
+    }
+
     function deleteSingleDoc(id) {
       if (currentRole !== 'admin') return;
       const item = documentsData.find(d => d.id === id);
@@ -857,10 +981,12 @@
     function openBerkasModal() {
       if (currentRole !== 'admin') return;
       document.getElementById('berkasTanggal').valueAsDate = new Date();
-      document.getElementById('berkasNoPo').value = '';
-      document.getElementById('berkasVendor').value = '';
-      document.getElementById('berkasNominal').value = '';
-      document.getElementById('berkasCatatan').value = '';
+      const tbody = document.getElementById('batchTableBody');
+      tbody.innerHTML = '';
+      
+      for(let i=0; i<3; i++) {
+        addBatchRow();
+      }
       document.getElementById('berkasModal').classList.remove('hidden');
     }
 
@@ -868,37 +994,84 @@
       document.getElementById('berkasModal').classList.add('hidden');
     }
 
-    function saveBerkasData() {
+    function addBatchRow() {
+      const tbody = document.getElementById('batchTableBody');
+      const rowCount = tbody.children.length + 1;
+
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-slate-800/60 transition';
+      tr.innerHTML = `
+        <td class="p-2 text-center text-slate-500 font-mono row-number">${rowCount}</td>
+        <td class="p-2"><input type="text" placeholder="Contoh: BZOA26B160" class="batch-nopo w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-slate-100 outline-none focus:border-orange-500 font-mono font-bold"></td>
+        <td class="p-2"><input type="text" placeholder="Contoh: KUMA MITRA" class="batch-vendor w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-slate-100 outline-none focus:border-orange-500"></td>
+        <td class="p-2"><input type="number" placeholder="Nominal Rp" class="batch-nominal w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-slate-100 outline-none focus:border-orange-500 font-mono"></td>
+        <td class="p-2"><input type="text" placeholder="Catatan awal" class="batch-notes w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-slate-100 outline-none focus:border-orange-500"></td>
+        <td class="p-2 text-center">
+          <button onclick="removeBatchRow(this)" class="text-red-400 hover:text-red-300 p-1" title="Hapus Baris"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+      updateBatchRowNumbers();
+    }
+
+    function removeBatchRow(btn) {
+      const tr = btn.closest('tr');
+      tr.remove();
+      updateBatchRowNumbers();
+    }
+
+    function updateBatchRowNumbers() {
+      const rows = document.querySelectorAll('#batchTableBody tr');
+      rows.forEach((r, idx) => {
+        const numTd = r.querySelector('.row-number');
+        if (numTd) numTd.innerText = idx + 1;
+      });
+    }
+
+    function saveBerkasDataBatch() {
       if (currentRole !== 'admin') return;
 
       const inputDateVal = document.getElementById('berkasTanggal').value;
       const formattedDate = formatDateDisplay(inputDateVal || new Date());
-      const noPo = document.getElementById('berkasNoPo').value || 'PO-BARU';
-      const vendor = document.getElementById('berkasVendor').value || 'VENDOR';
-      const nominal = Number(document.getElementById('berkasNominal').value) || 0;
-      const notes = document.getElementById('berkasCatatan').value || '';
+      
+      const rows = document.querySelectorAll('#batchTableBody tr');
+      const items = [];
 
-      const payload = {
-        action: 'createBerkasBatch',
-        tanggal: formattedDate,
-        noPo: noPo,
-        vendor: vendor,
-        nominal: nominal,
-        notes: notes
-      };
+      rows.forEach(r => {
+        const noPo = r.querySelector('.batch-nopo')?.value.trim();
+        const vendor = r.querySelector('.batch-vendor')?.value.trim();
+        const nominal = Number(r.querySelector('.batch-nominal')?.value) || 0;
+        const notes = r.querySelector('.batch-notes')?.value.trim() || '';
 
-      addLogEntry('Penerimaan Berkas', `Menambahkan berkas PO baru: ${noPo} (${vendor})`);
+        if (noPo || vendor) {
+          items.push({
+            noPo: noPo || 'PO-BARU',
+            vendor: vendor || 'VENDOR',
+            nominal: nominal,
+            notes: notes
+          });
+        }
+      });
+
+      if (items.length === 0) {
+        Swal.fire({ title: 'Baris Kosong', text: 'Masukkan minimal 1 berkas PO!', icon: 'warning', background: '#1e293b', color: '#f8fafc' });
+        return;
+      }
+
+      addLogEntry('Penerimaan Berkas', `Menambahkan ${items.length} berkas PO baru secara batch tanggal ${formattedDate}`);
 
       if (isPreviewMode) {
-        documentsData.unshift({
-          id: 'DOC-' + Date.now(),
-          tanggal: formattedDate,
-          noPo: noPo,
-          vendor: vendor,
-          nominal: nominal,
-          notes: notes,
-          isChecked: false,
-          isLocked: false
+        items.forEach(item => {
+          documentsData.unshift({
+            id: 'DOC-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+            tanggal: formattedDate,
+            noPo: item.noPo,
+            vendor: item.vendor,
+            nominal: item.nominal,
+            notes: item.notes,
+            isChecked: false,
+            isLocked: false
+          });
         });
         closeBerkasModal();
         populateDateFilterOptions();
@@ -908,7 +1081,11 @@
 
       fetch(GAS_API_URL, {
         method: 'POST',
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          action: 'createBerkasBatch',
+          tanggal: formattedDate,
+          items: items
+        })
       }).then(() => {
         closeBerkasModal();
         loadBerkasData();
@@ -1050,13 +1227,15 @@
         
         if (s.urlFoto && s.urlFoto.trim().startsWith('http')) {
           photoUrl = s.urlFoto.trim();
+        } else if (s.urlFoto && s.urlFoto.includes('data:image')) {
+          photoUrl = s.urlFoto.trim();
         } else if (s.keterangan && s.keterangan.includes('data:image')) {
           const match = s.keterangan.match(/data:image\/[a-zA-Z]+;base64,[^\s"']+/);
           if (match) photoUrl = match[0];
         }
 
         const dateFormatted = formatDateDisplay(s.tanggal);
-        let timeDisplay = s.jam || '08:00:00';
+        let timeDisplay = s.jam || '08.00.00';
         if (timeDisplay && !timeDisplay.includes('WIB')) {
           timeDisplay = `${timeDisplay} WIB`;
         }
@@ -1084,12 +1263,13 @@
               </div>
             </button>
           </td>
-          <td class="py-3 px-4 font-bold text-white max-w-[200px] break-words whitespace-pre-wrap">${s.namaBarang}</td>
-          <td class="py-3 px-4 text-slate-300 max-w-[180px] break-words whitespace-pre-wrap">${s.tujuan}</td>
-          <td class="py-3 px-4 text-slate-400 max-w-[320px] break-words whitespace-pre-wrap leading-relaxed max-h-32 overflow-y-auto">${cleanKeterangan}</td>
+          <td class="py-3 px-4 font-bold text-white max-w-[180px] break-words whitespace-pre-wrap">${s.namaBarang}</td>
+          <td class="py-3 px-4 text-slate-300 font-medium max-w-[140px] break-words whitespace-pre-wrap">${s.tujuan}</td>
+          <td class="py-3 px-4 text-slate-300 break-words whitespace-pre-wrap leading-relaxed min-w-[280px]">${cleanKeterangan}</td>
           ${currentRole === 'admin' ? `
-          <td class="py-3 px-4 text-center">
-            <button onclick="deleteSampleData('${s.id}')" class="text-red-400 hover:text-red-300 px-2 py-1 transition" title="Hapus Sample"><i class="fa-solid fa-trash"></i></button>
+          <td class="py-3 px-4 text-center whitespace-nowrap">
+            <button onclick="editSampleData('${s.id}')" class="text-blue-400 hover:text-blue-300 px-1.5 py-1 transition" title="Edit Sample"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button onclick="deleteSampleData('${s.id}')" class="text-red-400 hover:text-red-300 px-1.5 py-1 transition" title="Hapus Sample"><i class="fa-solid fa-trash"></i></button>
           </td>` : ''}
         </tr>
       `;
@@ -1125,11 +1305,43 @@
     function openSampleModal() {
       if (currentRole !== 'admin') return;
       document.getElementById('sampleId').value = '';
+      const titleElem = document.getElementById('sampleModalTitle');
+      if (titleElem) titleElem.innerHTML = '<i class="fa-solid fa-vial text-orange-400"></i> Tambah Data Sample';
       document.getElementById('sampleTanggal').valueAsDate = new Date();
       document.getElementById('sampleBarang').value = '';
       document.getElementById('sampleTujuan').value = '';
       document.getElementById('sampleUrlFoto').value = '';
       document.getElementById('sampleKeterangan').value = '';
+      document.getElementById('sampleModal').classList.remove('hidden');
+    }
+
+    function editSampleData(id) {
+      if (currentRole !== 'admin') return;
+      const target = sampleData.find(s => s.id === id);
+      if (!target) return;
+
+      document.getElementById('sampleId').value = target.id;
+      const titleElem = document.getElementById('sampleModalTitle');
+      if (titleElem) titleElem.innerHTML = '<i class="fa-solid fa-pen-to-square text-orange-400"></i> Edit Data Sample';
+
+      if (target.tanggal) {
+        const d = parseDateObj(target.tanggal);
+        if (!isNaN(d.getTime())) {
+          const yyyy = d.getFullYear();
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const dd = String(d.getDate()).padStart(2, '0');
+          document.getElementById('sampleTanggal').value = `${yyyy}-${mm}-${dd}`;
+        } else {
+          document.getElementById('sampleTanggal').valueAsDate = new Date();
+        }
+      } else {
+        document.getElementById('sampleTanggal').valueAsDate = new Date();
+      }
+
+      document.getElementById('sampleBarang').value = target.namaBarang || '';
+      document.getElementById('sampleTujuan').value = target.tujuan || '';
+      document.getElementById('sampleUrlFoto').value = target.urlFoto || '';
+      document.getElementById('sampleKeterangan').value = target.keterangan || '';
       document.getElementById('sampleModal').classList.remove('hidden');
     }
 
@@ -1143,10 +1355,12 @@
       const currentTime = getCurrentTimeOnly();
       const inputDateVal = document.getElementById('sampleTanggal').value;
       const formattedDate = formatDateDisplay(inputDateVal || new Date());
+      const idVal = document.getElementById('sampleId').value;
+      const isEdit = Boolean(idVal);
       
       const payload = {
         action: 'saveSample',
-        id: document.getElementById('sampleId').value,
+        id: idVal,
         tanggal: formattedDate,
         jam: currentTime,
         namaBarang: document.getElementById('sampleBarang').value,
@@ -1155,18 +1369,30 @@
         keterangan: document.getElementById('sampleKeterangan').value
       };
 
-      addLogEntry('Penyerahan Sample', `Menambahkan sample baru: ${payload.namaBarang} (Jam: ${currentTime}, Tujuan: ${payload.tujuan})`);
+      addLogEntry('Penyerahan Sample', `${isEdit ? 'Mengubah' : 'Menambahkan'} sample: ${payload.namaBarang} (Jam: ${currentTime}, Tujuan: ${payload.tujuan})`);
 
       if (isPreviewMode) {
-        sampleData.unshift({
-          id: 'SMP-' + Date.now(),
-          tanggal: payload.tanggal,
-          jam: payload.jam,
-          namaBarang: payload.namaBarang,
-          tujuan: payload.tujuan,
-          urlFoto: payload.urlFoto,
-          keterangan: payload.keterangan
-        });
+        if (isEdit) {
+          const item = sampleData.find(s => s.id === idVal);
+          if (item) {
+            item.tanggal = payload.tanggal;
+            item.jam = payload.jam;
+            item.namaBarang = payload.namaBarang;
+            item.tujuan = payload.tujuan;
+            item.urlFoto = payload.urlFoto;
+            item.keterangan = payload.keterangan;
+          }
+        } else {
+          sampleData.unshift({
+            id: 'SMP-' + Date.now(),
+            tanggal: payload.tanggal,
+            jam: payload.jam,
+            namaBarang: payload.namaBarang,
+            tujuan: payload.tujuan,
+            urlFoto: payload.urlFoto,
+            keterangan: payload.keterangan
+          });
+        }
         closeSampleModal();
         renderSampleTable();
         return;
