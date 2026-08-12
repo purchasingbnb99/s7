@@ -1,63 +1,162 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIPENBER - Sistem Penerimaan Berkas & Penyerahan Sample</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
-  
-  <header class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold text-orange-500">SIPENBER</h1>
-    <div class="flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
-       <div id="dbIndicator" class="w-2 h-2 rounded-full bg-yellow-500"></div>
-       <span class="text-[10px] font-bold uppercase">Database</span>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+  <script>
+    // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxf0cuja3sYJA-qdv3mxZV9PeDjZzMd4DbL8oMk82HIqC78G0RydEW_gS1qxsdtLc1p7g/exec";
+  </script>
+
+  <!-- HEADER -->
+  <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center font-bold text-xl text-white shadow-lg">S</div>
+        <div>
+          <h1 class="font-bold text-lg text-orange-500 tracking-wide">SIPENBER</h1>
+        </div>
+      </div>
+      
+      <!-- INDIKATOR KONEKSI DATABASE -->
+      <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-full border border-slate-700">
+        <div id="dbIndicator" class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse"></div>
+        <span id="dbText" class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Menghubungkan</span>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="bg-slate-900 border-b border-slate-700 px-4 flex gap-1 overflow-x-auto">
+      <button onclick="switchModule('berkas')" id="tabBerkas" class="py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-folder-closed"></i> Penerimaan Berkas</button>
+      <button onclick="switchModule('sample')" id="tabSample" class="py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-vial"></i> Penyerahan Sample</button>
+      <button onclick="switchModule('pokembali')" id="tabPoKembali" class="py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-arrow-rotate-left"></i> Catatan PO Kembali</button>
     </div>
   </header>
 
-  <div id="content" class="space-y-4">
-    <p class="text-slate-500">Memuat data...</p>
-  </div>
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
+    
+    <!-- MODULE 1: BERKAS -->
+    <div id="moduleBerkasContainer" class="flex flex-col gap-6">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase">Total Berkas</p><h3 id="statTotal" class="text-xl font-bold">0</h3></div></div>
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase">Diceklis</p><h3 id="statChecked" class="text-xl font-bold text-emerald-400">0</h3></div></div>
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase">Terkunci</p><h3 id="statLocked" class="text-xl font-bold text-amber-400">0</h3></div></div>
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase">Total Tanggal</p><h3 id="statDates" class="text-xl font-bold text-purple-400">0</h3></div></div>
+      </div>
+      <div id="groupedTablesContainer" class="flex flex-col gap-6">
+        <p class="text-slate-500 text-center py-10">Memuat data dari server...</p>
+      </div>
+    </div>
+
+    <!-- MODULE 2: SAMPLE -->
+    <div id="moduleSampleContainer" class="hidden flex-col gap-6">
+      <div id="sampleTableContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-4 text-slate-400 text-center">Modul Sample</div>
+    </div>
+
+    <!-- MODULE 3: PO KEMBALI -->
+    <div id="modulePoKembaliContainer" class="hidden flex-col gap-5">
+      <div id="poKembaliTablesContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-4 text-slate-400 text-center">Modul PO Kembali</div>
+    </div>
+  </main>
 
   <script>
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxf0cuja3sYJA-qdv3mxZV9PeDjZzMd4DbL8oMk82HIqC78G0RydEW_gS1qxsdtLc1p7g/exec"; 
+    let documentsData = [];
 
-    async function checkConnection() {
+    window.onload = () => {
+      loadAllData();
+    };
+
+    function switchModule(mod) {
+      document.getElementById('moduleBerkasContainer').classList.toggle('hidden', mod !== 'berkas');
+      document.getElementById('moduleSampleContainer').classList.toggle('hidden', mod !== 'sample');
+      document.getElementById('modulePoKembaliContainer').classList.toggle('hidden', mod !== 'pokembali');
+    }
+
+    async function loadAllData() {
       try {
-        const res = await fetch(GAS_API_URL + "?action=ping");
-        if(res.ok) {
-          document.getElementById('dbIndicator').className = "w-2 h-2 rounded-full bg-green-500";
-          loadData();
-        }
-      } catch(e) {
-        document.getElementById('dbIndicator').className = "w-2 h-2 rounded-full bg-red-500";
-        document.getElementById('content').innerHTML = "<p class='text-red-400'>Gagal terhubung. Pastikan URL benar dan akses 'Anyone'.</p>";
+        const response = await fetch(`${GAS_API_URL}?action=getBerkas`);
+        if (!response.ok) throw new Error("Gagal terhubung ke server");
+        
+        documentsData = await response.json();
+        
+        // Ubah Indikator ke Hijau (Connected)
+        document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-green-500";
+        document.getElementById('dbText').innerText = "Connected";
+        document.getElementById('dbText').className = "text-[10px] font-bold uppercase text-green-500 tracking-wider";
+        
+        renderTable();
+      } catch (err) {
+        // Ubah Indikator ke Merah (Error)
+        document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-red-500";
+        document.getElementById('dbText').innerText = "Error Connection";
+        document.getElementById('dbText').className = "text-[10px] font-bold uppercase text-red-500 tracking-wider";
+        document.getElementById('groupedTablesContainer').innerHTML = `<p class="text-center text-red-400 py-10">Gagal memuat database. Periksa kembali URL API Anda.</p>`;
+        console.error(err);
       }
     }
 
-    async function loadData() {
-      const res = await fetch(GAS_API_URL + "?action=getBerkas");
-      const data = await res.json();
-      render(data);
-    }
-
-    function render(data) {
-      const container = document.getElementById('content');
-      if(data.length === 0) { container.innerHTML = "<p class='text-slate-500'>Tidak ada data.</p>"; return; }
+    function renderTable() {
+      const container = document.getElementById('groupedTablesContainer');
+      container.innerHTML = '';
       
-      let html = `<table class="w-full bg-slate-800 rounded-xl overflow-hidden text-sm">
-        <thead class="bg-slate-700 text-xs uppercase"><tr><th class="p-3">PO</th><th class="p-3">Vendor</th><th class="p-3">Nominal</th></tr></thead>
-        <tbody>`;
-      data.forEach(d => {
-        html += `<tr class="border-b border-slate-700">
-          <td class="p-3 font-bold text-orange-400">${d.noPo}</td>
-          <td class="p-3">${d.vendor}</td>
-          <td class="p-3 text-emerald-400">${d.nominal}</td>
-        </tr>`;
-      });
-      html += `</tbody></table>`;
-      container.innerHTML = html;
-    }
+      if (!documentsData || documentsData.length === 0) {
+        container.innerHTML = '<p class="text-center text-slate-500 py-10">Belum ada data pada database Berkas.</p>';
+        document.getElementById('statTotal').innerText = 0;
+        document.getElementById('statChecked').innerText = 0;
+        document.getElementById('statLocked').innerText = 0;
+        document.getElementById('statDates').innerText = 0;
+        return;
+      }
 
-    window.onload = checkConnection;
+      document.getElementById('statTotal').innerText = documentsData.length;
+      document.getElementById('statChecked').innerText = documentsData.filter(d => d.isChecked).length;
+      document.getElementById('statLocked').innerText = documentsData.filter(d => d.isLocked).length;
+      
+      const dates = [...new Set(documentsData.map(d => d.tanggal))].filter(Boolean);
+      document.getElementById('statDates').innerText = dates.length;
+
+      const groups = {}; 
+      documentsData.forEach(d => { 
+        const tgl = d.tanggal || 'Tanpa Tanggal';
+        if (!groups[tgl]) groups[tgl] = []; 
+        groups[tgl].push(d); 
+      });
+
+      Object.keys(groups).forEach(date => {
+        let rows = groups[date].map((d, i) => `
+          <tr class="border-b border-slate-700 text-xs">
+            <td class="p-3 text-center">${i+1}</td>
+            <td class="p-3 font-bold text-orange-400">${d.noPo}</td>
+            <td class="p-3">${d.vendor}</td>
+            <td class="p-3 text-emerald-400">${d.nominal}</td>
+            <td class="p-3 text-center"><input type="checkbox" ${d.isChecked ? 'checked' : ''} disabled class="accent-orange-500"></td>
+          </tr>
+        `).join('');
+        
+        container.innerHTML += `
+          <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow">
+            <div class="bg-slate-900 p-3 font-bold text-white flex justify-between items-center">
+              <span>${date}</span>
+              <span class="text-xs bg-slate-700 px-2.5 py-0.5 rounded-full">${groups[date].length} Berkas</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead class="bg-slate-900/50 text-slate-400 text-[10px] uppercase">
+                  <tr><th class="p-3 text-center w-12">No</th><th class="p-3">No PO</th><th class="p-3">Vendor</th><th class="p-3">Nominal</th><th class="p-3 text-center">Status</th></tr>
+                </thead>
+                <tbody class="divide-y divide-slate-700/50">${rows}</tbody>
+              </table>
+            </div>
+          </div>`;
+      });
+    }
   </script>
 </body>
 </html>
