@@ -11,7 +11,7 @@
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
 
   <script>
-    // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
+    // PASTI KAN MENGGUNAKAN URL DEPLOYMENT "ANYONE" DARI GOOGLE APPS SCRIPT
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxf0cuja3sYJA-qdv3mxZV9PeDjZzMd4DbL8oMk82HIqC78G0RydEW_gS1qxsdtLc1p7g/exec";
   </script>
 
@@ -26,7 +26,7 @@
       </div>
       
       <div class="flex items-center gap-4">
-        <!-- TOMBOL SWITCH ROLE (STAFF / ADMIN) -->
+        <!-- ROLE SWITCH -->
         <div class="bg-slate-900 p-1 rounded-lg flex gap-1 border border-slate-700">
           <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium transition bg-blue-600 text-white shadow">Staff</button>
           <button id="btnRoleAdmin" onclick="switchRole('admin')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition">Admin</button>
@@ -35,12 +35,12 @@
         <!-- INDIKATOR KONEKSI -->
         <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-full border border-slate-700">
           <div id="dbIndicator" class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse"></div>
-          <span id="dbText" class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Menghubungkan</span>
+          <span id="dbText" class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Connecting</span>
         </div>
       </div>
     </div>
 
-    <!-- TABS -->
+    <!-- TABS NAVIGATION -->
     <div class="bg-slate-900 border-b border-slate-700 px-4 flex gap-1 overflow-x-auto">
       <button onclick="switchModule('berkas')" id="tabBerkas" class="py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-folder-closed"></i> Penerimaan Berkas</button>
       <button onclick="switchModule('sample')" id="tabSample" class="py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-vial"></i> Penyerahan Sample</button>
@@ -59,18 +59,18 @@
         <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase">Total Tanggal</p><h3 id="statDates" class="text-xl font-bold text-purple-400">0</h3></div></div>
       </div>
       <div id="groupedTablesContainer" class="flex flex-col gap-6">
-        <p class="text-slate-500 text-center py-10">Memuat data dari server...</p>
+        <p class="text-slate-500 text-center py-10">Memuat data dari database...</p>
       </div>
     </div>
 
     <!-- MODULE 2: SAMPLE -->
     <div id="moduleSampleContainer" class="hidden flex-col gap-6">
-      <div id="sampleTableContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-6 text-slate-300 text-center">Modul Penyerahan Sample Aktif</div>
+      <div id="sampleTableContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-6 text-slate-300 text-center">Modul Penyerahan Sample</div>
     </div>
 
     <!-- MODULE 3: PO KEMBALI -->
     <div id="modulePoKembaliContainer" class="hidden flex-col gap-5">
-      <div id="poKembaliTablesContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-6 text-slate-300 text-center">Modul PO Kembali Aktif</div>
+      <div id="poKembaliTablesContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-6 text-slate-300 text-center">Modul PO Kembali</div>
     </div>
   </main>
 
@@ -96,24 +96,34 @@
       renderTable();
     }
 
-    async function loadAllData() {
-      try {
-        const response = await fetch(`${GAS_API_URL}?action=getBerkas`);
-        if (!response.ok) throw new Error("Gagal terhubung ke server");
+    function loadAllData() {
+      // Menggunakan mode redirect follow untuk memastikan penanganan CORS Google Apps Script
+      fetch(`${GAS_API_URL}?action=getBerkas`, {
+        method: 'GET',
+        redirect: 'follow'
+      })
+      .then(response => {
+        if (!response.ok) throw new Error("HTTP error " + response.status);
+        return response.json();
+      })
+      .then(data => {
+        documentsData = Array.isArray(data) ? data : [];
         
-        documentsData = await response.json();
-        
+        // Update Indikator ke Hijau
         document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-green-500";
         document.getElementById('dbText').innerText = "Connected";
         document.getElementById('dbText').className = "text-[10px] font-bold uppercase text-green-500 tracking-wider";
         
         renderTable();
-      } catch (err) {
+      })
+      .catch(err => {
+        // Update Indikator ke Merah
         document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-red-500";
         document.getElementById('dbText').innerText = "Error Connection";
         document.getElementById('dbText').className = "text-[10px] font-bold uppercase text-red-500 tracking-wider";
-        document.getElementById('groupedTablesContainer').innerHTML = `<p class="text-center text-red-400 py-10">Gagal memuat database.</p>`;
-      }
+        document.getElementById('groupedTablesContainer').innerHTML = `<p class="text-center text-red-400 py-10">Gagal terhubung ke server database.<br><span class="text-xs text-slate-500">Pastikan URL Web App benar dan opsi "Who has access" diatur ke "Anyone".</span></p>`;
+        console.error("Fetch Error:", err);
+      });
     }
 
     function renderTable() {
@@ -121,7 +131,7 @@
       container.innerHTML = '';
       
       if (!documentsData || documentsData.length === 0) {
-        container.innerHTML = '<p class="text-center text-slate-500 py-10">Belum ada data pada database Berkas (Sheet "Berkas" di Google Sheets mungkin masih kosong).</p>';
+        container.innerHTML = '<p class="text-center text-slate-500 py-10">Terhubung ke Server, namun belum ada baris data pada Sheet "Berkas".</p>';
         document.getElementById('statTotal').innerText = 0;
         document.getElementById('statChecked').innerText = 0;
         document.getElementById('statLocked').innerText = 0;
@@ -145,11 +155,11 @@
 
       Object.keys(groups).forEach(date => {
         let rows = groups[date].map((d, i) => `
-          <tr class="border-b border-slate-700 text-xs">
-            <td class="p-3 text-center">${i+1}</td>
-            <td class="p-3 font-bold text-orange-400">${d.noPo}</td>
-            <td class="p-3">${d.vendor}</td>
-            <td class="p-3 text-emerald-400">${d.nominal}</td>
+          <tr class="border-b border-slate-700 text-xs hover:bg-slate-700/30">
+            <td class="p-3 text-center text-slate-500">${i+1}</td>
+            <td class="p-3 font-bold text-orange-400 font-mono">${d.noPo}</td>
+            <td class="p-3 text-slate-200">${d.vendor}</td>
+            <td class="p-3 text-emerald-400 font-mono">${d.nominal}</td>
             <td class="p-3 text-center"><input type="checkbox" ${d.isChecked ? 'checked' : ''} ${currentRole !== 'admin' ? 'disabled' : ''} onchange="toggleCheck('${d.id}', this.checked)" class="accent-orange-500 w-4 h-4"></td>
           </tr>
         `).join('');
@@ -158,7 +168,7 @@
           <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow">
             <div class="bg-slate-900 p-3 font-bold text-white flex justify-between items-center">
               <span>${date}</span>
-              <span class="text-xs bg-slate-700 px-2.5 py-0.5 rounded-full">${groups[date].length} Berkas</span>
+              <span class="text-xs bg-slate-700 px-2.5 py-0.5 rounded-full text-slate-300 font-normal">${groups[date].length} Berkas</span>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left">
@@ -177,7 +187,8 @@
       if(item) item.isChecked = isChecked;
       fetch(GAS_API_URL, {
         method: 'POST',
-        body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: isChecked, notes: item?.notes || '' })
+        redirect: 'follow',
+        body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: isChecked, notes: item ? item.notes : '' })
       });
     }
   </script>
