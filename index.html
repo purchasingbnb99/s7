@@ -25,10 +25,18 @@
         </div>
       </div>
       
-      <!-- INDIKATOR KONEKSI DATABASE -->
-      <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-full border border-slate-700">
-        <div id="dbIndicator" class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse"></div>
-        <span id="dbText" class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Menghubungkan</span>
+      <div class="flex items-center gap-4">
+        <!-- TOMBOL SWITCH ROLE (STAFF / ADMIN) -->
+        <div class="bg-slate-900 p-1 rounded-lg flex gap-1 border border-slate-700">
+          <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium transition bg-blue-600 text-white shadow">Staff</button>
+          <button id="btnRoleAdmin" onclick="switchRole('admin')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition">Admin</button>
+        </div>
+
+        <!-- INDIKATOR KONEKSI -->
+        <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-full border border-slate-700">
+          <div id="dbIndicator" class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse"></div>
+          <span id="dbText" class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Menghubungkan</span>
+        </div>
       </div>
     </div>
 
@@ -57,17 +65,18 @@
 
     <!-- MODULE 2: SAMPLE -->
     <div id="moduleSampleContainer" class="hidden flex-col gap-6">
-      <div id="sampleTableContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-4 text-slate-400 text-center">Modul Sample</div>
+      <div id="sampleTableContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-6 text-slate-300 text-center">Modul Penyerahan Sample Aktif</div>
     </div>
 
     <!-- MODULE 3: PO KEMBALI -->
     <div id="modulePoKembaliContainer" class="hidden flex-col gap-5">
-      <div id="poKembaliTablesContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-4 text-slate-400 text-center">Modul PO Kembali</div>
+      <div id="poKembaliTablesContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-6 text-slate-300 text-center">Modul PO Kembali Aktif</div>
     </div>
   </main>
 
   <script>
     let documentsData = [];
+    let currentRole = 'penerima';
 
     window.onload = () => {
       loadAllData();
@@ -79,6 +88,14 @@
       document.getElementById('modulePoKembaliContainer').classList.toggle('hidden', mod !== 'pokembali');
     }
 
+    function switchRole(role) {
+      currentRole = role;
+      const isAdmin = role === 'admin';
+      document.getElementById('btnRolePenerima').className = !isAdmin ? 'px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow' : 'px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition';
+      document.getElementById('btnRoleAdmin').className = isAdmin ? 'px-3 py-1 rounded text-xs font-medium bg-orange-600 text-white shadow' : 'px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition';
+      renderTable();
+    }
+
     async function loadAllData() {
       try {
         const response = await fetch(`${GAS_API_URL}?action=getBerkas`);
@@ -86,19 +103,16 @@
         
         documentsData = await response.json();
         
-        // Ubah Indikator ke Hijau (Connected)
         document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-green-500";
         document.getElementById('dbText').innerText = "Connected";
         document.getElementById('dbText').className = "text-[10px] font-bold uppercase text-green-500 tracking-wider";
         
         renderTable();
       } catch (err) {
-        // Ubah Indikator ke Merah (Error)
         document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-red-500";
         document.getElementById('dbText').innerText = "Error Connection";
         document.getElementById('dbText').className = "text-[10px] font-bold uppercase text-red-500 tracking-wider";
-        document.getElementById('groupedTablesContainer').innerHTML = `<p class="text-center text-red-400 py-10">Gagal memuat database. Periksa kembali URL API Anda.</p>`;
-        console.error(err);
+        document.getElementById('groupedTablesContainer').innerHTML = `<p class="text-center text-red-400 py-10">Gagal memuat database.</p>`;
       }
     }
 
@@ -107,7 +121,7 @@
       container.innerHTML = '';
       
       if (!documentsData || documentsData.length === 0) {
-        container.innerHTML = '<p class="text-center text-slate-500 py-10">Belum ada data pada database Berkas.</p>';
+        container.innerHTML = '<p class="text-center text-slate-500 py-10">Belum ada data pada database Berkas (Sheet "Berkas" di Google Sheets mungkin masih kosong).</p>';
         document.getElementById('statTotal').innerText = 0;
         document.getElementById('statChecked').innerText = 0;
         document.getElementById('statLocked').innerText = 0;
@@ -136,7 +150,7 @@
             <td class="p-3 font-bold text-orange-400">${d.noPo}</td>
             <td class="p-3">${d.vendor}</td>
             <td class="p-3 text-emerald-400">${d.nominal}</td>
-            <td class="p-3 text-center"><input type="checkbox" ${d.isChecked ? 'checked' : ''} disabled class="accent-orange-500"></td>
+            <td class="p-3 text-center"><input type="checkbox" ${d.isChecked ? 'checked' : ''} ${currentRole !== 'admin' ? 'disabled' : ''} onchange="toggleCheck('${d.id}', this.checked)" class="accent-orange-500 w-4 h-4"></td>
           </tr>
         `).join('');
         
@@ -149,12 +163,21 @@
             <div class="overflow-x-auto">
               <table class="w-full text-left">
                 <thead class="bg-slate-900/50 text-slate-400 text-[10px] uppercase">
-                  <tr><th class="p-3 text-center w-12">No</th><th class="p-3">No PO</th><th class="p-3">Vendor</th><th class="p-3">Nominal</th><th class="p-3 text-center">Status</th></tr>
+                  <tr><th class="p-3 text-center w-12">No</th><th class="p-3">No PO</th><th class="p-3">Vendor</th><th class="p-3">Nominal</th><th class="p-3 text-center">Status Ceklis</th></tr>
                 </thead>
                 <tbody class="divide-y divide-slate-700/50">${rows}</tbody>
               </table>
             </div>
           </div>`;
+      });
+    }
+
+    function toggleCheck(id, isChecked) {
+      const item = documentsData.find(d => d.id === id);
+      if(item) item.isChecked = isChecked;
+      fetch(GAS_API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: isChecked, notes: item?.notes || '' })
       });
     }
   </script>
