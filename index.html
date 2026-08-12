@@ -7,11 +7,15 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+  </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
 
   <script>
-    // PASTI KAN MENGGUNAKAN URL DEPLOYMENT "ANYONE" DARI GOOGLE APPS SCRIPT
+    // MASUKKAN URL BERAKHIRAN /exec HASIL NEW DEPLOYMENT "ANYONE" DI SINI
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxf0cuja3sYJA-qdv3mxZV9PeDjZzMd4DbL8oMk82HIqC78G0RydEW_gS1qxsdtLc1p7g/exec";
   </script>
 
@@ -28,7 +32,7 @@
       <div class="flex items-center gap-4">
         <!-- ROLE SWITCH -->
         <div class="bg-slate-900 p-1 rounded-lg flex gap-1 border border-slate-700">
-          <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium transition bg-blue-600 text-white shadow">Staff</button>
+          <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow">Staff</button>
           <button id="btnRoleAdmin" onclick="switchRole('admin')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition">Admin</button>
         </div>
 
@@ -40,7 +44,7 @@
       </div>
     </div>
 
-    <!-- TABS NAVIGATION -->
+    <!-- TABS -->
     <div class="bg-slate-900 border-b border-slate-700 px-4 flex gap-1 overflow-x-auto">
       <button onclick="switchModule('berkas')" id="tabBerkas" class="py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-folder-closed"></i> Penerimaan Berkas</button>
       <button onclick="switchModule('sample')" id="tabSample" class="py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-vial"></i> Penyerahan Sample</button>
@@ -59,18 +63,18 @@
         <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div><p class="text-[10px] text-slate-400 uppercase">Total Tanggal</p><h3 id="statDates" class="text-xl font-bold text-purple-400">0</h3></div></div>
       </div>
       <div id="groupedTablesContainer" class="flex flex-col gap-6">
-        <p class="text-slate-500 text-center py-10">Memuat data dari database...</p>
+        <p class="text-slate-500 text-center py-10">Menghubungkan ke database...</p>
       </div>
     </div>
 
     <!-- MODULE 2: SAMPLE -->
     <div id="moduleSampleContainer" class="hidden flex-col gap-6">
-      <div id="sampleTableContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-6 text-slate-300 text-center">Modul Penyerahan Sample</div>
+      <div id="sampleTableContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-6 text-slate-300 text-center">Modul Penyerahan Sample Aktif</div>
     </div>
 
     <!-- MODULE 3: PO KEMBALI -->
     <div id="modulePoKembaliContainer" class="hidden flex-col gap-5">
-      <div id="poKembaliTablesContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-6 text-slate-300 text-center">Modul PO Kembali</div>
+      <div id="poKembaliTablesContainer" class="bg-slate-800 border border-slate-700 rounded-xl p-6 text-slate-300 text-center">Modul Catatan PO Kembali Aktif</div>
     </div>
   </main>
 
@@ -86,6 +90,14 @@
       document.getElementById('moduleBerkasContainer').classList.toggle('hidden', mod !== 'berkas');
       document.getElementById('moduleSampleContainer').classList.toggle('hidden', mod !== 'sample');
       document.getElementById('modulePoKembaliContainer').classList.toggle('hidden', mod !== 'pokembali');
+      
+      const tabB = document.getElementById('tabBerkas');
+      const tabS = document.getElementById('tabSample');
+      const tabP = document.getElementById('tabPoKembali');
+
+      tabB.className = mod === 'berkas' ? "py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap" : "py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap";
+      tabS.className = mod === 'sample' ? "py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap" : "py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap";
+      tabP.className = mod === 'pokembali' ? "py-2.5 px-4 text-xs font-semibold text-emerald-400 border-b-2 border-emerald-500 flex items-center gap-2 whitespace-nowrap" : "py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap";
     }
 
     function switchRole(role) {
@@ -97,32 +109,36 @@
     }
 
     function loadAllData() {
-      // Menggunakan mode redirect follow untuk memastikan penanganan CORS Google Apps Script
+      // PENANGANAN CORS BYPASS DENGAN REDIRECT FOLLOW
       fetch(`${GAS_API_URL}?action=getBerkas`, {
         method: 'GET',
-        redirect: 'follow'
+        redirect: 'follow',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        }
       })
-      .then(response => {
-        if (!response.ok) throw new Error("HTTP error " + response.status);
-        return response.json();
+      .then(res => {
+        if (!res.ok) throw new Error("HTTP Status " + res.status);
+        return res.json();
       })
       .then(data => {
         documentsData = Array.isArray(data) ? data : [];
         
-        // Update Indikator ke Hijau
-        document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-green-500";
+        // INDIKATOR HIJAU (CONNECTED)
+        document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]";
         document.getElementById('dbText').innerText = "Connected";
         document.getElementById('dbText').className = "text-[10px] font-bold uppercase text-green-500 tracking-wider";
         
         renderTable();
       })
       .catch(err => {
-        // Update Indikator ke Merah
+        // INDIKATOR MERAH (ERROR)
         document.getElementById('dbIndicator').className = "w-2.5 h-2.5 rounded-full bg-red-500";
         document.getElementById('dbText').innerText = "Error Connection";
         document.getElementById('dbText').className = "text-[10px] font-bold uppercase text-red-500 tracking-wider";
-        document.getElementById('groupedTablesContainer').innerHTML = `<p class="text-center text-red-400 py-10">Gagal terhubung ke server database.<br><span class="text-xs text-slate-500">Pastikan URL Web App benar dan opsi "Who has access" diatur ke "Anyone".</span></p>`;
-        console.error("Fetch Error:", err);
+        document.getElementById('groupedTablesContainer').innerHTML = 
+          `<p class="text-center text-red-400 py-10">Gagal terhubung ke database.<br><span class="text-xs text-slate-500">Pastikan Otorisasi Akun sudah diberikan dan Deployment diatur ke "Anyone".</span></p>`;
+        console.error("Fetch Error Detail:", err);
       });
     }
 
@@ -131,7 +147,7 @@
       container.innerHTML = '';
       
       if (!documentsData || documentsData.length === 0) {
-        container.innerHTML = '<p class="text-center text-slate-500 py-10">Terhubung ke Server, namun belum ada baris data pada Sheet "Berkas".</p>';
+        container.innerHTML = '<p class="text-center text-slate-500 py-10">Terhubung ke database, namun belum ada baris data pada Sheet "Berkas".</p>';
         document.getElementById('statTotal').innerText = 0;
         document.getElementById('statChecked').innerText = 0;
         document.getElementById('statLocked').innerText = 0;
@@ -188,6 +204,7 @@
       fetch(GAS_API_URL, {
         method: 'POST',
         redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: isChecked, notes: item ? item.notes : '' })
       });
     }
