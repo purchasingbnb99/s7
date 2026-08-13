@@ -42,7 +42,7 @@
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased">
 
   <script>
-    // MASUKKAN URL GOOGLE APPS SCRIPT BERAKHIRAN /exec DI SINI
+    // MASUKKAN URL GOOGLE APPS SCRIPT BERAKHIRAN /exec DI BAWAH INI:
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxf0cuja3sYJA-qdv3mxZV9PeDjZzMd4DbL8oMk82HIqC78G0RydEW_gS1qxsdtLc1p7g/exec";
   </script>
 
@@ -458,8 +458,8 @@
         ? "py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap transition" 
         : "py-2.5 px-4 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap transition";
 
-      if (mod === 'sample') loadSampleData();
-      if (mod === 'logbook') loadLogbookData();
+      if (mod === 'sample' && sampleData.length === 0) loadSampleData();
+      if (mod === 'logbook' && logbookData.length === 0) loadLogbookData();
     }
 
     function triggerAdminAuth() {
@@ -486,7 +486,7 @@
             return false;
           }
 
-          if (isPreviewMode || !GAS_API_URL || GAS_API_URL.includes("URL_WEB_APP")) {
+          if (isPreviewMode || !GAS_API_URL || GAS_API_URL.trim() === "") {
             if (inputPass === 'admin123') return true;
             Swal.showValidationMessage('Password Salah! (Default Demo: admin123)');
             return false;
@@ -538,14 +538,9 @@
       document.getElementById('btnRolePenerima').className = !isAdmin ? 'px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow' : 'px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition';
       document.getElementById('btnRoleAdmin').className = isAdmin ? 'px-3 py-1 rounded text-xs font-medium bg-orange-600 text-white shadow' : 'px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition';
       
-      const btnAddSample = document.getElementById('btnAddSample');
-      if (btnAddSample) btnAddSample.classList.toggle('hidden', !isAdmin);
-
-      const btnAdminAddBerkas = document.getElementById('btnAdminAddBerkas');
-      if (btnAdminAddBerkas) btnAdminAddBerkas.classList.toggle('hidden', !isAdmin);
-
-      const btnClearLogbook = document.getElementById('btnClearLogbook');
-      if (btnClearLogbook) btnClearLogbook.classList.toggle('hidden', !isAdmin);
+      document.getElementById('btnAdminAddBerkas')?.classList.toggle('hidden', !isAdmin);
+      document.getElementById('btnAddSample')?.classList.toggle('hidden', !isAdmin);
+      document.getElementById('btnClearLogbook')?.classList.toggle('hidden', !isAdmin);
 
       document.getElementById('logbookSubtitle').innerText = isAdmin 
         ? "Riwayat seluruh aktivitas penyerahan, ceklis, dan perubahan data (Akses Admin: Penuh / Dapat Menghapus Log)" 
@@ -654,7 +649,7 @@
     }
 
     function loadBerkasData() {
-      if (!GAS_API_URL || GAS_API_URL.trim() === "" || GAS_API_URL.includes("URL_WEB_APP")) {
+      if (!GAS_API_URL || GAS_API_URL.trim() === "") {
         isPreviewMode = true;
         documentsData = mockBerkasSeed;
         setConnectionStatus('PREVIEW / DEMO', 'bg-blue-500', 'text-blue-400');
@@ -711,14 +706,13 @@
       }
     }
 
+    // FAST OPTIMIZED RENDER
     function renderTable() {
       const container = document.getElementById('groupedTablesContainer');
-      const searchVal = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase() : '';
-      const dateFilterVal = document.getElementById('dateFilterSelect') ? document.getElementById('dateFilterSelect').value : 'ALL';
-      const statusFilterVal = document.getElementById('statusFilterSelect') ? document.getElementById('statusFilterSelect').value : 'ALL';
+      const searchVal = (document.getElementById('searchInput')?.value || '').toLowerCase();
+      const dateFilterVal = document.getElementById('dateFilterSelect')?.value || 'ALL';
+      const statusFilterVal = document.getElementById('statusFilterSelect')?.value || 'ALL';
 
-      container.innerHTML = '';
-      
       const filtered = documentsData.filter(d => {
         const tglFormatted = formatDateDisplay(d.tanggal);
         const po = (d.noPo || '').toLowerCase();
@@ -736,18 +730,15 @@
         return matchesSearch && matchesDate && matchesStatus;
       });
 
-      if (!filtered || filtered.length === 0) {
-        container.innerHTML = '<p class="text-center text-slate-500 py-12">Tidak Ada Data Berkas Ditemukan.</p>';
-        document.getElementById('statTotal').innerText = 0;
-        document.getElementById('statChecked').innerText = 0;
-        document.getElementById('statLocked').innerText = 0;
-        document.getElementById('statDates').innerText = 0;
-        return;
-      }
-
       document.getElementById('statTotal').innerText = filtered.length;
       document.getElementById('statChecked').innerText = filtered.filter(d => d.isChecked).length;
       document.getElementById('statLocked').innerText = filtered.filter(d => d.isLocked).length;
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<p class="text-center text-slate-500 py-12">Tidak Ada Data Berkas Ditemukan.</p>';
+        document.getElementById('statDates').innerText = 0;
+        return;
+      }
 
       const groups = {}; 
       filtered.forEach(d => { 
@@ -759,32 +750,33 @@
       const sortedDates = Object.keys(groups).sort((a, b) => parseDateObj(b) - parseDateObj(a));
       document.getElementById('statDates').innerText = sortedDates.length;
 
+      let htmlBuffer = '';
       sortedDates.forEach(date => {
         const docs = groups[date];
         const totalNominal = docs.reduce((acc, curr) => acc + (Number(curr.nominal) || 0), 0);
         const totalChecked = docs.filter(d => d.isChecked).length;
 
-        let rows = docs.map((d, i) => {
+        let rowsHtml = docs.map((d, i) => {
           const isDisabled = d.isLocked && currentRole !== 'admin';
           return `
           <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 transition text-xs">
-            <td class="py-3 px-4 text-center text-slate-500 font-mono">${i+1}</td>
-            <td class="py-3 px-4 font-bold text-orange-400 font-mono">${d.noPo}</td>
-            <td class="py-3 px-4 text-slate-200 font-semibold">${d.vendor}</td>
-            <td class="py-3 px-4 text-emerald-400 font-mono font-bold">${formatRupiah(d.nominal)}</td>
-            <td class="py-3 px-4 text-slate-400">
+            <td class="py-2.5 px-4 text-center text-slate-500 font-mono">${i+1}</td>
+            <td class="py-2.5 px-4 font-bold text-orange-400 font-mono">${d.noPo}</td>
+            <td class="py-2.5 px-4 text-slate-200 font-semibold">${d.vendor}</td>
+            <td class="py-2.5 px-4 text-emerald-400 font-mono font-bold">${formatRupiah(d.nominal)}</td>
+            <td class="py-2.5 px-4 text-slate-400">
               <input type="text" value="${d.notes || ''}" placeholder="${isDisabled ? 'Terkunci' : 'Tambah catatan...'}" 
               ${isDisabled ? 'disabled' : ''} 
               onblur="updateDocNote('${d.id}', this.value)"
               class="w-full bg-slate-900/40 border border-slate-700/60 rounded px-2.5 py-1 text-xs text-slate-200 outline-none focus:border-orange-500 disabled:opacity-60">
             </td>
-            <td class="py-3 px-4 text-center">
+            <td class="py-2.5 px-4 text-center">
               <input type="checkbox" ${d.isChecked ? 'checked' : ''} 
               ${isDisabled ? 'disabled' : ''} 
-              onchange="toggleCheck('${d.id}', this.checked)" 
+              onchange="toggleCheckFast('${d.id}', this.checked)" 
               class="accent-orange-500 w-4 h-4 cursor-pointer disabled:cursor-not-allowed">
             </td>
-            <td class="py-3 px-4 text-center font-medium">
+            <td class="py-2.5 px-4 text-center font-medium">
               ${d.isLocked ? `
                 <div class="flex items-center justify-center gap-1.5">
                   <span class="text-amber-400 flex items-center gap-1"><i class="fa-solid fa-lock"></i> Terkunci</span>
@@ -818,7 +810,7 @@
         `;
         }).join('');
 
-        container.innerHTML += `
+        htmlBuffer += `
           <div class="bg-slate-800/90 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
             <div class="bg-slate-900/90 px-5 py-3.5 flex flex-wrap justify-between items-center border-b border-slate-700 gap-4">
               <div class="flex items-center gap-3">
@@ -862,27 +854,32 @@
                     <th class="py-3 px-4 text-center">AKSI / STATUS</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-700/30">${rows}</tbody>
+                <tbody class="divide-y divide-slate-700/30">${rowsHtml}</tbody>
               </table>
             </div>
           </div>`;
       });
+
+      container.innerHTML = htmlBuffer;
     }
 
-    function toggleCheck(id, isChecked) {
+    // INSTANT RESPONSIVE CHECKBOX (NO RE-RENDER LAG)
+    function toggleCheckFast(id, isChecked) {
       const item = documentsData.find(d => d.id === id);
       if(item) {
         item.isChecked = isChecked;
         if(isChecked) item.isLocked = true;
         addLogEntry('Penerimaan Berkas', `${isChecked ? 'Menceklis' : 'Membatalkan ceklis'} PO ${item.noPo} (${item.vendor})`);
       }
-      renderTable();
+      
+      document.getElementById('statChecked').innerText = documentsData.filter(d => d.isChecked).length;
+      document.getElementById('statLocked').innerText = documentsData.filter(d => d.isLocked).length;
 
-      if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+      if (!isPreviewMode && GAS_API_URL && GAS_API_URL.trim() !== "") {
         fetch(GAS_API_URL, {
           method: 'POST',
           body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: isChecked, notes: item ? item.notes : '' })
-        });
+        }).catch(err => console.warn(err));
       }
     }
 
@@ -921,7 +918,7 @@
           addLogEntry('Penerimaan Berkas', `Menghapus massal ${idsToDelete.length} berkas PO diceklis tanggal ${dateStr}`);
           renderTable();
 
-          if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+          if (!isPreviewMode && GAS_API_URL && GAS_API_URL.trim() !== "") {
             fetch(GAS_API_URL, {
               method: 'POST',
               body: JSON.stringify({ action: 'deleteBerkasBatch', ids: idsToDelete })
@@ -953,7 +950,7 @@
       }
       renderTable();
 
-      if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+      if (!isPreviewMode && GAS_API_URL && GAS_API_URL.trim() !== "") {
         fetch(GAS_API_URL, {
           method: 'POST',
           body: JSON.stringify({ action: 'unlockDocument', id: id })
@@ -1041,7 +1038,7 @@
           addLogEntry('Penerimaan Berkas', `Menghapus berkas PO ${poName}`);
           renderTable();
 
-          if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+          if (!isPreviewMode && GAS_API_URL && GAS_API_URL.trim() !== "") {
             fetch(GAS_API_URL, {
               method: 'POST',
               body: JSON.stringify({ action: 'deleteDocument', id: id })
@@ -1059,7 +1056,7 @@
         addLogEntry('Penerimaan Berkas', `Mengubah catatan PO ${item.noPo}: "${noteVal}"`);
       }
 
-      if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+      if (!isPreviewMode && GAS_API_URL && GAS_API_URL.trim() !== "") {
         fetch(GAS_API_URL, {
           method: 'POST',
           body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: item ? item.isChecked : false, notes: noteVal })
@@ -1188,24 +1185,29 @@
     }
 
     function ceklisSemuaGroup(dateStr) {
-      let count = 0;
+      const idsToUpdate = [];
       documentsData.forEach(d => {
         if (formatDateDisplay(d.tanggal) === dateStr && (!d.isLocked || currentRole === 'admin')) {
           d.isChecked = true;
           d.isLocked = true;
-          count++;
-          if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
-            fetch(GAS_API_URL, {
-              method: 'POST',
-              body: JSON.stringify({ action: 'updatePenerimaStatus', id: d.id, isCompleted: true, notes: d.notes || '' })
-            });
-          }
+          idsToUpdate.push(d.id);
         }
       });
-      if (count > 0) {
-        addLogEntry('Penerimaan Berkas', `Menceklis semua berkas (${count} item) tanggal ${dateStr}`);
+
+      if (idsToUpdate.length > 0) {
+        addLogEntry('Penerimaan Berkas', `Menceklis semua berkas (${idsToUpdate.length} item) tanggal ${dateStr}`);
       }
       renderTable();
+
+      if (!isPreviewMode && idsToUpdate.length > 0 && GAS_API_URL && GAS_API_URL.trim() !== "") {
+        idsToUpdate.forEach(id => {
+          const item = documentsData.find(d => d.id === id);
+          fetch(GAS_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: true, notes: item ? item.notes : '' })
+          }).catch(err => console.warn(err));
+        });
+      }
     }
 
     function printReceipt(date) {
@@ -1288,7 +1290,7 @@
     }
 
     function loadSampleData() {
-      if (isPreviewMode || !GAS_API_URL || GAS_API_URL.includes("URL_WEB_APP")) {
+      if (isPreviewMode || !GAS_API_URL || GAS_API_URL.trim() === "") {
         sampleData = mockSampleSeed;
         renderSampleTable();
         return;
@@ -1551,7 +1553,7 @@
       logbookData.unshift(newLog);
       updateLogCounterBadge();
 
-      if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+      if (!isPreviewMode && GAS_API_URL && GAS_API_URL.trim() !== "") {
         fetch(GAS_API_URL, {
           method: 'POST',
           body: JSON.stringify({ action: 'addLogbookEntry', logData: newLog })
@@ -1560,7 +1562,7 @@
     }
 
     function loadLogbookData() {
-      if (isPreviewMode || !GAS_API_URL || GAS_API_URL.includes("URL_WEB_APP")) {
+      if (isPreviewMode || !GAS_API_URL || GAS_API_URL.trim() === "") {
         logbookData = mockLogbookSeed;
         updateLogCounterBadge();
         renderLogbookTable();
@@ -1653,7 +1655,7 @@
       updateLogCounterBadge();
       renderLogbookTable();
 
-      if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+      if (!isPreviewMode && GAS_API_URL && GAS_API_URL.trim() !== "") {
         fetch(GAS_API_URL, {
           method: 'POST',
           body: JSON.stringify({ action: 'clearLogbook', idsToDelete: [id] })
@@ -1681,7 +1683,7 @@
           updateLogCounterBadge();
           renderLogbookTable();
 
-          if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+          if (!isPreviewMode && GAS_API_URL && GAS_API_URL.trim() !== "") {
             fetch(GAS_API_URL, {
               method: 'POST',
               body: JSON.stringify({ action: 'clearLogbook' })
