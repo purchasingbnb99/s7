@@ -42,7 +42,7 @@
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased">
 
   <script>
-    // MASUKKAN URL GOOGLE APPS SCRIPT BERAKHIRAN /exec DI BAWAH INI:
+    // PASTE-KAN LINK APPS SCRIPT WEB APP BERAKHIRAN /exec DI DALAM TANDA PETIK:
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxf0cuja3sYJA-qdv3mxZV9PeDjZzMd4DbL8oMk82HIqC78G0RydEW_gS1qxsdtLc1p7g/exec";
   </script>
 
@@ -398,43 +398,17 @@
     let currentRole = 'penerima';
     let isPreviewMode = false;
 
-    // SEED DEMO SIAP PAKAI WITH STRICT DD/MM/YYYY FORMAT
+    // SEED DEMO HANYA DIPAKAI JIKA GAS_API_URL KOSONG
     const mockBerkasSeed = [
       { id: 'DOC-101', tanggal: '18/02/2026', noPo: 'BZOA26B160', vendor: 'KUMA MITRA', nominal: 9000000, notes: 'System Sudah di Revisi', isChecked: true, isLocked: true },
       { id: 'DOC-102', tanggal: '18/02/2026', noPo: 'BZOA26B164', vendor: 'MAXINDO MITRA', nominal: 3885000, notes: '', isChecked: true, isLocked: true },
       { id: 'DOC-103', tanggal: '13/08/2026', noPo: 'BBOA26H004', vendor: 'CASH', nominal: 104900, notes: '', isChecked: false, isLocked: false },
       { id: 'DOC-104', tanggal: '13/08/2026', noPo: 'BZOC26G003-A', vendor: 'CASH', nominal: 649989, notes: '', isChecked: false, isLocked: false },
-      { id: 'DOC-105', tanggal: '11/08/2026', noPo: 'BZOD26F248-S', vendor: 'FASTEX INDO JAYA', nominal: 227550, notes: 'Pengiriman lengkap', isChecked: true, isLocked: true },
-      { id: 'DOC-106', tanggal: '10/08/2026', noPo: 'BZOA26F351-T', vendor: 'CASH ( MAKMUR ABADI )', nominal: 16720000, notes: '', isChecked: true, isLocked: true }
+      { id: 'DOC-105', tanggal: '11/08/2026', noPo: 'BZOD26F248-S', vendor: 'FASTEX INDO JAYA', nominal: 227550, notes: 'Pengiriman lengkap', isChecked: true, isLocked: true }
     ];
 
-    const mockSampleSeed = [
-      { 
-        id: 'SMP-201', 
-        tanggal: '10/08/2026', 
-        timestamp: '10/08/2026, 18.26.39', 
-        jam: '18.26.39', 
-        namaBarang: 'Elasttik', 
-        tujuan: 'Felis', 
-        keterangan: 'PO SOC kan ada jadi ada 3 PO ya:\n\n1. BZOA26F259-T QTY 7.608 YARD\n> PARSIAL 23 JUL 2026 QTY 2.030 YARD\n> PARSIAL 24 JUL 2026 QTY 870 YARD\n> PARSIAL 29 JUL 2026 QTY 1.160 YARD\n> PARSIAL 31 JUL 2026 QTY 870 YARD\n\n2. BZOA26F451-T QTY 7.912 YARD\n3. BZOD26F248-S QTY 50 YARD ( SAMPLE BERBAYAR )\n\nPak Hasil Produksi Berikut nya, tolong di pisahin 50 yard di Roll ya pak , u/ PO BZOD26F248-S ( SAMPLE BERBAYAR )', 
-        urlFoto: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=500&auto=format&fit=crop&q=60' 
-      },
-      { 
-        id: 'SMP-202', 
-        tanggal: '10/08/2026', 
-        timestamp: '10/08/2026, 18.57.52', 
-        jam: '18.57.52', 
-        namaBarang: 'webbing', 
-        tujuan: 'felis', 
-        keterangan: 'untuk SJ Qty 870 Yard, yg mana mau di revisi ?\n\nkan ada 2 tuh SJ dengan Qty 870 Yard :\n1. SJ F2607125 TGL 24 JUL 2026\n2. SJ F2607170 TGL 31 JUL 2026', 
-        urlFoto: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500&auto=format&fit=crop&q=60' 
-      }
-    ];
-
-    const mockLogbookSeed = [
-      { id: 'LOG-301', timestamp: '13/08/2026 08:30:10', role: 'Staff / Penerima', category: 'Penerimaan Berkas', details: 'Melakukan ceklis berkas PO BZOA26B160 (KUMA MITRA)' },
-      { id: 'LOG-302', timestamp: '12/08/2026 11:30:22', role: 'Admin', category: 'Penyerahan Sample', details: 'Menambahkan data sample baru ke DataSample' }
-    ];
+    const mockSampleSeed = [];
+    const mockLogbookSeed = [];
 
     window.onload = () => { 
       loadBerkasData(); 
@@ -462,12 +436,13 @@
       if (mod === 'logbook' && logbookData.length === 0) loadLogbookData();
     }
 
+    // INSTANT FAST LOGIN ADMIN (TANPA DELAY MEMBEKUKAN UI)
     function triggerAdminAuth() {
       if (currentRole === 'admin') return;
 
       Swal.fire({
         title: 'Verifikasi Akses Admin',
-        text: 'Masukkan Kata Sandi Admin (Cek Sheet Settings):',
+        text: 'Masukkan Kata Sandi Admin:',
         input: 'password',
         inputAttributes: {
           autocapitalize: 'off',
@@ -480,6 +455,7 @@
         cancelButtonColor: '#475569',
         background: '#1e293b',
         color: '#f8fafc',
+        showLoaderOnConfirm: true,
         preConfirm: (inputPass) => {
           if (!inputPass) {
             Swal.showValidationMessage('Kata sandi tidak boleh kosong!');
@@ -488,7 +464,7 @@
 
           if (isPreviewMode || !GAS_API_URL || GAS_API_URL.trim() === "") {
             if (inputPass === 'admin123') return true;
-            Swal.showValidationMessage('Password Salah! (Default Demo: admin123)');
+            Swal.showValidationMessage('Kata sandi admin salah!');
             return false;
           }
 
@@ -506,7 +482,7 @@
             }
           })
           .catch(() => {
-            Swal.showValidationMessage('Gagal menghubungi server verifikasi');
+            Swal.showValidationMessage('Gagal verifikasi kata sandi');
             return false;
           });
         }
@@ -515,11 +491,11 @@
           switchRole('admin');
           Swal.fire({
             title: 'Berhasil Login!',
-            text: 'Mode Admin Aktif dengan Hak Akses Penuh.',
+            text: 'Mode Admin Aktif.',
             icon: 'success',
             background: '#1e293b',
             color: '#f8fafc',
-            timer: 1500,
+            timer: 1200,
             showConfirmButton: false
           });
         }
@@ -555,6 +531,7 @@
       renderLogbookTable();
     }
 
+    // PARSING TANGGAL KUAT UNTUK SEMUA BARIS GOOGLE SHEETS
     function parseDateObj(rawDate) {
       if (!rawDate || rawDate === '-') return new Date(0);
       if (rawDate instanceof Date) return rawDate;
@@ -648,6 +625,7 @@
       }, 600);
     }
 
+    // MEMUAT SELURUH DATA SHEET BERKAS
     function loadBerkasData() {
       if (!GAS_API_URL || GAS_API_URL.trim() === "") {
         isPreviewMode = true;
@@ -663,6 +641,7 @@
       fetch(`${GAS_API_URL}?action=getBerkas`)
       .then(res => res.json())
       .then(data => {
+        isPreviewMode = false;
         documentsData = Array.isArray(data) ? data : [];
         setConnectionStatus('CONNECTED', 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]', 'text-green-500');
         populateDateFilterOptions();
