@@ -57,7 +57,6 @@
       </div>
       
       <div class="flex items-center gap-3">
-        <!-- ROLE STATUS BADGE -->
         <div class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 text-xs flex items-center gap-2">
           <span class="text-slate-400">Akses:</span>
           <span id="roleBadge" class="text-emerald-400 font-bold flex items-center gap-1">
@@ -65,7 +64,6 @@
           </span>
         </div>
 
-        <!-- ROLE SWITCHER BUTTONS -->
         <div class="bg-slate-900 p-1 rounded-lg flex gap-1 border border-slate-700">
           <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow transition">
             <i class="fa-solid fa-user mr-1"></i> Staff / Penerima
@@ -75,7 +73,6 @@
           </button>
         </div>
 
-        <!-- DATABASE CONNECTION STATUS -->
         <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-full border border-slate-700">
           <div id="dbIndicator" class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse"></div>
           <span id="dbText" class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">CONNECTING</span>
@@ -83,7 +80,6 @@
       </div>
     </div>
 
-    <!-- TABS MODULE NAVIGATION -->
     <div class="bg-slate-900 border-b border-slate-700 no-print">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-1 overflow-x-auto">
         <button id="tabBerkas" onclick="switchModule('berkas')" class="py-2.5 px-4 text-xs font-semibold text-orange-400 border-b-2 border-orange-500 flex items-center gap-2 whitespace-nowrap transition">
@@ -104,7 +100,6 @@
     
     <div id="moduleBerkasContainer" class="flex flex-col gap-6">
       
-      <!-- DASHBOARD CARDS WITH BADGE ICONS -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-slate-800 border border-slate-700/60 p-4 rounded-xl shadow-lg flex flex-col justify-between">
           <div class="flex justify-between items-center">
@@ -147,7 +142,6 @@
         </div>
       </div>
 
-      <!-- SEARCH AND FILTERS BAR -->
       <div class="bg-slate-800 border border-slate-700/60 p-3.5 rounded-xl flex flex-wrap gap-3 items-center justify-between shadow-lg">
         <div class="relative flex-1 min-w-[240px]">
           <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
@@ -245,6 +239,7 @@
 
   </main>
 
+  <!-- MODAL FORM SAMPLE -->
   <div id="sampleModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
@@ -289,6 +284,7 @@
     </div>
   </div>
 
+  <!-- MODAL FORM BERKAS (BATCH MULTI-ROW PER TANGGAL) -->
   <div id="berkasModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-3xl w-full p-6 shadow-2xl flex flex-col max-h-[90vh]">
       <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
@@ -305,7 +301,6 @@
         <input type="date" id="berkasTanggal" class="w-full max-w-xs bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-100 outline-none focus:border-orange-500">
       </div>
 
-      <!-- TABLE EDITABLE ROW -->
       <div class="flex-1 overflow-y-auto mb-4 border border-slate-700 rounded-xl bg-slate-900/50 p-2">
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-800 text-slate-400 text-[10px] uppercase font-bold border-b border-slate-700">
@@ -339,6 +334,7 @@
     </div>
   </div>
 
+  <!-- MODAL EDIT BERKAS SINGLE -->
   <div id="editBerkasModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
@@ -406,9 +402,10 @@
     const mockBerkasSeed = [
       { id: 'DOC-101', tanggal: '18/02/2026', noPo: 'BZOA26B160', vendor: 'KUMA MITRA', nominal: 9000000, notes: 'System Sudah di Revisi', isChecked: true, isLocked: true },
       { id: 'DOC-102', tanggal: '18/02/2026', noPo: 'BZOA26B164', vendor: 'MAXINDO MITRA', nominal: 3885000, notes: '', isChecked: true, isLocked: true },
-      { id: 'DOC-103', tanggal: '11/08/2026', noPo: 'BZOD26F248-S', vendor: 'FASTEX INDO JAYA', nominal: 227550, notes: 'Pengiriman lengkap', isChecked: true, isLocked: true },
-      { id: 'DOC-104', tanggal: '10/08/2026', noPo: 'BZOA26F351-T', vendor: 'CASH ( MAKMUR ABADI )', nominal: 16720000, notes: '', isChecked: true, isLocked: true },
-      { id: 'DOC-105', tanggal: '05/08/2026', noPo: 'BZOA25F320', vendor: 'BAMBANG ( @DESY MKT )', nominal: 22630198, notes: '', isChecked: true, isLocked: true }
+      { id: 'DOC-103', tanggal: '13/08/2026', noPo: 'BBOA26H004', vendor: 'CASH', nominal: 104900, notes: '', isChecked: false, isLocked: false },
+      { id: 'DOC-104', tanggal: '13/08/2026', noPo: 'BZOC26G003-A', vendor: 'CASH', nominal: 649989, notes: '', isChecked: false, isLocked: false },
+      { id: 'DOC-105', tanggal: '11/08/2026', noPo: 'BZOD26F248-S', vendor: 'FASTEX INDO JAYA', nominal: 227550, notes: 'Pengiriman lengkap', isChecked: true, isLocked: true },
+      { id: 'DOC-106', tanggal: '10/08/2026', noPo: 'BZOA26F351-T', vendor: 'CASH ( MAKMUR ABADI )', nominal: 16720000, notes: '', isChecked: true, isLocked: true }
     ];
 
     const mockSampleSeed = [
@@ -435,7 +432,7 @@
     ];
 
     const mockLogbookSeed = [
-      { id: 'LOG-301', timestamp: '12/08/2026 12:45:10', role: 'Staff / Penerima', category: 'Penerimaan Berkas', details: 'Melakukan ceklis berkas PO BZOA26B160 (KUMA MITRA)' },
+      { id: 'LOG-301', timestamp: '13/08/2026 08:30:10', role: 'Staff / Penerima', category: 'Penerimaan Berkas', details: 'Melakukan ceklis berkas PO BZOA26B160 (KUMA MITRA)' },
       { id: 'LOG-302', timestamp: '12/08/2026 11:30:22', role: 'Admin', category: 'Penyerahan Sample', details: 'Menambahkan data sample baru ke DataSample' }
     ];
 
@@ -570,13 +567,11 @@
       if (typeof rawDate === 'string') {
         const trimmed = rawDate.trim();
 
-        // Format YYYY-MM-DD atau YYYY/MM/DD
         if (/^\d{4}[-/]\d{1,2}[-/]\d{1,2}/.test(trimmed)) {
           const parts = trimmed.split(/[-/]/);
           return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
         }
 
-        // Format DD/MM/YYYY atau DD-MM-YYYY (Indonesian format: Day/Month/Year)
         if (/^\d{1,2}[-/]\d{1,2}[-/]\d{4}/.test(trimmed)) {
           const parts = trimmed.split(/[-/]/);
           const day = parseInt(parts[0], 10);
@@ -593,7 +588,6 @@
     function formatDateDisplay(rawDate) {
       if (!rawDate || rawDate === '-') return '-';
 
-      // Selalu konversi eksplisit ke Objek Date untuk menjamin output dd/MM/yyyy
       const d = parseDateObj(rawDate);
       if (isNaN(d.getTime()) || d.getTime() === 0) return String(rawDate);
 
@@ -841,6 +835,11 @@
               </div>
 
               <div class="flex items-center gap-2">
+                ${currentRole === 'admin' ? `
+                  <button onclick="deleteCheckedInGroup('${date}')" class="bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5" title="Hapus seluruh berkas yang diceklis pada tanggal ini">
+                    <i class="fa-solid fa-trash-can"></i> Hapus Yang Diceklis
+                  </button>
+                ` : ''}
                 <button onclick="ceklisSemuaGroup('${date}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
                   <i class="fa-solid fa-check-double"></i> Ceklis Semua
                 </button>
@@ -885,6 +884,63 @@
           body: JSON.stringify({ action: 'updatePenerimaStatus', id: id, isCompleted: isChecked, notes: item ? item.notes : '' })
         });
       }
+    }
+
+    function deleteCheckedInGroup(dateStr) {
+      if (currentRole !== 'admin') return;
+
+      const targetDocs = documentsData.filter(d => formatDateDisplay(d.tanggal) === dateStr && d.isChecked);
+
+      if (targetDocs.length === 0) {
+        Swal.fire({
+          title: 'Tidak Ada Berkas Diceklis',
+          text: `Silakan ceklis minimal satu berkas pada tanggal ${dateStr} yang ingin dihapus!`,
+          icon: 'info',
+          background: '#1e293b',
+          color: '#f8fafc'
+        });
+        return;
+      }
+
+      const idsToDelete = targetDocs.map(d => d.id);
+
+      Swal.fire({
+        title: 'Hapus Berkas Diceklis?',
+        text: `Anda akan menghapus ${idsToDelete.length} berkas PO yang diceklis pada tanggal ${dateStr}. Tindakan ini tidak dapat dibatalkan!`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#475569',
+        confirmButtonText: `Ya, Hapus ${idsToDelete.length} Berkas!`,
+        cancelButtonText: 'Batal',
+        background: '#1e293b',
+        color: '#f8fafc'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          documentsData = documentsData.filter(d => !idsToDelete.includes(d.id));
+          addLogEntry('Penerimaan Berkas', `Menghapus massal ${idsToDelete.length} berkas PO diceklis tanggal ${dateStr}`);
+          renderTable();
+
+          if (!isPreviewMode && GAS_API_URL && !GAS_API_URL.includes("URL_WEB_APP")) {
+            fetch(GAS_API_URL, {
+              method: 'POST',
+              body: JSON.stringify({ action: 'deleteBerkasBatch', ids: idsToDelete })
+            }).then(() => {
+              loadBerkasData();
+            });
+          }
+
+          Swal.fire({
+            title: 'Berhasil Dihapus!',
+            text: `${idsToDelete.length} berkas berhasil dihapus.`,
+            icon: 'success',
+            background: '#1e293b',
+            color: '#f8fafc',
+            timer: 1500,
+            showConfirmButton: false
+          });
+        }
+      });
     }
 
     function unlockSingleDoc(id) {
@@ -1076,10 +1132,10 @@
         const nominal = Number(r.querySelector('.batch-nominal')?.value) || 0;
         const notes = r.querySelector('.batch-notes')?.value.trim() || '';
 
-        if (noPo || vendor) {
+        if (noPo && vendor) {
           items.push({
-            noPo: noPo || 'PO-BARU',
-            vendor: vendor || 'VENDOR',
+            noPo: noPo,
+            vendor: vendor,
             nominal: nominal,
             notes: notes
           });
@@ -1087,7 +1143,13 @@
       });
 
       if (items.length === 0) {
-        Swal.fire({ title: 'Baris Kosong', text: 'Masukkan minimal 1 berkas PO!', icon: 'warning', background: '#1e293b', color: '#f8fafc' });
+        Swal.fire({ 
+          title: 'Data Belum Lengkap', 
+          text: 'Isi minimal Nomor PO dan Nama Vendor pada 1 baris!', 
+          icon: 'warning', 
+          background: '#1e293b', 
+          color: '#f8fafc' 
+        });
         return;
       }
 
