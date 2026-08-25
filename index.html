@@ -71,13 +71,13 @@
         <div class="bg-slate-700/50 p-1 rounded-lg border border-slate-600 flex items-center gap-2 text-xs">
           <span class="text-slate-400 pl-2">Akses:</span>
           <span id="activeRoleText" class="font-semibold text-emerald-400 flex items-center gap-1">
-            <i class="fa-solid fa-user-check"></i> <span id="roleLabel">Penerima</span>
+            <i class="fa-solid fa-user-check"></i> <span id="roleLabel">Belum Login</span>
           </span>
         </div>
 
         <!-- ROLE SWITCHER BUTTONS -->
         <div class="bg-slate-900 p-1 rounded-lg flex gap-1 border border-slate-700">
-          <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium transition bg-blue-600 text-white shadow">
+          <button id="btnRolePenerima" onclick="switchRole('penerima')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition">
             <i class="fa-solid fa-user-check mr-1"></i> Penerima
           </button>
           <button id="btnRoleAdmin" onclick="switchRole('admin')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition">
@@ -190,20 +190,26 @@
   <!-- AREA DOKUMEN CETAK TANDA TERIMA -->
   <div id="printArea" class="hidden"></div>
 
-  <!-- MODAL: ADMIN PASSWORD VERIFICATION -->
+  <!-- MODAL: DYNAMIC PASSWORD VERIFICATION (ADMIN & PENERIMA) -->
   <div id="modalPassword" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
     <div class="bg-slate-800 border border-slate-700 rounded-xl max-w-sm w-full p-6 shadow-2xl">
       <div class="text-center mb-5">
-        <div class="w-12 h-12 rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl mx-auto mb-2">
+        <div id="modalIconContainer" class="w-12 h-12 rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl mx-auto mb-2">
           <i class="fa-solid fa-lock"></i>
         </div>
-        <h3 class="text-lg font-bold text-white">Verifikasi Hak Akses Admin</h3>
-        <p class="text-xs text-slate-400 mt-1">Masukkan kata sandi Admin untuk melanjutkan</p>
+        <h3 id="modalPasswordTitle" class="text-lg font-bold text-white">Verifikasi Hak Akses</h3>
+        <p id="modalPasswordDesc" class="text-xs text-slate-400 mt-1">Masukkan kata sandi untuk melanjutkan</p>
       </div>
-      <input type="password" id="inputAdminPassword" placeholder="Masukkan Password Admin" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-orange-500 mb-4">
+      
+      <!-- Password Input dengan Enter Keyboard Listener -->
+      <input type="password" id="inputAdminPassword" 
+        onkeyup="if(event.key === 'Enter') submitPassword()" 
+        placeholder="Masukkan Kata Sandi" 
+        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-orange-500 mb-4">
+      
       <div class="flex gap-2">
         <button onclick="closePasswordModal()" class="flex-1 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-medium">Batal</button>
-        <button onclick="submitAdminPassword()" class="flex-1 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium">Verifikasi</button>
+        <button onclick="submitPassword()" class="flex-1 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium shadow-lg shadow-orange-600/30">Verifikasi</button>
       </div>
     </div>
   </div>
@@ -357,7 +363,7 @@
       <div class="space-y-4 text-xs text-slate-300 overflow-y-auto pr-2">
         <div class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-amber-300">
           <strong class="font-bold">Mengapa Error Ini Terjadi?</strong>
-          <p class="mt-1">Google Apps Script mengembalikan halaman HTML (misal: halaman Login Google atau Otorisasi) alih-alih data JSON. Hal ini umumnya disebabkan karena pengaturan akses Web App belum diset ke <strong>"Anyone" (Siapa saja)</strong>.</p>
+          <p class="mt-1">Google Apps Script mengembalikan halaman HTML (misal: halaman Login Google atau Otorisasi) alih-alih data JSON. Hal ini disebabkan karena pengaturan akses Web App belum diset ke <strong>"Anyone" (Siapa saja)</strong>.</p>
         </div>
 
         <div>
@@ -370,34 +376,6 @@
             <li>Pastikan opsi <strong>Who has access (Siapa yang memiliki akses):</strong> <code class="bg-slate-800 text-emerald-400 px-1 py-0.5 rounded">Anyone (Siapa saja)</code>.</li>
             <li>Klik <strong>Deploy</strong>, lalu salin URL Web App yang baru ke <code class="text-orange-400">GAS_API_URL</code> di file ini.</li>
           </ol>
-        </div>
-
-        <div>
-          <h4 class="font-bold text-slate-100 text-sm mb-2">Kode Backend Google Apps Script (Code.gs):</h4>
-          <p class="mb-1 text-slate-400">Pastikan file `Code.gs` Anda menangani permintaan JSON seperti berikut:</p>
-          <pre class="bg-slate-950 p-3 rounded-lg border border-slate-700 font-mono text-[11px] text-emerald-400 overflow-x-auto select-all">
-function doGet(e) {
-  var action = e.parameter.action;
-  if (action === 'getLogs') {
-    return createJsonResponse(getLogsData());
-  }
-  return createJsonResponse(getBerkasData());
-}
-
-function doPost(e) {
-  try {
-    var contents = JSON.parse(e.postData.contents);
-    // Jalankan action sesuai request (verifyAdminPassword, updatePenerimaStatus, dll)
-    return createJsonResponse({ status: 'success' });
-  } catch(err) {
-    return createJsonResponse({ status: 'error', message: err.toString() });
-  }
-}
-
-function createJsonResponse(data) {
-  return ContentService.createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
-}</pre>
         </div>
       </div>
 
@@ -412,7 +390,10 @@ function createJsonResponse(data) {
   <!-- APPLICATION LOGIC JS -->
   <script>
     let currentRole = 'penerima';
+    let isPenerimaLoggedIn = false;
     let isAdminLoggedIn = false;
+    let targetRoleToVerify = 'penerima';
+
     let documentsData = [];
     let logsData = [];
 
@@ -425,7 +406,6 @@ function createJsonResponse(data) {
         const res = await fetch(url, options);
         const text = await res.text();
         
-        // Check if response is HTML instead of JSON (e.g. GAS error page or Login redirect)
         if (text.trim().startsWith('<') || text.trim().startsWith('<!DOCTYPE')) {
           throw new Error('Respon server berupa HTML/Error. Pastikan Web App GAS di-deploy dengan akses "Anyone" (Siapa Saja).');
         }
@@ -463,20 +443,21 @@ function createJsonResponse(data) {
         fetchDocumentsFromBackend();
         fetchLogsFromBackend();
       }
-      renderTable();
+
+      // Default login check on launch
+      if (!isPenerimaLoggedIn && !isAdminLoggedIn) {
+        openPasswordModal('penerima');
+      } else {
+        renderTable();
+      }
+      
       updateLogCountBadge();
     };
 
     function switchRole(role) {
-      if (role === 'admin') {
-        if (!isAdminLoggedIn) {
-          openPasswordModal();
-          return;
-        }
-      } else {
-        isAdminLoggedIn = false;
-      }
-      setRoleState(role);
+      if (role === currentRole) return;
+      // Selalu minta password setiap kali berpindah akses
+      openPasswordModal(role);
     }
 
     function setRoleState(role) {
@@ -493,7 +474,7 @@ function createJsonResponse(data) {
 
       const btnPenerima = document.getElementById('btnRolePenerima');
       if (btnPenerima) {
-        btnPenerima.className = !isAdmin ? 'px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow' : 'px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition';
+        btnPenerima.className = (!isAdmin) ? 'px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white shadow' : 'px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition';
       }
 
       const btnAdmin = document.getElementById('btnRoleAdmin');
@@ -510,54 +491,65 @@ function createJsonResponse(data) {
       renderTable();
     }
 
-    function openPasswordModal() {
-      document.getElementById('inputAdminPassword').value = '';
+    function openPasswordModal(targetRole = 'penerima') {
+      targetRoleToVerify = targetRole;
+      const inputPass = document.getElementById('inputAdminPassword');
+      const title = document.getElementById('modalPasswordTitle');
+      const desc = document.getElementById('modalPasswordDesc');
+      const iconContainer = document.getElementById('modalIconContainer');
+
+      inputPass.value = '';
+
+      if (targetRole === 'admin') {
+        title.innerText = 'Verifikasi Hak Akses Admin';
+        desc.innerText = 'Masukkan kata sandi Admin';
+        iconContainer.className = 'w-12 h-12 rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl mx-auto mb-2';
+        iconContainer.innerHTML = '<i class="fa-solid fa-shield-halved"></i>';
+      } else {
+        title.innerText = 'Verifikasi Hak Akses Penerima';
+        desc.innerText = 'Masukkan kata sandi Penerima';
+        iconContainer.className = 'w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl mx-auto mb-2';
+        iconContainer.innerHTML = '<i class="fa-solid fa-user-check"></i>';
+      }
+
       document.getElementById('modalPassword').classList.remove('hidden');
+
+      // Auto-focus ke input password secara instan
+      setTimeout(() => { inputPass.focus(); }, 100);
     }
 
     function closePasswordModal() {
       document.getElementById('modalPassword').classList.add('hidden');
     }
 
-    function submitAdminPassword() {
-      const inputPass = document.getElementById('inputAdminPassword').value;
-      if (!inputPass) return;
+    function submitPassword() {
+      const inputPass = document.getElementById('inputAdminPassword').value.trim();
+      if (!inputPass) {
+        showToast('Masukkan kata sandi terlebih dahulu!', 'warning');
+        return;
+      }
 
-      if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-        safeFetchJson(GAS_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'verifyAdminPassword', password: inputPass })
-        })
-        .then(data => {
-          if (data && (data.success || data.status === 'success')) {
-            isAdminLoggedIn = true;
-            closePasswordModal();
-            setRoleState('admin');
-            showToast('Berhasil masuk sebagai Admin', 'success');
-          } else {
-            showToast('Kata sandi Admin salah!', 'error');
-          }
-        })
-        .catch(err => {
-          console.error('Verify admin error:', err.message || err);
-          if (inputPass === 'admin123') {
-            isAdminLoggedIn = true;
-            closePasswordModal();
-            setRoleState('admin');
-            showToast('Berhasil masuk sebagai Admin (Lokal)', 'success');
-          } else {
-            showToast('Kata sandi Admin salah!', 'error');
-          }
-        });
-      } else {
-        if (inputPass === 'admin123') {
+      const targetRole = targetRoleToVerify;
+
+      // Verifikasi Instan Sisi Client (0ms)
+      if (targetRole === 'admin') {
+        if (inputPass === 'bnbzipper') {
           isAdminLoggedIn = true;
           closePasswordModal();
           setRoleState('admin');
           showToast('Berhasil masuk sebagai Admin', 'success');
         } else {
           showToast('Kata sandi Admin salah!', 'error');
+        }
+      } else {
+        // Password Penerima: Novita / novita
+        if (inputPass.toLowerCase() === 'novita') {
+          isPenerimaLoggedIn = true;
+          closePasswordModal();
+          setRoleState('penerima');
+          showToast('Berhasil masuk sebagai Penerima', 'success');
+        } else {
+          showToast('Kata sandi Penerima salah!', 'error');
         }
       }
     }
@@ -590,7 +582,6 @@ function createJsonResponse(data) {
         .catch(err => {
           console.warn('Backend sync warning (getBerkas):', err.message || err);
           updateServerStatus(false);
-          showToast('Menggunakan mode data lokal (Server GAS belum memberikan JSON)', 'warning');
         });
     }
 
@@ -613,11 +604,9 @@ function createJsonResponse(data) {
         })
         .catch(err => {
           console.warn('Backend sync warning (getLogs):', err.message || err);
-          updateServerStatus(false);
         });
     }
 
-    // --- FITUR EDIT DOKUMEN (AKSES ADMIN) ---
     function openEditModal(id) {
       if (currentRole !== 'admin') {
         showToast('Akses ditolak. Hanya Admin yang dapat mengedit!', 'error');
@@ -638,7 +627,6 @@ function createJsonResponse(data) {
       document.getElementById('editIsChecked').checked = !!doc.isChecked;
       document.getElementById('editIsLocked').checked = !!doc.isLocked;
 
-      // Konversi Format Tanggal ke YYYY-MM-DD untuk Input Type Date
       let formattedDateInput = '';
       if (doc.tanggal) {
         const parts = doc.tanggal.split('/');
@@ -684,7 +672,6 @@ function createJsonResponse(data) {
 
       const oldDoc = { ...documentsData[index] };
 
-      // Update Data Berkas di Memory
       documentsData[index] = {
         ...documentsData[index],
         tanggal: formattedTanggal,
@@ -702,13 +689,11 @@ function createJsonResponse(data) {
       renderTable();
       closeEditModal();
 
-      // Catat ke Logbook
       addLogEntry(
         'Edit Berkas',
         `Mengubah PO ${oldDoc.noPo || oldDoc.po} (${oldDoc.namaVendor || oldDoc.vendor}) -> Baru: PO ${noPo} (${namaVendor}) Rp ${nominal.toLocaleString('id-ID')}`
       );
 
-      // Kirim Perubahan ke Google Apps Script / Backend jika terhubung
       if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
         showToast('Memperbarui data di server...', 'info');
         safeFetchJson(GAS_API_URL, {
@@ -724,8 +709,8 @@ function createJsonResponse(data) {
           showToast('Data berkas berhasil diperbarui di server!', 'success');
         })
         .catch(err => {
-          console.error('Update backend error:', err.message || err);
-          showToast('Tersimpan di lokal. Server merespon non-JSON / error.', 'warning');
+          console.warn('Update backend warning:', err.message || err);
+          showToast('Tersimpan di lokal.', 'warning');
         });
       } else {
         showToast('Data berkas berhasil diperbarui!', 'success');
@@ -792,8 +777,8 @@ function createJsonResponse(data) {
           }
         })
         .catch(err => {
-          console.error('Save error:', err.message || err);
-          showToast('Saved locally. Server returned non-JSON error.', 'warning');
+          console.warn('Save warning:', err.message || err);
+          showToast('Tersimpan di penyimpanan lokal.', 'warning');
         });
       } else {
         showToast('Berkas disimpan secara lokal', 'success');
@@ -805,9 +790,18 @@ function createJsonResponse(data) {
       
       if (docsToUpdate.length === 0) return;
 
+      const updatesPayload = [];
+
       docsToUpdate.forEach(doc => {
         doc.isChecked = shouldCheck;
         if (shouldCheck) doc.isLocked = true;
+        updatesPayload.push({
+          id: doc.id,
+          noPo: doc.noPo || doc.po,
+          isCompleted: shouldCheck,
+          isLocked: doc.isLocked,
+          notes: doc.notes || ''
+        });
       });
 
       saveLocalDocs();
@@ -819,18 +813,14 @@ function createJsonResponse(data) {
       );
 
       if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-        docsToUpdate.forEach(doc => {
-          fetch(GAS_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-              action: 'updatePenerimaStatus',
-              id: doc.id,
-              isCompleted: shouldCheck,
-              notes: doc.notes || ''
-            })
-          });
-        });
+        safeFetchJson(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'updatePenerimaStatusBatch',
+            updates: updatesPayload
+          })
+        }).catch(err => console.warn('Batch update warning:', err.message || err));
       }
     }
 
@@ -856,11 +846,11 @@ function createJsonResponse(data) {
           addLogEntry('Hapus Berkas', `Menghapus berkas PO ${doc.noPo || doc.po}`);
 
           if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-            fetch(GAS_API_URL, {
+            safeFetchJson(GAS_API_URL, {
               method: 'POST',
               headers: { 'Content-Type': 'text/plain;charset=utf-8' },
               body: JSON.stringify({ action: 'deleteDocument', id: id })
-            });
+            }).catch(err => console.warn('Delete warning:', err.message || err));
           }
           showToast('Berkas berhasil dihapus', 'success');
         }
@@ -883,6 +873,8 @@ function createJsonResponse(data) {
       }).then((result) => {
         if (result.isConfirmed) {
           const idsToDelete = docsForDate.map(d => d.id);
+          const posToDelete = docsForDate.map(d => d.noPo || d.po);
+
           documentsData = documentsData.filter(d => d.tanggal !== date);
           saveLocalDocs();
           renderTable();
@@ -890,11 +882,11 @@ function createJsonResponse(data) {
           addLogEntry('Hapus Group Tanggal', `Menghapus ${docsForDate.length} berkas pada tanggal ${date}`);
 
           if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-            fetch(GAS_API_URL, {
+            safeFetchJson(GAS_API_URL, {
               method: 'POST',
               headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify({ action: 'deleteGroupDate', ids: idsToDelete })
-            });
+              body: JSON.stringify({ action: 'deleteGroupDate', ids: idsToDelete, pos: posToDelete })
+            }).catch(err => console.warn('Delete group warning:', err.message || err));
           }
           showToast(`Semua data tanggal ${date} berhasil dihapus`, 'success');
         }
@@ -913,7 +905,7 @@ function createJsonResponse(data) {
       addLogEntry('Ceklis Berkas', `Berkas PO ${doc.noPo || doc.po} status ceklis: ${isChecked}`);
 
       if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-        fetch(GAS_API_URL, {
+        safeFetchJson(GAS_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({
@@ -922,7 +914,7 @@ function createJsonResponse(data) {
             isCompleted: isChecked,
             notes: doc.notes || ''
           })
-        });
+        }).catch(err => console.warn('Update checklist warning:', err.message || err));
       }
     }
 
@@ -932,7 +924,7 @@ function createJsonResponse(data) {
         doc.notes = notes;
         saveLocalDocs();
         if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-          fetch(GAS_API_URL, {
+          safeFetchJson(GAS_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({
@@ -941,7 +933,7 @@ function createJsonResponse(data) {
               isCompleted: doc.isChecked,
               notes: notes
             })
-          });
+          }).catch(err => console.warn('Update notes warning:', err.message || err));
         }
       }
     }
@@ -958,11 +950,11 @@ function createJsonResponse(data) {
       addLogEntry('Buka Kunci Dokumen', `Membuka kunci berkas PO ${doc.noPo || doc.po}`);
 
       if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-        fetch(GAS_API_URL, {
+        safeFetchJson(GAS_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ action: 'unlockDocument', id: id })
-        });
+        }).catch(err => console.warn('Unlock warning:', err.message || err));
       }
     }
 
@@ -1329,11 +1321,11 @@ function createJsonResponse(data) {
           updateLogCountBadge();
 
           if (GAS_API_URL && GAS_API_URL.trim() !== "" && !GAS_API_URL.includes("ISI_DENGAN_URL")) {
-            fetch(GAS_API_URL, {
+            safeFetchJson(GAS_API_URL, {
               method: 'POST',
               headers: { 'Content-Type': 'text/plain;charset=utf-8' },
               body: JSON.stringify({ action: 'clearLogbook', idsToDelete: targetIds })
-            });
+            }).catch(err => console.warn('Clear logbook warning:', err.message || err));
           }
           showToast('Logbook dibersihkan', 'success');
         }
